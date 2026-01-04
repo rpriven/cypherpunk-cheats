@@ -1,0 +1,117 @@
+% steganography, stego, hidden, ctf
+
+# steghide - extract hidden data
+steghide extract -sf <image>
+
+# steghide - extract with password
+steghide extract -sf <image> -p <password>
+
+# steghide - embed data
+steghide embed -cf <cover_image> -ef <secret_file>
+
+# steghide - info about file
+steghide info <image>
+
+# stegseek - crack steghide password
+stegseek <image> <wordlist>
+
+# stegseek - without wordlist (rockyou default)
+stegseek <image>
+
+# zsteg - PNG/BMP analysis
+zsteg <image>
+
+# zsteg - all checks
+zsteg -a <image>
+
+# binwalk - scan for embedded files
+binwalk <file>
+
+# binwalk - extract embedded files
+binwalk -e <file>
+
+# binwalk - extract with matryoshka
+binwalk -eM <file>
+
+# foremost - file carving
+foremost -i <file> -o <output_dir>
+
+# exiftool - view all metadata
+exiftool <file>
+
+# exiftool - view specific tag
+exiftool -Comment <file>
+
+# strings - find hidden text
+strings <file>
+strings -n 10 <file>
+
+# xxd - hex dump
+xxd <file> | head -50
+
+# Check file magic bytes
+xxd -l 16 <file>
+file <file>
+
+# pngcheck - PNG structure
+pngcheck -v <image>
+
+# stegoveritas - multiple stego checks
+stegoveritas <image>
+
+# openstego - extract (GUI tool)
+openstego extract -sf <image> -xd <output_dir>
+
+# outguess - extract
+outguess -r <image> <output_file>
+
+# jsteg - JPEG steganography
+jsteg reveal <image>
+
+# Audio steganography - Audacity
+# Open in Audacity, check spectrogram view
+
+# Audio steganography - sonic-visualiser
+sonic-visualiser <audio_file>
+
+# LSB extraction with Python
+# from PIL import Image
+# img = Image.open('image.png')
+# Extract least significant bits
+
+# Check for appended data
+# Compare file size to expected size
+# Look for data after EOF marker
+
+# SNOW - whitespace steganography
+snow -C <text_file>
+
+# stegsnow - extract from whitespace
+stegsnow -C <text_file>
+
+# PDF steganography - check streams
+pdf-parser <pdf_file>
+pdftotext <pdf_file>
+
+# QR code extraction
+zbarimg <image>
+
+# Common CTF stego workflow:
+# 1. file / xxd - identify type
+# 2. exiftool - check metadata
+# 3. strings - hidden text
+# 4. binwalk - embedded files
+# 5. steghide/stegseek - hidden data
+# 6. zsteg - LSB for PNG
+
+$ image: find . -name "*.jpg" -o -name "*.png" -o -name "*.bmp" 2>/dev/null | head -10
+$ file: find . -type f 2>/dev/null | head -10
+$ cover_image: find . -name "*.jpg" 2>/dev/null | head -5
+$ secret_file: echo "secret.txt"
+$ password: echo ""
+$ wordlist: echo "/usr/share/wordlists/rockyou.txt"
+$ output_dir: echo "extracted"
+$ output_file: echo "output.txt"
+$ text_file: find . -name "*.txt" 2>/dev/null | head -5
+$ audio_file: find . -name "*.wav" -o -name "*.mp3" 2>/dev/null | head -5
+$ pdf_file: find . -name "*.pdf" 2>/dev/null | head -5

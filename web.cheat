@@ -1,0 +1,59 @@
+% web, webapp, burp, fuzzing
+
+# Directory fuzzing with ffuf
+ffuf -u http://<target>/FUZZ -w <wordlist>
+
+# Directory fuzzing with extensions
+ffuf -u http://<target>/FUZZ -w <wordlist> -e .php,.html,.txt,.bak
+
+# Subdomain fuzzing
+ffuf -u http://FUZZ.<domain> -w <wordlist> -H "Host: FUZZ.<domain>"
+
+# POST parameter fuzzing
+ffuf -u http://<target>/login -X POST -d "username=admin&password=FUZZ" -w <wordlist>
+
+# Filter by status code
+ffuf -u http://<target>/FUZZ -w <wordlist> -fc 404
+
+# Filter by response size
+ffuf -u http://<target>/FUZZ -w <wordlist> -fs 0
+
+# Gobuster directory scan
+gobuster dir -u http://<target> -w <wordlist>
+
+# Gobuster with extensions
+gobuster dir -u http://<target> -w <wordlist> -x php,html,txt
+
+# Nikto scan
+nikto -h http://<target>
+
+# WhatWeb (technology detection)
+whatweb http://<target>
+
+# SQLMap basic
+sqlmap -u "http://<target>/page.php?id=1" --batch
+
+# SQLMap dump database
+sqlmap -u "http://<target>/page.php?id=1" --dbs --batch
+
+# SQLMap dump tables
+sqlmap -u "http://<target>/page.php?id=1" -D <database> --tables --batch
+
+# XSS test payload
+<script>alert('XSS')</script>
+
+# Curl with POST data
+curl -X POST http://<target>/login -d "username=admin&password=test" -v
+
+# Curl with cookies
+curl http://<target> -b "session=<cookie>"
+
+# Curl with headers
+curl http://<target> -H "Authorization: Bearer <token>"
+
+$ target: echo ""
+$ domain: echo ""
+$ wordlist: echo "/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt"
+$ database: echo ""
+$ cookie: echo ""
+$ token: echo ""

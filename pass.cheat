@@ -1,0 +1,134 @@
+% pass, password-manager, gpg, keepass
+
+# Initialize password store
+pass init <gpg_key_id>
+
+# Initialize with git
+pass git init
+
+# List all passwords
+pass
+
+# List passwords in folder
+pass <folder>
+
+# Show password
+pass <entry>
+
+# Show password (clipboard, 45 sec)
+pass -c <entry>
+
+# Generate new password
+pass generate <entry> <length>
+
+# Generate without symbols
+pass generate -n <entry> <length>
+
+# Generate and copy to clipboard
+pass generate -c <entry> <length>
+
+# Insert password manually
+pass insert <entry>
+
+# Insert multiline
+pass insert -m <entry>
+
+# Edit password
+pass edit <entry>
+
+# Remove password
+pass rm <entry>
+
+# Move/rename password
+pass mv <old_entry> <new_entry>
+
+# Copy password entry
+pass cp <entry> <new_entry>
+
+# Find password
+pass find <search_term>
+
+# Search in passwords
+pass grep <search_term>
+
+# Git push changes
+pass git push
+
+# Git pull changes
+pass git pull
+
+# Git status
+pass git status
+
+# Import from KeePass
+pass import keepass <kdbx_file>
+
+# Export to KeePass (manual or script)
+# pass show <entry> and import to KeePass
+
+# KeePassXC CLI - open database
+keepassxc-cli open <database>
+
+# KeePassXC CLI - list entries
+keepassxc-cli ls <database>
+
+# KeePassXC CLI - show entry
+keepassxc-cli show <database> <entry>
+
+# KeePassXC CLI - show password only
+keepassxc-cli show -s <database> <entry>
+
+# KeePassXC CLI - add entry
+keepassxc-cli add <database> <entry>
+
+# KeePassXC CLI - generate password
+keepassxc-cli generate -L <length>
+
+# KeePassXC CLI - clip password
+keepassxc-cli clip <database> <entry>
+
+# Bitwarden CLI - login
+bw login
+
+# Bitwarden CLI - unlock
+bw unlock
+
+# Bitwarden CLI - list items
+bw list items
+
+# Bitwarden CLI - get password
+bw get password <item_id>
+
+# Bitwarden CLI - create item
+bw create item <json_data>
+
+# Bitwarden CLI - sync
+bw sync
+
+# gopass (pass compatible with teams)
+gopass
+
+# gopass - init with multiple keys
+gopass init <key1> <key2>
+
+# gopass - recipient add
+gopass recipients add <gpg_key_id>
+
+# Rofi integration (pass menu)
+rofi-pass
+
+# Dmenu integration
+passmenu
+
+# Browser integration
+# browserpass extension + browserpass-native
+
+$ gpg_key_id: gpg --list-keys --keyid-format SHORT 2>/dev/null | grep -E "^pub" | awk '{print $2}' | cut -d'/' -f2
+$ entry: pass 2>/dev/null | grep -v "Password Store" | sed 's/[├│└──]//g' | tr -d ' ' | grep -v '^$'
+$ folder: pass 2>/dev/null | grep -v "Password Store" | grep "/" | head -5 | sed 's/[├│└──]//g' | tr -d ' '
+$ length: echo "20\n32\n64"
+$ old_entry: pass 2>/dev/null | grep -v "Password Store" | sed 's/[├│└──]//g' | tr -d ' ' | grep -v '^$'
+$ new_entry: echo ""
+$ search_term: echo ""
+$ kdbx_file: find ~ -name "*.kdbx" 2>/dev/null | head -5
+$ database: find ~ -name "*.kdbx" 2>/dev/null | head -5

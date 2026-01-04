@@ -1,0 +1,58 @@
+% john, cracking, passwords
+
+# Auto-detect and crack
+john <hashfile>
+
+# Crack with wordlist
+john --wordlist=<wordlist> <hashfile>
+
+# Crack NTLM
+john --format=nt --wordlist=<wordlist> <hashfile>
+
+# Crack MD5
+john --format=raw-md5 --wordlist=<wordlist> <hashfile>
+
+# Crack SHA-512 Linux
+john --format=sha512crypt --wordlist=<wordlist> <hashfile>
+
+# Crack bcrypt
+john --format=bcrypt --wordlist=<wordlist> <hashfile>
+
+# Show cracked passwords
+john --show <hashfile>
+
+# With rules
+john --wordlist=<wordlist> --rules <hashfile>
+
+# SSH key crack
+ssh2john <ssh_key> > ssh_hash.txt && john --wordlist=<wordlist> ssh_hash.txt
+
+# ZIP file crack
+zip2john <zip_file> > zip_hash.txt && john --wordlist=<wordlist> zip_hash.txt
+
+# RAR file crack
+rar2john <rar_file> > rar_hash.txt && john --wordlist=<wordlist> rar_hash.txt
+
+# PDF crack
+pdf2john <pdf_file> > pdf_hash.txt && john --wordlist=<wordlist> pdf_hash.txt
+
+# Office document crack
+office2john <office_file> > office_hash.txt && john --wordlist=<wordlist> office_hash.txt
+
+# KeePass crack
+keepass2john <kdbx_file> > keepass_hash.txt && john --wordlist=<wordlist> keepass_hash.txt
+
+# Linux shadow file
+unshadow /etc/passwd /etc/shadow > unshadowed.txt && john --wordlist=<wordlist> unshadowed.txt
+
+# List available formats
+john --list=formats
+
+$ hashfile: find . -name "*.txt" -o -name "*.hash" 2>/dev/null
+$ wordlist: echo "/usr/share/wordlists/rockyou.txt"
+$ ssh_key: find . -name "id_rsa" -o -name "*.pem" 2>/dev/null
+$ zip_file: find . -name "*.zip" 2>/dev/null
+$ rar_file: find . -name "*.rar" 2>/dev/null
+$ pdf_file: find . -name "*.pdf" 2>/dev/null
+$ office_file: find . -name "*.docx" -o -name "*.xlsx" 2>/dev/null
+$ kdbx_file: find . -name "*.kdbx" 2>/dev/null

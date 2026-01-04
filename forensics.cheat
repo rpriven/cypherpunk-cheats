@@ -1,0 +1,97 @@
+% forensics, dfir, volatility, memory, incident-response
+
+# Volatility 3 - identify OS
+vol -f <memory_dump> windows.info
+
+# Volatility 3 - process list
+vol -f <memory_dump> windows.pslist
+
+# Volatility 3 - process tree
+vol -f <memory_dump> windows.pstree
+
+# Volatility 3 - hidden processes
+vol -f <memory_dump> windows.psscan
+
+# Volatility 3 - network connections
+vol -f <memory_dump> windows.netscan
+
+# Volatility 3 - command line history
+vol -f <memory_dump> windows.cmdline
+
+# Volatility 3 - DLLs for process
+vol -f <memory_dump> windows.dlllist --pid <pid>
+
+# Volatility 3 - malware detection
+vol -f <memory_dump> windows.malfind
+
+# Volatility 3 - registry hives
+vol -f <memory_dump> windows.registry.hivelist
+
+# Volatility 3 - dump process memory
+vol -f <memory_dump> windows.memmap --pid <pid> --dump
+
+# Volatility 2 - image info (legacy)
+volatility -f <memory_dump> imageinfo
+
+# Volatility 2 - with profile
+volatility -f <memory_dump> --profile=<profile> pslist
+
+# Disk imaging with dd
+sudo dd if=<source_device> of=<output_file> bs=64K conv=noerror,sync status=progress
+
+# Disk imaging with dcfldd (forensic)
+sudo dcfldd if=<source_device> of=<output_file> hash=md5,sha256 hashlog=hashes.txt
+
+# Mount forensic image read-only
+sudo mount -o ro,loop,noexec <image_file> <mount_point>
+
+# Mount with offset (partition)
+sudo mount -o ro,loop,offset=$((512*<sector_offset>)) <image_file> <mount_point>
+
+# File carving with foremost
+foremost -i <image_file> -o <output_dir>
+
+# File recovery with photorec
+photorec <image_file>
+
+# File recovery with scalpel
+scalpel -c /etc/scalpel/scalpel.conf -o <output_dir> <image_file>
+
+# Timeline with plaso
+log2timeline.py <output.plaso> <evidence_source>
+
+# Parse plaso timeline
+psort.py -o l2tcsv <output.plaso> -w timeline.csv
+
+# Extract strings from binary
+strings -n 8 <file>
+strings -e l <file>
+
+# Calculate file hashes
+md5sum <file> && sha256sum <file>
+
+# Chainsaw - Windows event log hunting
+chainsaw hunt <evtx_dir> --rules <sigma_rules_dir>
+
+# Parse Windows prefetch
+PECmd.exe -d C:\Windows\Prefetch --csv <output_dir>
+
+# Registry analysis with RegRipper
+rip.pl -r <registry_hive> -p all
+
+# KAPE collection
+kape.exe --tsource C: --tdest <output_dir> --target !SANS_Triage
+
+# Autopsy (GUI forensics)
+autopsy
+
+$ memory_dump: find . -name "*.raw" -o -name "*.mem" -o -name "*.dmp" 2>/dev/null
+$ source_device: lsblk -dpno NAME | head -5
+$ output_file: echo "disk.raw"
+$ image_file: find . -name "*.raw" -o -name "*.dd" -o -name "*.img" 2>/dev/null
+$ mount_point: echo "/mnt/evidence"
+$ output_dir: echo "output"
+$ pid: echo ""
+$ profile: echo "Win10x64_19041"
+$ sector_offset: echo "2048"
+$ evtx_dir: echo "/path/to/evtx"

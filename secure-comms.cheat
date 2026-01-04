@@ -1,0 +1,129 @@
+% comms, signal, matrix, encrypted, messaging
+
+# Signal CLI - register
+signal-cli -u <phone_number> register
+
+# Signal CLI - verify
+signal-cli -u <phone_number> verify <code>
+
+# Signal CLI - send message
+signal-cli -u <phone_number> send -m "<message>" <recipient>
+
+# Signal CLI - send to group
+signal-cli -u <phone_number> send -m "<message>" -g <group_id>
+
+# Signal CLI - receive messages
+signal-cli -u <phone_number> receive
+
+# Signal CLI - list groups
+signal-cli -u <phone_number> listGroups
+
+# Signal CLI - create group
+signal-cli -u <phone_number> createGroup -n "<group_name>" -m <member1> <member2>
+
+# Signal CLI - daemon mode
+signal-cli -u <phone_number> daemon
+
+# Matrix - login with element-cli
+element-cli login <homeserver> <username> <password>
+
+# Matrix - send message (Python SDK)
+# pip install matrix-nio
+# See nio documentation
+
+# Matrix CLI - gomuks (TUI client)
+gomuks
+
+# Matrix CLI - matrixcli
+matrixcli -s <homeserver> -u <username> send <room_id> "<message>"
+
+# SimpleX Chat - start
+simplex-chat
+
+# Briar - desktop
+briar-desktop
+
+# Session messenger
+session-desktop
+
+# Keybase - login
+keybase login
+
+# Keybase - send message
+keybase chat send <username> "<message>"
+
+# Keybase - encrypt file
+keybase encrypt <username> -i <input_file> -o <output_file>
+
+# Keybase - decrypt file
+keybase decrypt -i <input_file> -o <output_file>
+
+# Keybase - sign file
+keybase sign -i <input_file> -o <output_file.sig>
+
+# Keybase - verify signature
+keybase verify -i <file.sig>
+
+# GPG - encrypt for recipient
+gpg -e -r <recipient> <file>
+
+# GPG - sign and encrypt
+gpg -se -r <recipient> <file>
+
+# GPG - decrypt
+gpg -d <file.gpg>
+
+# age - encrypt for recipient
+age -r <public_key> -o <output.age> <input_file>
+
+# age - encrypt with passphrase
+age -p -o <output.age> <input_file>
+
+# age - decrypt
+age -d -i <key_file> -o <output> <input.age>
+
+# OnionShare - share files over Tor
+onionshare-cli <file>
+
+# OnionShare - receive files
+onionshare-cli --receive
+
+# OnionShare - chat
+onionshare-cli --chat
+
+# Magic Wormhole - send file
+wormhole send <file>
+
+# Magic Wormhole - receive
+wormhole receive <code>
+
+# Croc - send file
+croc send <file>
+
+# Croc - receive
+croc <code>
+
+# XMPP with profanity
+profanity
+
+# IRC with weechat (+ OTR)
+weechat
+
+# Ricochet Refresh (Tor messenger)
+ricochet-refresh
+
+$ phone_number: echo "+1234567890"
+$ recipient: echo "+1234567890"
+$ code: echo ""
+$ message: echo ""
+$ group_id: echo ""
+$ group_name: echo ""
+$ homeserver: echo "https://matrix.org"
+$ username: echo ""
+$ password: echo ""
+$ room_id: echo ""
+$ public_key: echo "age1..."
+$ key_file: echo "key.txt"
+$ input_file: find . -type f 2>/dev/null | head -10
+$ output_file: echo "encrypted"
+$ file: find . -type f 2>/dev/null | head -10

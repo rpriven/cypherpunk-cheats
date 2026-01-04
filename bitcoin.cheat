@@ -1,0 +1,132 @@
+% bitcoin, btc, cryptocurrency, wallet
+
+# Start Bitcoin daemon
+bitcoind
+
+# Start daemon with options
+bitcoind -daemon -server
+
+# Stop daemon
+bitcoin-cli stop
+
+# Get blockchain info
+bitcoin-cli getblockchaininfo
+
+# Get network info
+bitcoin-cli getnetworkinfo
+
+# Get wallet info
+bitcoin-cli getwalletinfo
+
+# Create new wallet
+bitcoin-cli createwallet "<wallet_name>"
+
+# Load wallet
+bitcoin-cli loadwallet "<wallet_name>"
+
+# List wallets
+bitcoin-cli listwallets
+
+# Generate new address
+bitcoin-cli getnewaddress
+
+# Generate new address with label
+bitcoin-cli getnewaddress "<label>"
+
+# Get balance
+bitcoin-cli getbalance
+
+# List unspent outputs
+bitcoin-cli listunspent
+
+# List transactions
+bitcoin-cli listtransactions
+
+# Get transaction details
+bitcoin-cli gettransaction "<txid>"
+
+# Send to address
+bitcoin-cli sendtoaddress "<address>" <amount>
+
+# Send with fee rate
+bitcoin-cli sendtoaddress "<address>" <amount> "" "" false true null "unset" null <fee_rate>
+
+# Create raw transaction
+bitcoin-cli createrawtransaction '[{"txid":"<txid>","vout":<vout>}]' '{"<address>":<amount>}'
+
+# Sign raw transaction
+bitcoin-cli signrawtransactionwithwallet "<hex>"
+
+# Send raw transaction
+bitcoin-cli sendrawtransaction "<hex>"
+
+# Estimate fee (blocks to confirm)
+bitcoin-cli estimatesmartfee <blocks>
+
+# Dump private key (WIF)
+bitcoin-cli dumpprivkey "<address>"
+
+# Import private key
+bitcoin-cli importprivkey "<wif_key>"
+
+# Backup wallet
+bitcoin-cli backupwallet "<backup_path>"
+
+# Encrypt wallet
+bitcoin-cli encryptwallet "<passphrase>"
+
+# Unlock wallet (seconds)
+bitcoin-cli walletpassphrase "<passphrase>" <timeout>
+
+# Lock wallet
+bitcoin-cli walletlock
+
+# Get block hash
+bitcoin-cli getblockhash <height>
+
+# Get block data
+bitcoin-cli getblock "<blockhash>"
+
+# Decode raw transaction
+bitcoin-cli decoderawtransaction "<hex>"
+
+# Verify message signature
+bitcoin-cli verifymessage "<address>" "<signature>" "<message>"
+
+# Sign message
+bitcoin-cli signmessage "<address>" "<message>"
+
+# Sparrow Wallet (GUI - recommended)
+sparrow
+
+# Electrum (lightweight wallet)
+electrum
+
+# Hardware wallet - Trezor
+trezorctl list
+trezorctl get-address -n "m/84'/0'/0'/0/0"
+
+# Hardware wallet - Ledger
+# Use Ledger Live or HWI
+
+# Bitcoin Core config (~/.bitcoin/bitcoin.conf)
+# server=1
+# rpcuser=user
+# rpcpassword=pass
+# txindex=1
+
+$ wallet_name: bitcoin-cli listwallets 2>/dev/null | jq -r '.[]' 2>/dev/null
+$ label: echo "main"
+$ txid: echo ""
+$ address: echo ""
+$ amount: echo "0.001"
+$ fee_rate: echo "10"
+$ vout: echo "0"
+$ hex: echo ""
+$ wif_key: echo ""
+$ backup_path: echo "wallet_backup.dat"
+$ passphrase: echo ""
+$ timeout: echo "60"
+$ height: echo "0"
+$ blockhash: echo ""
+$ blocks: echo "6"

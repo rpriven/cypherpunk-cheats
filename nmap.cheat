@@ -1,0 +1,53 @@
+% nmap, scanning, recon
+
+# Quick SYN scan (top 1000 ports)
+nmap -sS <target>
+
+# Full port scan (all 65535)
+nmap -sS -p- <target>
+
+# Service version detection
+nmap -sV <target>
+
+# OS detection
+nmap -O <target>
+
+# Aggressive scan (OS, version, scripts, traceroute)
+nmap -A <target>
+
+# UDP scan (top ports)
+nmap -sU --top-ports 20 <target>
+
+# Script scan (default scripts)
+nmap -sC <target>
+
+# Vulnerability scan
+nmap --script vuln <target>
+
+# SMB enumeration
+nmap --script smb-enum-shares,smb-enum-users -p 445 <target>
+
+# HTTP enumeration
+nmap --script http-enum -p 80,443 <target>
+
+# Full comprehensive scan
+nmap -sS -sV -sC -O -p- -oA scan_<target> <target>
+
+# Scan multiple targets from file
+nmap -iL <targets_file>
+
+# Fast scan (top 100 ports)
+nmap -F <target>
+
+# Ping sweep (host discovery)
+nmap -sn <network_cidr>
+
+# Skip ping (scan even if host appears down)
+nmap -Pn <target>
+
+# Output all formats
+nmap -sS -sV -oA output_<target> <target>
+
+$ target: echo ""
+$ targets_file: find . -name "*.txt" -type f 2>/dev/null
+$ network_cidr: echo "192.168.1.0/24"

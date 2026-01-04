@@ -1,0 +1,128 @@
+% privacy, encryption, tor, gpg, pets
+
+# Generate GPG key pair
+gpg --full-generate-key
+
+# List GPG keys
+gpg --list-keys
+
+# List secret keys
+gpg --list-secret-keys
+
+# Export public key
+gpg --armor --export <key_id> > public.asc
+
+# Export private key (backup)
+gpg --armor --export-secret-keys <key_id> > private.asc
+
+# Import a key
+gpg --import <keyfile>
+
+# Encrypt file with GPG (symmetric)
+gpg -c <file>
+
+# Encrypt file for recipient
+gpg -e -r <recipient_email> <file>
+
+# Decrypt GPG file
+gpg -d <file.gpg> > <output_file>
+
+# Sign a file
+gpg --sign <file>
+
+# Verify signature
+gpg --verify <file.sig>
+
+# Age encryption - generate key
+age-keygen -o key.txt
+
+# Age encrypt file
+age -r <public_key> -o <file.age> <file>
+
+# Age decrypt file
+age -d -i key.txt -o <output> <file.age>
+
+# Age encrypt with passphrase
+age -p -o <file.age> <file>
+
+# Start Tor service
+sudo systemctl start tor
+
+# Check Tor status
+sudo systemctl status tor
+
+# Torify a command
+torify <command>
+
+# Use torsocks
+torsocks curl https://check.torproject.org
+
+# Get new Tor circuit
+sudo killall -HUP tor
+
+# Check if using Tor
+curl --socks5 localhost:9050 https://check.torproject.org/api/ip
+
+# I2P - start router
+i2prouter start
+
+# I2P - check status
+i2prouter status
+
+# Secure delete file (shred)
+shred -vfz -n 5 <file>
+
+# Secure delete with srm
+srm -vz <file>
+
+# Wipe free space
+sfill -v <mountpoint>
+
+# BleachBit clean
+bleachbit --clean system.cache system.tmp
+
+# Veracrypt create volume
+veracrypt -t -c
+
+# Veracrypt mount volume
+veracrypt <volume_file> <mount_point>
+
+# Veracrypt dismount
+veracrypt -d <mount_point>
+
+# Check for listening services
+ss -tulpn
+
+# Block all incoming (UFW)
+sudo ufw default deny incoming && sudo ufw enable
+
+# MAC address randomization
+sudo macchanger -r <interface>
+
+# Reset MAC to permanent
+sudo macchanger -p <interface>
+
+# DNS over HTTPS test
+curl -H 'accept: application/dns-json' 'https://cloudflare-dns.com/dns-query?name=example.com&type=A'
+
+# Check DNS leaks
+curl https://dnsleaktest.com/
+
+# Metadata removal from image
+exiftool -all= <image>
+
+# Metadata removal from PDF
+exiftool -all:all= <pdf>
+
+# MAT2 metadata removal
+mat2 <file>
+
+# Check what metadata exists
+exiftool <file>
+
+$ key_id: gpg --list-keys --keyid-format SHORT 2>/dev/null | grep -E "^pub" | awk '{print $2}' | cut -d'/' -f2
+$ recipient_email: echo ""
+$ file: find . -type f -maxdepth 1 2>/dev/null | head -20
+$ interface: ip link show | grep -E "^[0-9]" | cut -d: -f2 | tr -d ' ' | grep -v lo
+$ mount_point: echo "/mnt/veracrypt"
+$ public_key: echo "age1..."

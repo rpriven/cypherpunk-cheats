@@ -1,0 +1,94 @@
+% wireshark, tshark, tcpdump, packets, network-analysis
+
+# Wireshark - open GUI
+wireshark
+
+# Wireshark - open specific file
+wireshark <pcap_file>
+
+# tshark - capture on interface
+sudo tshark -i <interface>
+
+# tshark - capture to file
+sudo tshark -i <interface> -w <output_pcap>
+
+# tshark - read pcap file
+tshark -r <pcap_file>
+
+# tshark - filter by IP
+tshark -r <pcap_file> -Y "ip.addr == <ip>"
+
+# tshark - filter by port
+tshark -r <pcap_file> -Y "tcp.port == <port>"
+
+# tshark - HTTP traffic only
+tshark -r <pcap_file> -Y "http"
+
+# tshark - DNS traffic only
+tshark -r <pcap_file> -Y "dns"
+
+# tshark - follow TCP stream
+tshark -r <pcap_file> -z follow,tcp,ascii,<stream_number>
+
+# tshark - extract HTTP objects
+tshark -r <pcap_file> --export-objects http,<output_dir>
+
+# tshark - show conversations
+tshark -r <pcap_file> -z conv,tcp
+
+# tshark - protocol hierarchy
+tshark -r <pcap_file> -z io,phs
+
+# tshark - credentials (basic)
+tshark -r <pcap_file> -Y "http.authorization or ftp.request.command == USER or ftp.request.command == PASS"
+
+# tcpdump - capture on interface
+sudo tcpdump -i <interface>
+
+# tcpdump - capture to file
+sudo tcpdump -i <interface> -w <output_pcap>
+
+# tcpdump - read pcap
+tcpdump -r <pcap_file>
+
+# tcpdump - filter by host
+sudo tcpdump -i <interface> host <ip>
+
+# tcpdump - filter by port
+sudo tcpdump -i <interface> port <port>
+
+# tcpdump - filter by network
+sudo tcpdump -i <interface> net <network_cidr>
+
+# tcpdump - verbose with hex
+sudo tcpdump -i <interface> -XX -vv
+
+# tcpdump - no DNS resolution
+sudo tcpdump -i <interface> -n
+
+# Common Wireshark display filters:
+# ip.addr == 192.168.1.1
+# tcp.port == 443
+# http.request.method == "POST"
+# dns.qry.name contains "evil"
+# tcp.flags.syn == 1 and tcp.flags.ack == 0
+# frame contains "password"
+# ssl.handshake.type == 1
+
+# Extract files from pcap with binwalk
+binwalk -e <pcap_file>
+
+# NetworkMiner (GUI) - extract artifacts
+networkminer <pcap_file>
+
+# Zeek - generate logs from pcap
+zeek -r <pcap_file>
+
+$ interface: ip link show | grep -E "^[0-9]" | cut -d: -f2 | tr -d ' ' | grep -v lo
+$ pcap_file: find . -name "*.pcap" -o -name "*.pcapng" 2>/dev/null
+$ output_pcap: echo "capture.pcap"
+$ ip: echo ""
+$ port: echo "80\n443\n22\n21\n53"
+$ network_cidr: echo "192.168.1.0/24"
+$ stream_number: echo "0"
+$ output_dir: echo "extracted"

@@ -1,0 +1,129 @@
+% solidity, audit, smartcontract, ethereum, foundry
+
+# Foundry - create new project
+forge init <project_name>
+
+# Foundry - build/compile
+forge build
+
+# Foundry - run tests
+forge test
+
+# Foundry - run tests verbose
+forge test -vvvv
+
+# Foundry - run specific test
+forge test --match-test <test_name>
+
+# Foundry - gas report
+forge test --gas-report
+
+# Foundry - coverage
+forge coverage
+
+# Foundry - deploy contract
+forge create <contract> --rpc-url <rpc_url> --private-key <private_key>
+
+# Foundry - verify contract
+forge verify-contract <address> <contract> --chain <chain_id>
+
+# Cast - call read function
+cast call <contract_address> "<function_sig>" --rpc-url <rpc_url>
+
+# Cast - send transaction
+cast send <contract_address> "<function_sig>" --rpc-url <rpc_url> --private-key <private_key>
+
+# Cast - decode calldata
+cast calldata-decode "<function_sig>" <calldata>
+
+# Cast - get storage slot
+cast storage <contract_address> <slot> --rpc-url <rpc_url>
+
+# Cast - keccak256 hash
+cast keccak "<text>"
+
+# Cast - convert to wei
+cast to-wei <amount> ether
+
+# Cast - convert from wei
+cast from-wei <amount>
+
+# Slither - full analysis
+slither <contract_or_dir>
+
+# Slither - specific detectors
+slither <contract> --detect <detector>
+
+# Slither - print contract summary
+slither <contract> --print contract-summary
+
+# Slither - print function summary
+slither <contract> --print function-summary
+
+# Slither - print inheritance
+slither <contract> --print inheritance-graph
+
+# Slither - human summary
+slither <contract> --print human-summary
+
+# Slither - list detectors
+slither --list-detectors
+
+# Mythril - analyze contract
+myth analyze <contract.sol>
+
+# Mythril - analyze deployed contract
+myth analyze --address <contract_address> --rpc <rpc_url>
+
+# Mythril - execution timeout
+myth analyze <contract.sol> --execution-timeout 300
+
+# Echidna - fuzz testing
+echidna <contract.sol> --contract <contract_name>
+
+# Echidna - with config
+echidna <contract.sol> --contract <contract_name> --config echidna.yaml
+
+# Aderyn - static analysis (Rust-based, fast)
+aderyn <contract_or_dir>
+
+# Solhint - linter
+solhint <contract.sol>
+
+# Solhint - init config
+solhint --init
+
+# Common vulnerability patterns to check:
+# - Reentrancy (external calls before state changes)
+# - Integer overflow/underflow (pre-0.8.0)
+# - Unchecked return values
+# - Access control issues
+# - Front-running susceptibility
+# - Oracle manipulation
+# - Flash loan attacks
+# - Delegate call to untrusted contract
+
+# Check for selfdestruct
+grep -rn "selfdestruct\|suicide" <dir>
+
+# Check for delegatecall
+grep -rn "delegatecall" <dir>
+
+# Check for tx.origin
+grep -rn "tx.origin" <dir>
+
+# Check for inline assembly
+grep -rn "assembly" <dir>
+
+$ project_name: echo "my_project"
+$ contract: find . -name "*.sol" 2>/dev/null | head -10
+$ contract_or_dir: echo "."
+$ contract_address: echo "0x..."
+$ rpc_url: echo "https://eth-mainnet.g.alchemy.com/v2/YOUR_KEY"
+$ private_key: echo ""
+$ function_sig: echo "balanceOf(address)"
+$ test_name: echo "test"
+$ detector: echo "reentrancy-eth\nreentrancy-no-eth\narbitrary-send\nsuicide\nuninitialized-storage"
+$ chain_id: echo "1\n5\n137\n42161" --- --header "1=mainnet, 5=goerli, 137=polygon, 42161=arbitrum"
+$ slot: echo "0"
+$ dir: echo "src/"

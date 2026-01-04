@@ -1,0 +1,124 @@
+% luks, encryption, disk, dm-crypt, fde
+
+# Check if device is LUKS
+sudo cryptsetup isLuks <device>
+
+# LUKS info
+sudo cryptsetup luksDump <device>
+
+# Create LUKS volume
+sudo cryptsetup luksFormat <device>
+
+# Create LUKS2 volume (recommended)
+sudo cryptsetup luksFormat --type luks2 <device>
+
+# Create LUKS with specific cipher
+sudo cryptsetup luksFormat --cipher aes-xts-plain64 --key-size 512 --hash sha512 <device>
+
+# Open LUKS volume
+sudo cryptsetup luksOpen <device> <mapper_name>
+
+# Open LUKS (alternative syntax)
+sudo cryptsetup open <device> <mapper_name>
+
+# Close LUKS volume
+sudo cryptsetup luksClose <mapper_name>
+
+# Add key to LUKS
+sudo cryptsetup luksAddKey <device>
+
+# Add key from file
+sudo cryptsetup luksAddKey <device> <keyfile>
+
+# Remove key
+sudo cryptsetup luksRemoveKey <device>
+
+# Kill key slot
+sudo cryptsetup luksKillSlot <device> <slot_number>
+
+# Change passphrase
+sudo cryptsetup luksChangeKey <device>
+
+# Create filesystem on opened LUKS
+sudo mkfs.ext4 /dev/mapper/<mapper_name>
+
+# Mount LUKS volume
+sudo mount /dev/mapper/<mapper_name> <mount_point>
+
+# Unmount LUKS volume
+sudo umount <mount_point>
+sudo cryptsetup luksClose <mapper_name>
+
+# Create encrypted file container
+dd if=/dev/zero of=<container_file> bs=1M count=<size_mb>
+sudo cryptsetup luksFormat <container_file>
+sudo cryptsetup luksOpen <container_file> <mapper_name>
+sudo mkfs.ext4 /dev/mapper/<mapper_name>
+
+# Backup LUKS header
+sudo cryptsetup luksHeaderBackup <device> --header-backup-file <backup_file>
+
+# Restore LUKS header
+sudo cryptsetup luksHeaderRestore <device> --header-backup-file <backup_file>
+
+# Erase LUKS header (DESTROYS DATA!)
+sudo cryptsetup luksErase <device>
+
+# Check LUKS status
+sudo cryptsetup status <mapper_name>
+
+# Benchmark encryption
+cryptsetup benchmark
+
+# Auto-mount with /etc/crypttab
+# <mapper_name> <device> none luks
+
+# Auto-mount with keyfile
+# <mapper_name> <device> <keyfile> luks
+
+# Full disk encryption install (Ubuntu)
+# Select "Encrypt the new Ubuntu installation" during install
+
+# Encrypt home directory (ecryptfs - legacy)
+sudo apt install ecryptfs-utils
+ecryptfs-migrate-home -u <username>
+
+# LUKS on LVM
+sudo pvcreate /dev/mapper/<mapper_name>
+sudo vgcreate <vg_name> /dev/mapper/<mapper_name>
+sudo lvcreate -l 100%FREE -n <lv_name> <vg_name>
+
+# Resize LUKS volume (grow)
+sudo cryptsetup resize <mapper_name>
+sudo resize2fs /dev/mapper/<mapper_name>
+
+# Create encrypted swap
+sudo cryptsetup luksFormat <swap_device>
+sudo cryptsetup luksOpen <swap_device> cryptswap
+sudo mkswap /dev/mapper/cryptswap
+sudo swapon /dev/mapper/cryptswap
+
+# VeraCrypt CLI - create volume
+veracrypt -t -c
+
+# VeraCrypt CLI - mount
+veracrypt <volume_file> <mount_point>
+
+# VeraCrypt CLI - dismount
+veracrypt -d
+
+# VeraCrypt CLI - list mounted
+veracrypt -l
+
+$ device: lsblk -dpno NAME | grep -v loop
+$ mapper_name: ls /dev/mapper 2>/dev/null | grep -v control
+$ mount_point: echo "/mnt/encrypted"
+$ keyfile: echo "/root/keyfile"
+$ backup_file: echo "luks_header.backup"
+$ container_file: echo "encrypted_container.img"
+$ size_mb: echo "1024"
+$ slot_number: echo "0\n1\n2\n3\n4\n5\n6\n7"
+$ username: whoami
+$ vg_name: echo "encrypted_vg"
+$ lv_name: echo "data"
+$ volume_file: find ~ -name "*.hc" -o -name "*.tc" 2>/dev/null | head -5

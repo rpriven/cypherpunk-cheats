@@ -1,0 +1,50 @@
+% hashcat, cracking, passwords
+
+# Crack MD5 hash
+hashcat -m 0 <hashfile> <wordlist> -O
+
+# Crack NTLM hash
+hashcat -m 1000 <hashfile> <wordlist> -O
+
+# Crack NTLMv2 (Responder capture)
+hashcat -m 5600 <hashfile> <wordlist> -O
+
+# Crack SHA-512 Linux ($6$)
+hashcat -m 1800 <hashfile> <wordlist> -O
+
+# Crack Kerberoasting TGS
+hashcat -m 13100 <hashfile> <wordlist> -O
+
+# Crack AS-REP Roast
+hashcat -m 18200 <hashfile> <wordlist> -O
+
+# Crack WPA2
+hashcat -m 22000 <hashfile> <wordlist> -O
+
+# Crack bcrypt
+hashcat -m 3200 <hashfile> <wordlist> -O
+
+# Crack JWT
+hashcat -m 16500 <hashfile> <wordlist> -O
+
+# With rules (best64)
+hashcat -m <mode> <hashfile> <wordlist> -r /usr/share/hashcat/rules/best64.rule -O
+
+# Mask attack - 4 digits
+hashcat -m <mode> <hashfile> -a 3 ?d?d?d?d
+
+# Mask attack - 8 lowercase
+hashcat -m <mode> <hashfile> -a 3 ?l?l?l?l?l?l?l?l
+
+# Mask attack - Password1! pattern
+hashcat -m <mode> <hashfile> -a 3 ?u?l?l?l?l?l?l?l?d?s
+
+# Show cracked passwords
+hashcat -m <mode> <hashfile> --show
+
+# Resume session
+hashcat --restore
+
+$ hashfile: find . -name "*.txt" -o -name "*.hash" 2>/dev/null
+$ wordlist: echo "/usr/share/wordlists/rockyou.txt"
+$ mode: echo "0\n100\n1000\n1400\n1700\n1800\n3200\n5600\n13100\n18200" --- --header "Mode: 0=MD5, 100=SHA1, 1000=NTLM, 1400=SHA256, 1700=SHA512, 1800=sha512crypt, 3200=bcrypt, 5600=NTLMv2, 13100=Kerberoast, 18200=AS-REP"

