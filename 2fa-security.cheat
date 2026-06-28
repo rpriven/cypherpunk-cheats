@@ -1,0 +1,504 @@
+% 2fa, mfa, totp, fido2, yubikey, authentication, otp
+
+# ============================================================================
+# TWO-FACTOR AUTHENTICATION (2FA) OVERVIEW
+# ============================================================================
+
+# What is 2FA?
+# Second layer of security beyond password
+# Something you know (password) + something you have (device/key)
+
+# 2FA methods (from most to least secure)
+# 1. Hardware keys (FIDO2/U2F) - YubiKey, Titan, Nitrokey
+# 2. Authenticator apps (TOTP) - Aegis, Authy, Google Authenticator
+# 3. SMS codes (vulnerable to SIM swapping)
+# 4. Email codes (as secure as your email)
+# 5. Backup codes (one-time use)
+
+# ============================================================================
+# HARDWARE KEYS (FIDO2/U2F) - MOST SECURE
+# ============================================================================
+
+# Hardware key advantages
+# - Phishing resistant (domain-bound)
+# - No SMS interception
+# - No TOTP theft
+# - Physical possession required
+
+# Popular hardware keys
+# YubiKey 5 Series - https://www.yubico.com/
+# Google Titan Security Key - https://store.google.com/
+# Nitrokey - https://www.nitrokey.com/ (open source)
+# OnlyKey - https://onlykey.io/ (advanced features)
+# Thetis FIDO2 - https://thetis.io/ (open source)
+
+# YubiKey setup (Linux)
+# Install pam module for sudo/login
+sudo apt install libpam-u2f
+
+# Register YubiKey
+mkdir -p ~/.config/Yubico
+pamu2fcfg > ~/.config/Yubico/u2f_keys
+
+# Add additional key (backup)
+pamu2fcfg -n >> ~/.config/Yubico/u2f_keys
+
+# Enable for sudo
+sudo nano /etc/pam.d/sudo
+# Add at top: auth required pam_u2f.so
+
+# Enable for login
+sudo nano /etc/pam.d/gdm-password
+# Add: auth required pam_u2f.so
+
+# Test YubiKey
+ykman info
+
+# List YubiKey slots
+ykman otp info
+
+# ============================================================================
+# AUTHENTICATOR APPS (TOTP) - RECOMMENDED
+# ============================================================================
+
+# Best authenticator apps (Android/iOS)
+# Aegis Authenticator (Android, open source, encrypted backups)
+# Raivo OTP (iOS, open source)
+# Authy (cross-platform, cloud backup)
+# andOTP (Android, open source, deprecated - use Aegis)
+
+# Desktop authenticators (Linux)
+# OTPClient - GTK app for TOTP/HOTP
+sudo apt install otpclient
+
+# Generate TOTP from terminal
+oathtool --totp --base32 <SECRET_KEY>
+$ SECRET_KEY: echo "JBSWY3DPEHPK3PXP"
+
+# ============================================================================
+# SETTING UP 2FA ON ACCOUNTS
+# ============================================================================
+
+# Google Account
+# Security → 2-Step Verification → Get Started
+# Add: Authenticator app, hardware key, backup codes
+
+# GitHub
+# Settings → Security → Two-factor authentication → Enable
+# Use: App or security key
+
+# ProtonMail
+# Settings → Security → Two-factor authentication
+# Use: App or hardware key
+
+# Social media (Facebook, Twitter, Instagram)
+# Settings → Security → Two-factor authentication
+# Prefer app over SMS
+
+# Banking/Financial
+# Usually SMS-based (request authenticator app if available)
+# Many support hardware keys now
+
+# ============================================================================
+# BACKUP CODES
+# ============================================================================
+
+# Always save backup codes when enabling 2FA
+# Print and store in secure location (safe, lockbox)
+# Or store encrypted in password manager
+
+# Example backup codes (save these!)
+# 1. 8374-9283-4756
+# 2. 2938-4756-8374
+# 3. 4756-8374-2938
+# (Continue for 8-10 codes)
+
+# Generate backup codes (various services)
+# Google: myaccount.google.com/security → 2-Step Verification → Backup codes
+# GitHub: Settings → Security → Two-factor authentication → Recovery codes
+
+# Store backup codes securely
+# Encrypted password manager
+# Paper in safe
+# Hardware encrypted USB drive
+
+# ============================================================================
+# TOTP SECRET MANAGEMENT
+# ============================================================================
+
+# TOTP secrets (QR codes) are sensitive
+# Store encrypted backup of TOTP secrets
+# Use: Aegis encrypted backup, KeePassXC
+
+# Export Aegis backup
+# Aegis → Settings → Backups → Export (encrypted)
+
+# Import to new device
+# Aegis → Settings → Backups → Import
+
+# Backup TOTP secret keys (text format)
+# Store in password manager alongside password
+
+# ============================================================================
+# SMS 2FA (LEAST SECURE - AVOID IF POSSIBLE)
+# ============================================================================
+
+# SMS 2FA vulnerabilities
+# - SIM swapping attacks
+# - SS7 protocol vulnerabilities
+# - SMS interception
+# - Social engineering attacks on carriers
+
+# Protecting against SIM swapping
+# Add PIN/password to carrier account
+# Use carrier's port freeze feature
+# Register for carrier fraud alerts
+
+# Carrier security settings
+# Verizon: Add Account PIN
+# AT&T: Set passcode, enable extra security
+# T-Mobile: Account Takeover Protection
+
+# If SMS is only option
+# Better than no 2FA
+# Use Google Voice number (harder to SIM swap)
+# Enable carrier port lock
+
+# ============================================================================
+# SETTING UP YUBIKEY FOR COMMON SERVICES
+# ============================================================================
+
+# GitHub with YubiKey
+# Settings → Security → Two-factor authentication
+# Security keys → Register new security key → Insert YubiKey
+
+# Google with YubiKey
+# myaccount.google.com/security → 2-Step Verification
+# Security keys → Add security key
+
+# ProtonMail with YubiKey
+# Settings → Security → Two-factor authentication
+# Security key → Add key
+
+# AWS with YubiKey
+# IAM → Users → Security credentials → Assign MFA device
+# U2F security key
+
+# Windows login with YubiKey
+# Settings → Accounts → Sign-in options
+# Security Key → Add
+
+# ============================================================================
+# TOTP COMMAND LINE (OATHTOOL)
+# ============================================================================
+
+# Install oathtool
+sudo apt install oathtool
+
+# Generate TOTP code
+oathtool --totp --base32 <SECRET_KEY>
+$ SECRET_KEY: echo "JBSWY3DPEHPK3PXP"
+
+# Generate with specific time step (usually 30 seconds)
+oathtool --totp --time-step-size=30s --base32 <SECRET_KEY>
+$ SECRET_KEY: echo "JBSWY3DPEHPK3PXP"
+
+# Verify TOTP code
+oathtool --totp --base32 <SECRET_KEY> <CODE>
+$ SECRET_KEY: echo "JBSWY3DPEHPK3PXP"
+$ CODE: echo "123456"
+
+# ============================================================================
+# PASS-OTP (PASSWORD MANAGER + TOTP)
+# ============================================================================
+
+# pass (password store) with OTP extension
+sudo apt install pass pass-otp
+
+# Initialize password store
+pass init <GPG_KEY_ID>
+$ GPG_KEY_ID: echo "your@email.com"
+
+# Add TOTP secret
+pass otp add <account_name>
+# Enter secret key when prompted
+$ account_name: echo -e "github\\ngoogle\\nprotonmail"
+
+# Generate TOTP
+pass otp <account_name>
+$ account_name: echo -e "github\\ngoogle"
+
+# Show QR code (for backup)
+pass otp uri <account_name> | qrencode -t UTF8
+$ account_name: echo "github"
+
+# ============================================================================
+# KEEPASSXC WITH TOTP
+# ============================================================================
+
+# KeePassXC supports TOTP natively
+# Install KeePassXC
+sudo apt install keepassxc
+
+# Add TOTP to entry
+# Right-click entry → TOTP → Set up TOTP
+# Enter secret key or scan QR code
+
+# Show TOTP code
+# Select entry → TOTP visible in entry details
+
+# Copy TOTP to clipboard
+# Right-click entry → TOTP → Copy TOTP
+
+# ============================================================================
+# AEGIS AUTHENTICATOR (ANDROID)
+# ============================================================================
+
+# Install Aegis
+# F-Droid: https://f-droid.org/packages/com.beemdevelopment.aegis/
+# Play Store: https://play.google.com/store/apps/details?id=com.beemdevelopment.aegis
+
+# Enable encrypted backups
+# Settings → Backups → Enable automatic backups
+# Set strong password for backup encryption
+
+# Export backup
+# Settings → Backups → Export
+
+# Import backup to new device
+# Settings → Import from file → Select backup
+
+# ============================================================================
+# AUTHY (CROSS-PLATFORM)
+# ============================================================================
+
+# Authy advantages
+# Cloud backup (encrypted)
+# Multi-device sync
+# Desktop app available
+
+# Authy disadvantages
+# Closed source
+# Cloud-based (attack vector)
+# Phone number required
+
+# Enable multi-device
+# Settings → Devices → Allow Multi-device
+
+# Disable multi-device after setup (security)
+# Settings → Devices → Disable
+
+# ============================================================================
+# 2FA FOR SSH
+# ============================================================================
+
+# Enable 2FA for SSH with Google Authenticator
+sudo apt install libpam-google-authenticator
+
+# Configure for user
+google-authenticator
+# Answer prompts (yes to most)
+
+# Enable in SSH config
+sudo nano /etc/pam.d/sshd
+# Add: auth required pam_google_authenticator.so
+
+sudo nano /etc/ssh/sshd_config
+# Change: ChallengeResponseAuthentication yes
+# Add: AuthenticationMethods publickey,keyboard-interactive
+
+sudo systemctl restart sshd
+
+# SSH login now requires key + TOTP code
+
+# ============================================================================
+# 2FA FOR SUDO
+# ============================================================================
+
+# Require TOTP for sudo commands
+sudo apt install libpam-google-authenticator
+
+# Setup for user
+google-authenticator
+
+# Enable for sudo
+sudo nano /etc/pam.d/sudo
+# Add at top: auth required pam_google_authenticator.so
+
+# Now sudo requires TOTP code
+
+# ============================================================================
+# 2FA RECOVERY STRATEGIES
+# ============================================================================
+
+# Always have backup method
+# - 2+ hardware keys (keep one offsite)
+# - Backup codes printed and stored securely
+# - Recovery email/phone verified
+
+# Store 2FA backups
+# - Encrypted backup codes in password manager
+# - TOTP seeds stored securely (encrypted)
+# - Hardware key backups in different locations
+
+# Test recovery process
+# Simulate device loss
+# Attempt recovery using backup codes/keys
+# Ensure process works before emergency
+
+# ============================================================================
+# 2FA FOR LINUX DESKTOP LOGIN
+# ============================================================================
+
+# GDM with YubiKey (hardware key login)
+# Already covered in hardware keys section
+
+# GDM with TOTP
+sudo apt install libpam-google-authenticator
+
+# Setup for user
+google-authenticator
+
+# Enable for GDM
+sudo nano /etc/pam.d/gdm-password
+# Add: auth required pam_google_authenticator.so
+
+# ============================================================================
+# 2FA BEST PRACTICES
+# ============================================================================
+
+# Priority list
+# 1. Enable 2FA on all important accounts
+# 2. Use hardware keys where supported
+# 3. Use authenticator apps (not SMS)
+# 4. Save backup codes in multiple secure locations
+# 5. Have backup hardware key
+# 6. Test recovery process
+
+# Accounts requiring 2FA
+# - Email (Gmail, ProtonMail)
+# - Banking/financial
+# - Social media
+# - Password manager
+# - Cloud storage
+# - GitHub/GitLab
+# - Domain registrar
+# - VPN provider
+
+# Never disable 2FA unless
+# - Migrating to stronger method
+# - Account closure
+
+# ============================================================================
+# 2FA MIGRATION (CHANGING DEVICES)
+# ============================================================================
+
+# Before switching phones
+# 1. Backup all TOTP secrets (Aegis encrypted backup)
+# 2. Verify backup codes saved
+# 3. Transfer backup to new device
+# 4. Restore on new device
+# 5. Verify all accounts work
+# 6. Securely wipe old device
+
+# Emergency device loss
+# 1. Use backup codes to login
+# 2. Disable 2FA temporarily
+# 3. Re-enable with new device
+# 4. Generate new backup codes
+
+# ============================================================================
+# COMMON 2FA ISSUES & SOLUTIONS
+# ============================================================================
+
+# "Invalid code" error
+# - Check device time (must be synced)
+# - Wait for next code (30-second window)
+# - Verify correct account
+
+# Sync device time (Linux)
+sudo timedatectl set-ntp true
+timedatectl status
+
+# Lost 2FA device
+# - Use backup codes
+# - Use backup hardware key
+# - Contact service support (last resort)
+
+# Can't access backup codes
+# - Use recovery email/phone
+# - Contact service support with ID verification
+
+# Hardware key not working
+# - Check USB connection
+# - Try different USB port
+# - Update firmware (ykman info)
+# - Use backup key
+
+# ============================================================================
+# ADVANCED: FIDO2 RESIDENT KEYS
+# ============================================================================
+
+# Resident keys (passwordless login)
+# Store credentials on hardware key itself
+
+# Create resident key (YubiKey)
+# Supported services: GitHub, Microsoft, Dropbox
+
+# Generate SSH key on YubiKey (resident)
+ssh-keygen -t ecdsa-sk -O resident -O application=ssh:YubiKey
+
+# List resident keys
+ssh-keygen -K
+
+# ============================================================================
+# TESTING 2FA SECURITY
+# ============================================================================
+
+# Test phishing resistance
+# Try logging in on fake site with hardware key
+# Hardware key should reject (domain mismatch)
+
+# Test TOTP time drift
+# Change system time, test if codes still work
+
+# Test backup recovery
+# Pretend device lost, use backup codes
+
+# Test hardware key backup
+# Disable primary key, use backup key
+
+# ============================================================================
+# 2FA CHECKLIST
+# ============================================================================
+
+# Setup
+# [ ] Enable 2FA on all critical accounts
+# [ ] Use hardware key where possible
+# [ ] Use TOTP app for others (not SMS)
+# [ ] Save backup codes (encrypted, multiple locations)
+# [ ] Purchase backup hardware key
+# [ ] Test recovery process
+
+# Maintenance
+# [ ] Review 2FA methods quarterly
+# [ ] Rotate backup codes yearly
+# [ ] Update authenticator app backups
+# [ ] Verify backup key still works
+
+# ============================================================================
+# RESOURCES
+# ============================================================================
+
+# FIDO Alliance
+# https://fidoalliance.org/
+
+# YubiKey documentation
+# https://support.yubico.com/
+
+# 2FA directory (sites supporting 2FA)
+# https://2fa.directory/
+
+# TOTP specification
+# RFC 6238: https://tools.ietf.org/html/rfc6238
+

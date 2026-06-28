@@ -1,0 +1,604 @@
+% phone, smartphone, mobile-privacy, android, ios, grapheneos
+
+# ============================================================================
+# SMARTPHONE PRIVACY OVERVIEW
+# ============================================================================
+
+# Smartphone privacy challenges
+# - Constant location tracking (GPS, cell towers, WiFi)
+# - App permissions overreach (camera, mic, contacts)
+# - OS telemetry (Google, Apple data collection)
+# - Advertising tracking (GAID, IDFA)
+# - Carrier surveillance (call logs, SMS, location)
+# - Baseband processor (proprietary, potential backdoors)
+
+# Privacy hierarchy (best to worst)
+# 1. Dumbphone / No phone (maximum privacy, minimum functionality)
+# 2. Privacy phone (Purism Librem 5, PinePhone)
+# 3. GrapheneOS (hardened Android on Pixel)
+# 4. CalyxOS (privacy Android)
+# 5. iPhone (better than stock Android)
+# 6. Stock Android (worst)
+
+# ============================================================================
+# GRAPHENEOS (MOST PRIVATE ANDROID)
+# ============================================================================
+
+# GrapheneOS features
+# - Hardened Android (security patches, privacy improvements)
+# - Sandboxed Google Play (optional, no special privileges)
+# - Enhanced permissions (network, sensors per-app)
+# - No Google services by default
+# - Regular security updates (faster than stock)
+
+# Supported devices
+# - Google Pixel 8 Pro (recommended, 7 years updates)
+# - Google Pixel 8
+# - Google Pixel 7 Pro
+# - Google Pixel 7
+# - Older Pixels (check: grapheneos.org/faq#supported-devices)
+
+# Install GrapheneOS
+# https://grapheneos.org/install/
+
+# Web installer (easiest)
+# 1. Enable Developer Options (Settings → About → Tap Build 7 times)
+# 2. Enable OEM Unlocking (Settings → Developer Options)
+# 3. Visit: https://grapheneos.org/install/web
+# 4. Follow on-screen instructions
+# 5. Connect phone, unlock bootloader, flash
+
+# Command line install (Linux)
+# Download tools
+wget https://github.com/GrapheneOS/factory/releases/download/latest/grapheneos-install.zip
+unzip grapheneos-install.zip
+
+# Flash GrapheneOS
+./grapheneos-install.sh
+
+# First boot setup
+# Skip Google account
+# Disable cloud services
+# Set strong passphrase (not PIN)
+
+# ============================================================================
+# GRAPHENEOS HARDENING
+# ============================================================================
+
+# Enable sandboxed Google Play (if needed)
+# Apps → Apps → System apps → Google Play Services → Install
+
+# App permissions (granular control)
+# Settings → Apps → [App] → Permissions
+# Deny: Location, Camera, Microphone (unless required)
+
+# Network permission (GrapheneOS feature)
+# Settings → Apps → [App] → Network
+# Block internet for apps that don't need it
+
+# Sensors permission (GrapheneOS feature)
+# Settings → Apps → [App] → Sensors
+# Blocks accelerometer, gyroscope, etc.
+
+# Auditor app (hardware attestation)
+# Verifies device integrity
+# Install: F-Droid or GrapheneOS app store
+
+# ============================================================================
+# CALYXOS (PRIVACY ANDROID ALTERNATIVE)
+# ============================================================================
+
+# CalyxOS features
+# - Privacy-focused Android
+# - microG (open source Google Services alternative)
+# - Datura Firewall (control app network access)
+# - Seedvault backup
+# - F-Droid included
+
+# Supported devices
+# - Google Pixels (similar to GrapheneOS)
+# - Fairphone 4/5
+# - Motorola devices
+
+# Install CalyxOS
+# https://calyxos.org/install/
+
+# Web installer
+# https://calyxos.org/install/web
+
+# First boot
+# Skip Google account
+# Enable F-Droid
+# Configure Datura Firewall
+
+# ============================================================================
+# IOS PRIVACY HARDENING
+# ============================================================================
+
+# iOS advantages
+# - Better than stock Android (less Google tracking)
+# - Strong app sandboxing
+# - Regular updates (even for older devices)
+
+# iOS disadvantages
+# - Closed source (can't audit)
+# - Apple still tracks (less than Google, but not zero)
+# - Walled garden (limited customization)
+
+# iOS privacy settings
+# Settings → Privacy & Security
+
+# Location Services
+# Settings → Privacy → Location Services
+# Set per-app: Never, Ask Next Time, While Using
+
+# Disable analytics
+# Settings → Privacy → Analytics & Improvements
+# Turn OFF: Share iPhone Analytics, Share iCloud Analytics
+
+# Limit ad tracking
+# Settings → Privacy → Tracking
+# Turn OFF: Allow Apps to Request to Track
+
+# App permissions review
+# Settings → Privacy → [Permission type]
+# Review: Camera, Microphone, Contacts, Photos
+
+# Hide IP address
+# Settings → Safari → Hide IP Address → Trackers and Websites
+
+# Private Relay (iCloud+ feature)
+# Settings → [Name] → iCloud → Private Relay
+# Hides IP address from websites (VPN-like)
+
+# ============================================================================
+# ANDROID PRIVACY HARDENING (STOCK/LINEAGEOS)
+# ============================================================================
+
+# LineageOS (de-Googled Android)
+# https://lineageos.org/
+# Custom ROM without Google services
+# Supports 100+ devices
+
+# Android privacy settings
+
+# Disable Google tracking
+# Settings → Google → Manage your Google Account
+# Data & Privacy → Turn OFF: Location History, Web & App Activity
+
+# App permissions
+# Settings → Privacy → Permission manager
+# Review all permissions, revoke unnecessary
+
+# Disable personalized ads
+# Settings → Privacy → Ads
+# Turn ON: Delete advertising ID
+
+# Network permission (Android 12+)
+# Requires root or custom ROM with firewall
+
+# AFWall+ (firewall, requires root)
+# Block internet per-app
+# https://github.com/ukanth/afwall
+
+# ============================================================================
+# APP ALTERNATIVES (PRIVACY-FOCUSED)
+# ============================================================================
+
+# App stores
+# F-Droid - https://f-droid.org/ (open source apps)
+# Aurora Store (Play Store alternative, no Google account)
+
+# Browser
+# Mull (Firefox-based) - F-Droid
+# Brave Browser - Play Store / F-Droid
+# Tor Browser - https://www.torproject.org/download/#android
+
+# Messaging
+# Signal - https://signal.org/
+# Element (Matrix) - https://element.io/
+# Briar (peer-to-peer) - F-Droid
+
+# Email
+# K-9 Mail - F-Droid
+# FairEmail - F-Droid
+# ProtonMail app - Play Store / F-Droid
+
+# Maps / Navigation
+# OsmAnd - F-Droid (offline maps)
+# Organic Maps - F-Droid
+# Magic Earth - Play Store
+
+# Keyboard
+# OpenBoard - F-Droid (no network access)
+# AnySoftKeyboard - F-Droid
+# FlorisBoard - F-Droid
+
+# Camera
+# Open Camera - F-Droid
+# GrapheneOS Camera (Pixels with GrapheneOS)
+
+# Gallery
+# Simple Gallery - F-Droid
+# Fossify Gallery - F-Droid
+
+# Notes
+# Standard Notes - https://standardnotes.com/
+# Joplin - F-Droid
+# Notesnook - https://notesnook.com/
+
+# Password manager
+# Bitwarden - https://bitwarden.com/
+# KeePassDX - F-Droid
+
+# 2FA/TOTP
+# Aegis Authenticator - F-Droid
+# andOTP (deprecated, use Aegis)
+
+# ============================================================================
+# LOCATION PRIVACY
+# ============================================================================
+
+# Location tracking sources
+# - GPS (precise location)
+# - Cell towers (approximate location)
+# - WiFi networks (location database)
+# - Bluetooth beacons
+
+# Disable location completely
+# Settings → Location → Turn OFF
+
+# Disable location scanning (Android)
+# Settings → Location → Location Services → Wi-Fi scanning (OFF)
+# Settings → Location → Location Services → Bluetooth scanning (OFF)
+
+# Per-app location permissions
+# Allow only when using app (not "Always")
+
+# Airplane mode (nuclear option)
+# Disables: Cell, WiFi, Bluetooth, GPS
+# Use when not needing connectivity
+
+# Remove SIM card
+# Prevents cell tower tracking
+# Can still use WiFi for data
+
+# Faraday bag
+# Blocks all signals (cell, GPS, WiFi, Bluetooth)
+# Test: Call phone while in bag (shouldn't ring)
+
+# ============================================================================
+# NETWORK PRIVACY
+# ============================================================================
+
+# VPN on mobile
+# See vpn.cheat (to be created)
+# Recommended: Mullvad, IVPN, ProtonVPN
+
+# Orbot (Tor for Android)
+# Routes traffic through Tor
+# https://guardianproject.info/apps/org.torproject.android/
+
+# Install Orbot
+# F-Droid → Orbot
+# Or: Play Store → Orbot
+
+# Use Orbot with apps
+# Orbot → Start → Select apps to route through Tor
+
+# DNS encryption
+# Android 9+: Settings → Network → Private DNS
+# Use: dns.quad9.net or 1dot1dot1dot1.cloudflare-dns.com
+
+# ============================================================================
+# PERMISSION MANAGEMENT
+# ============================================================================
+
+# Review all app permissions
+# Settings → Apps → [App] → Permissions
+
+# Dangerous permissions (require approval)
+# - Location (GPS, coarse location)
+# - Camera
+# - Microphone
+# - Contacts
+# - Call logs
+# - SMS
+# - Storage (photos, files)
+
+# Grant permissions sparingly
+# Games don't need contacts
+# Flashlight doesn't need location
+# Wallpaper app doesn't need microphone
+
+# One-time permissions (Android 11+)
+# Grant permission for single use
+# App must re-request next time
+
+# Permission auto-reset (Android 11+)
+# Settings → Apps → Unused apps
+# Automatically revoke permissions for unused apps
+
+# ============================================================================
+# CARRIER PRIVACY
+# ============================================================================
+
+# Carrier tracking
+# - Call logs (who you call, when, duration)
+# - SMS content (unencrypted)
+# - Real-time location (cell tower triangulation)
+# - Metadata (even if using Signal)
+
+# Reduce carrier tracking
+# Use VoIP for calls (Signal, Matrix)
+# Use encrypted messengers (Signal) instead of SMS
+# Use VPN to hide data traffic content
+
+# Anonymous SIM card
+# Prepaid SIM, bought with cash
+# Register with fake info (where legal)
+# Swap SIM regularly (burner SIMs)
+
+# Silent Link (privacy-focused carrier, USA)
+# https://silent.link/
+# Crypto payments, no KYC
+
+# ============================================================================
+# SENSOR PRIVACY
+# ============================================================================
+
+# Sensors on smartphones
+# - Accelerometer, gyroscope (motion tracking)
+# - Magnetometer (compass)
+# - Barometer (altitude)
+# - Proximity sensor
+# - Ambient light sensor
+
+# Sensor fingerprinting
+# Apps can identify device by sensor data
+# No permission required (Android)
+
+# GrapheneOS sensor permission
+# Blocks sensor access per-app
+# Settings → Apps → [App] → Sensors → Deny
+
+# Sensor access on other Android
+# Requires custom ROM or root
+
+# iOS sensor access
+# Motion & Fitness permission (Settings → Privacy → Motion & Fitness)
+
+# ============================================================================
+# CAMERA & MICROPHONE PRIVACY
+# ============================================================================
+
+# Camera/mic are surveillance risks
+# Malware can secretly record
+
+# Physical camera cover
+# Slide cover, tape (low-tech but effective)
+
+# Indicator light (iOS 14+, Android 12+)
+# Orange dot: Microphone active
+# Green dot: Camera active
+
+# Revoke camera/mic permissions
+# Settings → Privacy → Camera/Microphone
+# Only allow for apps actively using them
+
+# ============================================================================
+# BIOMETRIC PRIVACY
+# ============================================================================
+
+# Fingerprint sensor
+# Convenient but vulnerable (forced unlock)
+# Can be compelled by law enforcement (varies by jurisdiction)
+
+# Face unlock
+# Similar concerns as fingerprint
+# 3D facial recognition more secure than 2D
+
+# Recommendations
+# Use biometric + strong PIN/password
+# Or: Strong password only (more secure)
+
+# Disable biometric under duress
+# iOS: Press power button 5 times (requires password)
+# Android: Varies by device (check settings)
+
+# ============================================================================
+# ENCRYPTION
+# ============================================================================
+
+# Enable full device encryption
+# Modern phones: Encrypted by default
+# Older Android: Settings → Security → Encrypt phone
+
+# Strong lockscreen password
+# Use password (not PIN, not pattern)
+# 10+ characters, alphanumeric
+
+# Encryption at rest
+# All data encrypted when phone locked
+# Decrypted when unlocked
+
+# Secure enclave (iOS) / StrongBox (Android)
+# Hardware-backed encryption
+# Keys never leave secure element
+
+# ============================================================================
+# SECURE COMMUNICATION
+# ============================================================================
+
+# Signal (end-to-end encrypted messaging)
+# https://signal.org/
+# Encrypted: Messages, calls, video calls
+
+# Signal hardening
+# Settings → Privacy → Screen Lock (ON)
+# Settings → Privacy → Screen Security (prevent screenshots)
+# Settings → Privacy → Disappearing Messages (default 1 week)
+
+# Matrix/Element (federated, E2EE)
+# https://element.io/
+# Similar to Signal, but federated (no single point of failure)
+
+# Briar (peer-to-peer, offline)
+# https://briarproject.org/
+# No central servers, works over Bluetooth/WiFi
+
+# ============================================================================
+# CLOUD SYNC PRIVACY
+# ============================================================================
+
+# Disable cloud backups (or encrypt first)
+# Google/Apple can access cloud backups
+
+# Android backup
+# Settings → Google → Backup → Turn OFF
+# Or: Use Seedvault (local encrypted backups)
+
+# iOS backup
+# Settings → [Name] → iCloud → iCloud Backup → Turn OFF
+# Or: Encrypted local backups via iTunes
+
+# Photo sync (disable or encrypt)
+# Google Photos - Tracks, identifies faces
+# iCloud Photos - Apple has access
+# Alternative: Encrypted self-hosted (Nextcloud)
+
+# ============================================================================
+# BURNER PHONE / OPSEC
+# ============================================================================
+
+# Burner phone use case
+# High-risk scenarios, anonymous communication
+
+# Burner phone requirements
+# - Cheap prepaid phone
+# - Cash purchase (no name)
+# - Prepaid SIM (no KYC)
+# - Never linked to real identity
+
+# Burner phone rules
+# - Don't use near home/work
+# - Don't connect to known WiFi
+# - Don't login to personal accounts
+# - Dispose after use (or long-term storage off-site)
+
+# Virtual burner (app)
+# Hushed - https://hushed.com/
+# Burner - https://www.burnerapp.com/
+# Gives temporary phone number
+# Calls/SMS forwarded to real phone
+
+# ============================================================================
+# ANTI-THEFT & REMOTE WIPE
+# ============================================================================
+
+# Find My Device (Android)
+# Settings → Security → Find My Device → Turn ON
+# Allows remote locate, lock, wipe
+
+# Find My (iOS)
+# Settings → [Name] → Find My → Find My iPhone → Turn ON
+
+# Remote wipe
+# If phone stolen/seized, wipe remotely
+# Android: android.com/find
+# iOS: icloud.com/find
+
+# Auto-wipe on failed attempts
+# iOS: Settings → Face ID & Passcode → Erase Data (after 10 failed attempts)
+# Android: Requires custom ROM or third-party app
+
+# ============================================================================
+# MOBILE PRIVACY CHECKLIST
+# ============================================================================
+
+# Setup
+# [ ] Use GrapheneOS (Pixel) or CalyxOS
+# [ ] Strong passphrase (not PIN/pattern)
+# [ ] Enable encryption (default on modern devices)
+# [ ] Disable unnecessary permissions
+# [ ] Install F-Droid for open source apps
+# [ ] Disable cloud backups (or encrypt)
+# [ ] Enable VPN for mobile data
+
+# Daily use
+# [ ] Location OFF when not needed
+# [ ] Review app permissions monthly
+# [ ] Use Signal for sensitive communication
+# [ ] Airplane mode in high-risk situations
+# [ ] Cover camera when not in use
+
+# Advanced
+# [ ] Use Orbot (Tor) for sensitive browsing
+# [ ] Use encrypted DNS
+# [ ] Faraday bag for maximum privacy
+# [ ] Burner SIM for anonymous communication
+
+# ============================================================================
+# PRIVACY PHONES (HARDWARE)
+# ============================================================================
+
+# Purism Librem 5
+# https://puri.sm/products/librem-5/
+# Linux phone (PureOS)
+# Hardware kill switches (camera, mic, WiFi, cell)
+# Open hardware design
+
+# PinePhone
+# https://www.pine64.org/pinephone/
+# Linux phone (multiple OS options)
+# Privacy-focused, affordable
+# Hardware switches
+
+# Fairphone (with custom ROM)
+# https://www.fairphone.com/
+# Ethical smartphone
+# Install CalyxOS or /e/OS for privacy
+
+# ============================================================================
+# DUMBPHONE (MAXIMUM PRIVACY)
+# ============================================================================
+
+# Dumbphone advantages
+# - No apps (no tracking)
+# - No GPS (approximate location only)
+# - Long battery life
+# - Cheap, disposable
+
+# Dumbphone disadvantages
+# - Basic features only (calls, SMS)
+# - No encryption (SMS unencrypted)
+# - No smartphone apps (Signal, etc.)
+
+# Recommended dumbphones
+# Nokia 8110 4G (KaiOS, somewhat privacy-hostile)
+# Light Phone II (minimalist, privacy-focused)
+# Sunbeam F1 (anti-smartphone)
+
+# ============================================================================
+# RESOURCES
+# ============================================================================
+
+# Privacy guides
+# Privacy Guides: https://www.privacyguides.org/android/
+# EFF Mobile Security: https://ssd.eff.org/en/module/keeping-your-data-safe
+
+# Custom ROMs
+# GrapheneOS: https://grapheneos.org/
+# CalyxOS: https://calyxos.org/
+# LineageOS: https://lineageos.org/
+
+# Tools
+# F-Droid: https://f-droid.org/
+# Orbot: https://guardianproject.info/apps/org.torproject.android/
+# Signal: https://signal.org/
+
+# Communities
+# r/GrapheneOS (Reddit)
+# r/privacy (Reddit)
+# XDA Developers forums
+

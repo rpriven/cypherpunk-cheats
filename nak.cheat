@@ -1,0 +1,36 @@
+% nostr, nak, cryptography, decentralized
+
+# nak — fiatjaf's "Nostr army knife". For network commands, relay URLs go at the END.
+# req filters: -k kind | -a author(hex) | -i id | -l limit | -t name=value tag | -s search
+
+# Decode npub/note/nevent/nprofile to hex (pure local, no network)
+nak decode <npub_or_note>
+
+# Encode a hex pubkey to npub (local, no network)
+nak encode npub <hex_pubkey>
+
+# Read: last N text notes (kind 1) by an author from a relay
+nak req -k 1 -a <hex_pubkey> -l <limit> <relay_url>
+
+# Read: a single event by its id
+nak req -i <event_id> <relay_url>
+
+# Read: filter notes by hashtag tag (t=value)
+nak req -k 1 -t t=<hashtag> -l <limit> <relay_url>
+
+# Write DRY RUN: no relays at the end = prints the signed event, does NOT publish
+nak event -k 1 -c "<content>" --sec <nsec_or_hex_key>
+
+# Write & PUBLISH: add one or more relay URLs at the end
+nak event -k 1 -c "<content>" --sec <key> <relay_url> <relay_url_2>
+
+# Payment-pointer event (NIP-A3, kind 10133) — each -t 'payto=x;y' becomes ["payto","x","y"]
+nak event -k 10133 -t 'payto=xmr;<your_xmr_subaddress>' -t 'payto=lightning;<your_lud16>' --sec <key> <relay_url> <relay_url_2>
+
+# Sign via a remote bunker (NIP-46 / Amber) instead of a local --sec key — confirm exact flag
+nak event --help
+
+# Help for any subcommand (decode, encode, req, event, ...)
+nak <subcommand> --help
+
+$ relay_url: echo 'wss://nos.lol wss://relay.damus.io wss://relay.primal.net wss://relay.nostr.band' | tr ' ' '\n'

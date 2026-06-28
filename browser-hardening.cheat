@@ -1,0 +1,396 @@
+% browser, firefox, chrome, privacy, hardening, fingerprinting
+
+# ============================================================================
+# BROWSER SELECTION & INSTALLATION
+# ============================================================================
+
+# Recommended privacy browsers (in order)
+# 1. LibreWolf (Firefox fork, privacy-hardened by default)
+# 2. Mullvad Browser (Tor Browser without Tor network)
+# 3. Firefox (with manual hardening)
+# 4. Brave (Chromium-based alternative)
+
+# Install LibreWolf (Debian/Ubuntu)
+sudo apt install extrepo
+sudo extrepo enable librewolf
+sudo apt update && sudo apt install librewolf
+
+# Install Firefox from Mozilla (not Snap)
+sudo add-apt-repository ppa:mozillateam/ppa
+sudo apt update && sudo apt install firefox
+
+# Install Brave
+sudo curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main" | sudo tee /etc/apt/sources.list.d/brave-browser-release.list
+sudo apt update && sudo apt install brave-browser
+
+# Install Mullvad Browser
+wget --content-disposition https://mullvad.net/en/download/browser/linux-x86_64/latest
+
+# ============================================================================
+# FIREFOX HARDENING (about:config)
+# ============================================================================
+
+# Access Firefox config
+# Type in address bar: about:config
+
+# Privacy settings (search and set these)
+privacy.resistFingerprinting = true
+privacy.trackingprotection.enabled = true
+privacy.trackingprotection.socialtracking.enabled = true
+privacy.firstparty.isolate = true
+privacy.donottrackheader.enabled = true
+
+# DNS over HTTPS (DoH)
+network.trr.mode = 2
+network.trr.uri = https://mozilla.cloudflare-dns.com/dns-query
+
+# WebRTC IP leak prevention
+media.peerconnection.enabled = false
+media.peerconnection.ice.default_address_only = true
+
+# Disable telemetry
+toolkit.telemetry.enabled = false
+toolkit.telemetry.unified = false
+datareporting.healthreport.uploadEnabled = false
+datareporting.policy.dataSubmissionEnabled = false
+
+# Disable Pocket
+extensions.pocket.enabled = false
+
+# Disable prefetching
+network.dns.disablePrefetch = true
+network.prefetch-next = false
+
+# HTTPS-only mode
+dom.security.https_only_mode = true
+dom.security.https_only_mode_ever_enabled = true
+
+# Disable geolocation
+geo.enabled = false
+
+# Disable WebGL (fingerprinting vector)
+webgl.disabled = true
+
+# Disable canvas fingerprinting
+privacy.resistFingerprinting.block_mozAddonManager = true
+
+# ============================================================================
+# FIREFOX EXTENSIONS (ESSENTIAL)
+# ============================================================================
+
+# uBlock Origin (ad/tracker blocking)
+# Install: https://addons.mozilla.org/firefox/addon/ublock-origin/
+
+# Privacy Badger (EFF tracker blocker)
+# Install: https://addons.mozilla.org/firefox/addon/privacy-badger17/
+
+# HTTPS Everywhere (force HTTPS)
+# Install: https://addons.mozilla.org/firefox/addon/https-everywhere/
+
+# Decentraleyes (local CDN emulation)
+# Install: https://addons.mozilla.org/firefox/addon/decentraleyes/
+
+# NoScript (JavaScript control)
+# Install: https://addons.mozilla.org/firefox/addon/noscript/
+
+# ClearURLs (remove tracking parameters)
+# Install: https://addons.mozilla.org/firefox/addon/clearurls/
+
+# Cookie AutoDelete (auto-delete cookies)
+# Install: https://addons.mozilla.org/firefox/addon/cookie-autodelete/
+
+# Temporary Containers (isolate sites)
+# Install: https://addons.mozilla.org/firefox/addon/temporary-containers/
+
+# ============================================================================
+# FIREFOX ADVANCED HARDENING
+# ============================================================================
+
+# User.js hardening (arkenfox template)
+cd ~/.mozilla/firefox/*.default-release/
+wget https://raw.githubusercontent.com/arkenfox/user.js/master/user.js
+
+# Customize user.js overrides
+# Create user-overrides.js for site-specific settings
+
+# Apply updates to user.js
+cd ~/.mozilla/firefox/*.default-release/
+wget https://raw.githubusercontent.com/arkenfox/user.js/master/updater.sh
+bash updater.sh
+
+# ============================================================================
+# CHROMIUM/BRAVE HARDENING
+# ============================================================================
+
+# Chrome/Brave flags (chrome://flags)
+# Enable: Strict site isolation
+# Enable: Block third-party cookies
+# Disable: WebRTC IP handling
+
+# Brave Shield settings
+# Settings → Shields → Trackers & ads blocking: Aggressive
+# Settings → Shields → Block fingerprinting: Strict
+# Settings → Shields → Block cookies: Block third-party cookies
+
+# Chrome extensions (same as Firefox)
+# uBlock Origin, Privacy Badger, HTTPS Everywhere, Decentraleyes
+
+# ============================================================================
+# SEARCH ENGINE CONFIGURATION
+# ============================================================================
+
+# Privacy-respecting search engines
+# DuckDuckGo: https://duckduckgo.com
+# Startpage: https://startpage.com
+# Searx instances: https://searx.space
+# Brave Search: https://search.brave.com
+
+# Set custom search engine in Firefox
+# Settings → Search → Default Search Engine
+
+# Add Searx instance
+# Settings → Search → Find More Search Engines → Add manually
+
+# ============================================================================
+# FINGERPRINTING TESTS
+# ============================================================================
+
+# Test browser fingerprint uniqueness
+# Cover Your Tracks (EFF): https://coveryourtracks.eff.org/
+# AmIUnique: https://amiunique.org/
+# BrowserLeaks: https://browserleaks.com/
+
+# Test WebRTC leak
+# WebRTC Leak Test: https://browserleaks.com/webrtc
+
+# Test DNS leak
+# DNS Leak Test: https://dnsleaktest.com/
+
+# ============================================================================
+# PRIVACY-FOCUSED PROFILES
+# ============================================================================
+
+# Firefox Multi-Account Containers
+# Install: https://addons.mozilla.org/firefox/addon/multi-account-containers/
+
+# Create separate profiles for different activities
+# Personal, Work, Shopping, Banking, Anonymous
+
+# Firefox profile manager
+firefox -ProfileManager
+
+# Launch with specific profile
+firefox -P "ProfileName"
+
+# ============================================================================
+# COOKIE & STORAGE MANAGEMENT
+# ============================================================================
+
+# Cookie settings (Firefox)
+# Settings → Privacy & Security → Cookies and Site Data
+# Delete cookies and site data when Firefox is closed
+
+# Clear history on exit
+# Settings → Privacy & Security → History → Clear history when Firefox closes
+# Select: Browsing & download history, Cookies, Cache, Active logins
+
+# Storage inspection (Firefox)
+# about:preferences#privacy → Cookies and Site Data → Manage Data
+
+# Clear all data
+# CTRL+SHIFT+DEL → Select "Everything" → Clear Now
+
+# ============================================================================
+# USER-AGENT SPOOFING
+# ============================================================================
+
+# User-Agent Switcher extension
+# Install: https://addons.mozilla.org/firefox/addon/uaswitcher/
+
+# Common user agents to rotate
+Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36
+
+# ============================================================================
+# SAFE BROWSING PRACTICES
+# ============================================================================
+
+# Always use HTTPS (check for padlock)
+# Verify SSL certificates (click padlock → Connection is secure)
+# Check URL for typos (phishing prevention)
+# Never save passwords in browser (use password manager)
+# Use separate browser for banking/sensitive accounts
+# Never use public WiFi without VPN
+# Clear cookies/cache regularly
+# Disable auto-fill for forms
+# Review browser permissions regularly (camera, mic, location)
+
+# ============================================================================
+# DISABLING BROWSER TELEMETRY
+# ============================================================================
+
+# Firefox telemetry (about:config)
+toolkit.telemetry.enabled = false
+toolkit.telemetry.unified = false
+toolkit.telemetry.archive.enabled = false
+datareporting.healthreport.uploadEnabled = false
+datareporting.policy.dataSubmissionEnabled = false
+browser.newtabpage.activity-stream.feeds.telemetry = false
+browser.ping-centre.telemetry = false
+
+# Brave telemetry
+# Settings → Privacy and security → Usage data → Disable all
+
+# Chrome telemetry
+# Settings → Privacy and security → Sync and Google services → Disable all
+
+# ============================================================================
+# CONTAINER ISOLATION (FIREFOX)
+# ============================================================================
+
+# Enable First Party Isolation
+privacy.firstparty.isolate = true
+
+# Use Multi-Account Containers
+# Separate: Shopping, Social Media, Banking, Work, Personal
+
+# Configure container rules
+# Assign domains to always open in specific containers
+# Example: facebook.com → Social Media container
+
+# Temporary Containers (auto-delete)
+# Every new tab in isolated container
+# Cookies/storage deleted on tab close
+
+# ============================================================================
+# PDF VIEWER HARDENING
+# ============================================================================
+
+# Disable JavaScript in PDF viewer (Firefox)
+pdfjs.enableScripting = false
+
+# Use external PDF viewer (more secure)
+# Settings → Applications → PDF → Use system default
+
+# Alternative: Send to external viewer
+xdg-mime default evince.desktop application/pdf
+
+# ============================================================================
+# ADDITIONAL SECURITY MEASURES
+# ============================================================================
+
+# Disable WebAssembly (potential exploit vector)
+javascript.options.wasm = false
+
+# Disable WebGL (fingerprinting + GPU exploits)
+webgl.disabled = true
+
+# Disable battery status API (tracking)
+dom.battery.enabled = false
+
+# Disable gamepad API (fingerprinting)
+dom.gamepad.enabled = false
+
+# Disable clipboard API access
+dom.event.clipboardevents.enabled = false
+
+# ============================================================================
+# SECURE BROWSER PROFILES
+# ============================================================================
+
+# Banking Profile (maximum security)
+# - No extensions (except HTTPS Everywhere)
+# - JavaScript required (for banking sites)
+# - Cookies allowed for session only
+# - Never save passwords
+# - Clear all data on exit
+
+# Anonymous Profile (maximum privacy)
+# - Tor Browser or Mullvad Browser
+# - NoScript enabled (block all JS by default)
+# - No cookies
+# - No WebRTC
+# - Resist fingerprinting
+
+# Daily Driver Profile (balanced)
+# - uBlock Origin, Privacy Badger, Decentraleyes
+# - Cookie AutoDelete
+# - HTTPS-only mode
+# - DoH enabled
+
+# ============================================================================
+# BROWSER UPDATE POLICY
+# ============================================================================
+
+# Always keep browser updated (critical security patches)
+# Enable automatic updates
+
+# Firefox updates
+# Settings → General → Firefox Updates → Automatically install updates
+
+# Check current version
+firefox --version
+
+# Manual update check
+# Settings → Help → About Firefox
+
+# ============================================================================
+# CONTENT BLOCKING LISTS
+# ============================================================================
+
+# uBlock Origin filter lists
+# Enable: Built-in, EasyList, EasyPrivacy, Malware domains, Annoyances
+
+# Additional lists
+# - Dan Pollock's hosts file
+# - Peter Lowe's Ad server list
+# - AdGuard filters
+
+# Update filters regularly
+# uBlock Origin dashboard → Filter lists → Update now
+
+# ============================================================================
+# TESTING HARDENING EFFECTIVENESS
+# ============================================================================
+
+# Browser fingerprinting test
+https://coveryourtracks.eff.org/
+
+# DNS leak test
+https://dnsleaktest.com/
+
+# WebRTC leak test
+https://browserleaks.com/webrtc
+
+# IP leak test (when using VPN)
+https://ipleak.net/
+
+# SSL/TLS test
+https://www.ssllabs.com/ssltest/viewMyClient.html
+
+# Check enabled features
+https://browserleaks.com/javascript
+
+# ============================================================================
+# TROUBLESHOOTING
+# ============================================================================
+
+# Site broken after hardening
+# Disable privacy.resistFingerprinting temporarily
+# Allow JavaScript for specific site (NoScript)
+# Allow third-party cookies for specific site
+
+# Can't login to sites
+# Check if cookies are blocked
+# Disable tracking protection for specific site
+# Allow localStorage
+
+# Videos won't play
+# Re-enable WebGL temporarily
+# Allow DRM content (Settings → Privacy → DRM Content)
+
+# Reset Firefox to defaults (if needed)
+# about:support → Refresh Firefox
+

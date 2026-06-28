@@ -1,0 +1,594 @@
+% anti-forensics, counter-forensics, evidence-elimination, privacy-defense
+
+# ============================================================================
+# ANTI-FORENSICS OVERVIEW
+# ============================================================================
+
+# Anti-forensics definition
+# Techniques to prevent, detect, or defeat forensic analysis
+# Goal: Protect privacy, not facilitate illegal activity
+
+# Legal considerations
+# Anti-forensics for privacy is legal in most jurisdictions
+# Destruction of evidence under investigation = illegal
+# Know your local laws
+
+# Forensic process (what we're defending against)
+# 1. Acquisition: Creating forensic image of device
+# 2. Preservation: Maintaining evidence integrity
+# 3. Analysis: Examining data, recovering deleted files
+# 4. Reporting: Documenting findings
+
+# Anti-forensic categories
+# 1. Data hiding (encryption, steganography)
+# 2. Data destruction (secure deletion, wiping)
+# 3. Trail obfuscation (log clearing, timestamp manipulation)
+# 4. Attack against forensic tools
+
+# ============================================================================
+# ENCRYPTION (FIRST LINE OF DEFENSE)
+# ============================================================================
+
+# Full disk encryption (FDE)
+# Makes forensic acquisition useless without passphrase
+# See veracrypt.cheat for detailed guide
+
+# LUKS encryption (Linux)
+sudo cryptsetup luksFormat /dev/sdX
+sudo cryptsetup luksOpen /dev/sdX encrypted_drive
+
+# Check if drive is encrypted
+lsblk -f
+
+# File encryption
+# See gpg.cheat, age.cheat for file-level encryption
+
+# Encrypted containers (VeraCrypt)
+# Hidden volumes (plausible deniability)
+# See veracrypt.cheat
+
+# ============================================================================
+# SECURE FILE DELETION
+# ============================================================================
+
+# Comprehensive secure deletion guide
+# See secure-deletion.cheat for full details
+
+# Quick secure delete
+shred -vfz -n 3 <file>
+$ file: echo "sensitive.txt"
+
+# Wipe free space (removes "deleted" files)
+sfill -v /home/
+
+# Clear file system journal
+# Ext4 journal may contain file fragments
+sudo debugfs -w /dev/sdX -R "zap_journal"
+
+# ============================================================================
+# METADATA REMOVAL
+# ============================================================================
+
+# Remove file metadata (see metadata-removal.cheat)
+exiftool -all= <file>
+$ file: echo -e "document.pdf\\nphoto.jpg"
+
+# Metadata in file systems
+# Access time (atime), modify time (mtime), change time (ctime)
+
+# Disable atime updates (reduces forensic artifacts)
+sudo mount -o remount,noatime /
+
+# Make permanent in /etc/fstab
+# /dev/sdX  /mount_point  ext4  defaults,noatime  0  2
+
+# Touch file to change timestamps
+touch -t <timestamp> <file>
+$ timestamp: echo "202501010000"
+$ file: echo "document.txt"
+
+# ============================================================================
+# LOG FILE MANAGEMENT
+# ============================================================================
+
+# System logs (forensic goldmine)
+# /var/log/ - main log directory
+# /var/log/auth.log - authentication attempts
+# /var/log/syslog - system events
+# ~/.bash_history - command history
+
+# Clear bash history
+history -c
+rm ~/.bash_history
+
+# Disable bash history for session
+unset HISTFILE
+
+# Clear systemd journal logs
+sudo journalctl --vacuum-time=1d
+sudo journalctl --vacuum-size=10M
+
+# Clear specific log files
+sudo truncate -s 0 /var/log/auth.log
+sudo truncate -s 0 /var/log/syslog
+
+# Disable logging temporarily (dangerous!)
+sudo systemctl stop rsyslog
+sudo systemctl stop systemd-journald
+
+# Shred log files
+sudo find /var/log -type f -exec shred -vfz -n 1 {} \\;
+
+# ============================================================================
+# BROWSER FORENSICS COUNTERMEASURES
+# ============================================================================
+
+# Browser artifacts
+# - History (URLs visited)
+# - Cache (page content, images)
+# - Cookies (tracking, session data)
+# - Downloads (file list, sources)
+# - Form data (autofill information)
+# - Passwords (encrypted, but vulnerable)
+
+# Clear Firefox data
+rm -rf ~/.mozilla/firefox/*/cache2/*
+rm -rf ~/.mozilla/firefox/*/cookies.sqlite
+rm -rf ~/.mozilla/firefox/*/places.sqlite
+
+# Or use browser settings
+# CTRL+SHIFT+DEL → Everything → Clear Now
+
+# Use private browsing mode
+# Firefox: CTRL+SHIFT+P
+# Chrome: CTRL+SHIFT+N
+
+# Better: Use Tor Browser (see tor.cheat)
+# No local forensic artifacts
+
+# ============================================================================
+# MEMORY (RAM) FORENSICS COUNTERMEASURES
+# ============================================================================
+
+# Cold boot attacks
+# RAM retains data briefly after power off
+# Forensic tools can capture RAM contents
+
+# Defense: Overwrite RAM on shutdown
+# Create shutdown script
+sudo nano /etc/systemd/system/wipe-ram.service
+
+# Add:
+# [Unit]
+# Description=Wipe RAM on shutdown
+# DefaultDependencies=no
+# Before=shutdown.target
+#
+# [Service]
+# Type=oneshot
+# ExecStart=/usr/bin/sdmem -v
+#
+# [Install]
+# WantedBy=shutdown.target
+
+sudo systemctl enable wipe-ram.service
+
+# Clear swap partition
+sudo swapoff -a
+sudo swapon -a
+
+# Disable swap (prevents disk-based RAM recovery)
+sudo swapoff -a
+sudo rm /swapfile
+# Comment out swap line in /etc/fstab
+
+# ============================================================================
+# NETWORK FORENSICS COUNTERMEASURES
+# ============================================================================
+
+# Network logs contain
+# - IP addresses
+# - DNS queries
+# - Connection timestamps
+# - Protocols used
+
+# VPN (hides traffic from ISP)
+# See vpn.cheat (to be created)
+
+# Tor (anonymizes network traffic)
+# See tor.cheat
+
+# DNS encryption
+# Prevents ISP from logging DNS queries
+# Use DoH (DNS-over-HTTPS) or DoT (DNS-over-TLS)
+
+# Clear DNS cache
+sudo systemd-resolve --flush-caches
+
+# Disable network history (NetworkManager)
+sudo nano /etc/NetworkManager/NetworkManager.conf
+# Add:
+# [main]
+# no-auto-default=*
+
+# ============================================================================
+# FILE SYSTEM ANTI-FORENSICS
+# ============================================================================
+
+# File carving
+# Forensic technique to recover files without file system metadata
+# Defense: Overwrite free space
+
+# Wipe free space
+cat /dev/urandom > /tmp/wipefile
+rm /tmp/wipefile
+
+# Or use sfill
+sfill -v /home/
+
+# File system timestamps
+# atime (access), mtime (modify), ctime (change)
+# Forensic examiners use timestamps to build timeline
+
+# Modify timestamps (anti-forensic tactic)
+touch -a -t 202001010000 <file>  # Change access time
+touch -m -t 202001010000 <file>  # Change modify time
+
+# timestomp (Metasploit)
+# Copies timestamps from one file to another
+
+# ============================================================================
+# SLACK SPACE & UNALLOCATED SPACE
+# ============================================================================
+
+# Slack space
+# Unused space between end of file and end of cluster
+# May contain remnants of previous files
+
+# Wipe slack space
+# No simple tool, requires specialized software
+# Best defense: Full disk encryption
+
+# Unallocated space
+# "Deleted" files live here until overwritten
+# Recovered by forensic tools (PhotoRec, Foremost)
+
+# Wipe unallocated space
+sfill -v /mount/point/
+
+# ============================================================================
+# STEGANOGRAPHY (DATA HIDING)
+# ============================================================================
+
+# Hide data in images
+# Install steghide
+sudo apt install steghide
+
+# Hide file in image
+steghide embed -cf cover.jpg -ef secret.txt -p <passphrase>
+$ passphrase: echo "StrongPassword123"
+
+# Extract hidden file
+steghide extract -sf cover.jpg -p <passphrase>
+$ passphrase: echo "StrongPassword123"
+
+# Check for hidden data (steganalysis)
+steghide info cover.jpg
+
+# Other steganography tools
+# outguess - statistical steganography
+# stegosaurus - Python-based stego tool
+
+# ============================================================================
+# PLAUSIBLE DENIABILITY
+# ============================================================================
+
+# Hidden volumes (VeraCrypt)
+# Encrypted volume within encrypted volume
+# See veracrypt.cheat for setup
+
+# Concept
+# Outer volume: Decoy data (less sensitive)
+# Hidden volume: Real secrets
+# Under duress, reveal outer volume password only
+
+# Requirements
+# - Strong passwords for both volumes
+# - Careful not to overwrite hidden volume
+# - Realistic decoy data
+
+# ============================================================================
+# ANTI-FORENSIC OPERATING SYSTEMS
+# ============================================================================
+
+# Tails (The Amnesiac Incognito Live System)
+# Leaves no trace on computer
+# See secure-os.cheat for full guide
+
+# Key anti-forensic features
+# - Runs from USB (no installation)
+# - RAM-only (no disk writes)
+# - Secure deletion tools included
+# - Tor routing (network anonymity)
+
+# Use case: Maximum anti-forensics
+# Boot Tails, do work, shutdown
+# No artifacts on host computer
+
+# ============================================================================
+# SECURE COMMUNICATION (AVOIDING FORENSIC TRAILS)
+# ============================================================================
+
+# Disappearing messages
+# Signal: Settings → Privacy → Disappearing messages → Enable
+# Set timer: 5 seconds to 1 week
+
+# E2EE messaging (see opsec.cheat)
+# Signal, Element/Matrix, Wire
+# Even if seized, messages unreadable
+
+# Encrypted email
+# ProtonMail, Tutanota (see email-privacy.cheat)
+# PGP/GPG encryption (see gpg.cheat)
+
+# ============================================================================
+# DEFEATING FILE RECOVERY TOOLS
+# ============================================================================
+
+# Common forensic recovery tools
+# - PhotoRec (file carving)
+# - Foremost (signature-based recovery)
+# - TestDisk (partition recovery)
+# - Autopsy (forensic analysis suite)
+# - Sleuth Kit (command-line forensics)
+
+# Defenses
+# 1. Secure deletion (shred, wipe, srm)
+# 2. Encryption (LUKS, VeraCrypt)
+# 3. Wipe free space (sfill)
+# 4. Overwrite multiple times (7-35 passes for HDDs)
+
+# Test recovery yourself
+# Delete file → Attempt recovery with PhotoRec
+# If successful, your deletion wasn't secure enough
+
+# ============================================================================
+# LIVE SYSTEM FORENSICS COUNTERMEASURES
+# ============================================================================
+
+# Live forensic acquisition
+# Examiner boots seized device to extract data
+
+# Defenses
+# 1. Full disk encryption (forces examiner to ask for password)
+# 2. Encrypted bootloader (GRUB password)
+# 3. Auto-wipe on tamper (advanced, risky)
+
+# GRUB password (boot protection)
+# Prevents booting without password
+sudo nano /etc/grub.d/40_custom
+
+# Add:
+# set superusers="root"
+# password root <password_hash>
+
+# Generate password hash
+grub-mkpasswd-pbkdf2
+
+# Update GRUB
+sudo update-grub
+
+# ============================================================================
+# TIMELINE ANTI-FORENSICS
+# ============================================================================
+
+# Forensic timeline analysis
+# Examiners create timeline of activity using timestamps
+# Goal: Understand "what happened when"
+
+# Anti-forensic tactics
+# 1. Timestamp manipulation (touch command)
+# 2. Clock tampering (change system time)
+# 3. Disable atime updates
+
+# Change system time (temporary)
+sudo date -s "2020-01-01 00:00:00"
+
+# Restore correct time
+sudo ntpdate pool.ntp.org
+
+# ============================================================================
+# MOBILE DEVICE FORENSICS COUNTERMEASURES
+# ============================================================================
+
+# Mobile forensics (iOS/Android)
+# Tools: Cellebrite, GrayKey, XRY
+
+# Defenses
+# 1. Strong passcode (10+ digits, alphanumeric)
+# 2. Biometric + passcode (both required)
+# 3. Enable encryption (default on modern devices)
+# 4. Disable USB accessories when locked
+# 5. Faraday bag (prevents remote wipe prevention)
+
+# iOS hardening
+# Settings → Face ID & Passcode → Require passcode immediately
+# Settings → Face ID & Passcode → USB Accessories (OFF when locked)
+
+# Android hardening
+# Settings → Security → Screen lock → Password (not pattern/PIN)
+# Settings → Developer options → USB debugging (OFF)
+
+# Emergency wipe
+# iOS: Wrong passcode 10 times = wipe (if enabled)
+# Android: Varies by device
+
+# ============================================================================
+# CLOUD FORENSICS COUNTERMEASURES
+# ============================================================================
+
+# Cloud storage forensics
+# Examiner can subpoena cloud provider
+# Provider complies, provides data
+
+# Defenses
+# 1. Client-side encryption (encrypt before upload)
+# 2. Use privacy-focused providers (ProtonDrive, Tresorit)
+# 3. Don't rely on cloud provider "encryption" (they have keys)
+
+# Encrypt before uploading
+gpg --encrypt --recipient you@example.com file.txt
+# Upload file.txt.gpg to cloud
+
+# ============================================================================
+# COUNTER-FORENSIC TOOLS
+# ============================================================================
+
+# Secure deletion
+# shred, wipe, srm - See secure-deletion.cheat
+
+# Metadata removal
+# exiftool, mat2 - See metadata-removal.cheat
+
+# Memory wiping
+# sdmem (secure-delete package)
+sdmem -v
+
+# Forensic cleaner (BleachBit)
+sudo apt install bleachbit
+bleachbit --clean system.* firefox.*
+
+# Timestomp (change file timestamps)
+# Part of Metasploit Framework
+
+# ============================================================================
+# ANTI-FORENSIC WORKFLOW (HIGH SECURITY)
+# ============================================================================
+
+# Daily operations
+# 1. Use Tails or full disk encryption
+# 2. Encrypt all sensitive files (GPG/age)
+# 3. Clear browser data after each session
+# 4. Use disappearing messages
+# 5. Avoid logging (private browsing, no bash history)
+
+# Before device seizure (if anticipated)
+# 1. Wipe free space (sfill)
+# 2. Securely delete sensitive files (shred)
+# 3. Clear all logs
+# 4. Overwrite swap/RAM
+# 5. Factory reset (if necessary)
+
+# Emergency (device seizure imminent)
+# 1. Shut down (don't sleep/hibernate)
+# 2. Remove batteries (if possible)
+# 3. Invoke right to remain silent
+# 4. Request attorney
+
+# ============================================================================
+# FORENSIC AWARENESS (KNOW YOUR ENEMY)
+# ============================================================================
+
+# Learn forensics to defend against it
+# Practice with forensic tools (on your own data)
+# Understand what examiners look for
+
+# Forensic training
+# SANS FOR500 (Windows Forensics)
+# SANS FOR518 (Mac Forensics)
+# TCM Security courses
+
+# Open-source forensic tools (practice)
+# Autopsy - https://www.autopsy.com/
+# Volatility - Memory forensics
+# Sleuth Kit - File system analysis
+
+# Test your defenses
+# Delete sensitive file, attempt recovery
+# If successful, improve deletion method
+
+# ============================================================================
+# LEGAL & ETHICAL CONSIDERATIONS
+# ============================================================================
+
+# When anti-forensics is legal
+# - Privacy protection
+# - Secure business data
+# - Preventing corporate espionage
+# - General security best practices
+
+# When anti-forensics is illegal
+# - Destroying evidence under subpoena
+# - Obstruction of justice during investigation
+# - Violating discovery obligations (civil litigation)
+
+# Know your rights
+# Right to remain silent (5th Amendment, US)
+# Right to refuse password disclosure (varies by country)
+# Right to attorney
+
+# ============================================================================
+# ANTI-FORENSIC CHECKLIST
+# ============================================================================
+
+# Prevention (before any investigation)
+# [ ] Full disk encryption enabled
+# [ ] Secure deletion tools configured
+# [ ] Regular log clearing routine
+# [ ] Metadata removal workflow
+# [ ] Encrypted backups
+# [ ] Disappearing messages enabled
+
+# Detection (is forensic exam happening?)
+# [ ] Watch for suspicious activity
+# [ ] Check for unusual process
+# [ ] Monitor network connections
+# [ ] Physical security (tamper evidence)
+
+# Response (forensic exam suspected/happening)
+# [ ] Shut down cleanly (if time permits)
+# [ ] Invoke legal rights (attorney, silence)
+# [ ] Document everything
+# [ ] Do not consent to searches (unless legally required)
+
+# ============================================================================
+# MISTAKES TO AVOID
+# ============================================================================
+
+# ❌ Deleting files with regular rm
+# ✅ Use shred/wipe/srm
+
+# ❌ Thinking "Delete" removes data
+# ✅ Secure deletion + wipe free space
+
+# ❌ Relying on encryption alone
+# ✅ Encryption + secure deletion + log clearing
+
+# ❌ Panicking and making mistakes
+# ✅ Have pre-planned response procedure
+
+# ❌ Talking to investigators without attorney
+# ✅ Exercise right to remain silent
+
+# ❌ Forgetting about cloud/backup forensics
+# ✅ Encrypt before upload, control backups
+
+# ============================================================================
+# RESOURCES
+# ============================================================================
+
+# Books
+# "File System Forensic Analysis" by Brian Carrier
+# "The Art of Memory Forensics" by Ligh et al.
+# "Practical Forensic Imaging" by Bruce Nikkel
+
+# Tools
+# Autopsy: https://www.autopsy.com/
+# Sleuth Kit: https://www.sleuthkit.org/
+# Volatility: https://www.volatilityfoundation.org/
+
+# Learning
+# SANS Digital Forensics courses
+# TCM Security Practical Forensics
+# DFIR Training: https://www.dfir.training/
+

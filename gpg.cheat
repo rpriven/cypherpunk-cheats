@@ -1,0 +1,339 @@
+% gpg, pgp, encryption, signing, gnupg
+
+# ============================================================================
+# KEY GENERATION & MANAGEMENT
+# ============================================================================
+
+# Generate new GPG key pair
+gpg --full-generate-key
+
+# Generate key with specific algorithm (RSA 4096)
+gpg --full-generate-key --rsa --rsa-key-size 4096
+
+# Quick generate key (defaults)
+gpg --quick-generate-key <email>
+$ email: echo "user@example.com"
+
+# List public keys
+gpg --list-keys
+
+# List secret/private keys
+gpg --list-secret-keys
+
+# List keys with fingerprints
+gpg --fingerprint
+
+# Export public key (ASCII armored)
+gpg --armor --export <key_id> > public_key.asc
+$ key_id: echo -e "user@example.com\nABCD1234"
+
+# Export public key (binary)
+gpg --export <key_id> > public_key.gpg
+$ key_id: echo "user@example.com"
+
+# Export private key (KEEP SECURE!)
+gpg --armor --export-secret-keys <key_id> > private_key.asc
+$ key_id: echo "user@example.com"
+
+# Import public key
+gpg --import <public_key_file>
+$ public_key_file: echo -e "public_key.asc\nfriend_key.gpg"
+
+# Import private key
+gpg --import <private_key_file>
+$ private_key_file: echo "private_key.asc"
+
+# Delete public key
+gpg --delete-key <key_id>
+$ key_id: echo "user@example.com"
+
+# Delete private key (caution!)
+gpg --delete-secret-key <key_id>
+$ key_id: echo "user@example.com"
+
+# Edit key (change expiration, add subkey, etc.)
+gpg --edit-key <key_id>
+$ key_id: echo "user@example.com"
+
+# ============================================================================
+# FILE ENCRYPTION & DECRYPTION
+# ============================================================================
+
+# Encrypt file for recipient
+gpg --encrypt --recipient <recipient_email> <file>
+$ recipient_email: echo "friend@example.com"
+$ file: echo -e "secret.txt\ndocument.pdf"
+
+# Encrypt file (ASCII armored output)
+gpg --armor --encrypt --recipient <recipient_email> <file>
+$ recipient_email: echo "friend@example.com"
+$ file: echo "message.txt"
+
+# Encrypt for multiple recipients
+gpg --encrypt -r <recipient1> -r <recipient2> <file>
+$ recipient1: echo "alice@example.com"
+$ recipient2: echo "bob@example.com"
+$ file: echo "shared_secret.txt"
+
+# Symmetric encryption (password-based, no key required)
+gpg --symmetric <file>
+$ file: echo "document.txt"
+
+# Decrypt file
+gpg --decrypt <encrypted_file> > <output_file>
+$ encrypted_file: echo -e "secret.txt.gpg\nmessage.asc"
+$ output_file: echo "decrypted.txt"
+
+# Decrypt to stdout
+gpg --decrypt <encrypted_file>
+$ encrypted_file: echo "secret.txt.gpg"
+
+# Encrypt and sign file
+gpg --encrypt --sign --recipient <recipient> <file>
+$ recipient: echo "friend@example.com"
+$ file: echo "important.pdf"
+
+# ============================================================================
+# SIGNING & VERIFICATION
+# ============================================================================
+
+# Sign file (detached signature)
+gpg --detach-sign <file>
+$ file: echo "document.pdf"
+
+# Sign file (ASCII armored signature)
+gpg --armor --detach-sign <file>
+$ file: echo "software.tar.gz"
+
+# Sign file (cleartext signature - for text files)
+gpg --clearsign <file>
+$ file: echo "message.txt"
+
+# Verify detached signature
+gpg --verify <signature_file> <original_file>
+$ signature_file: echo -e "document.pdf.sig\nsoftware.tar.gz.asc"
+$ original_file: echo -e "document.pdf\nsoftware.tar.gz"
+
+# Verify clearsigned file
+gpg --verify <signed_file>
+$ signed_file: echo "message.txt.asc"
+
+# Sign and encrypt in one step
+gpg --sign --encrypt --recipient <recipient> <file>
+$ recipient: echo "friend@example.com"
+$ file: echo "confidential.txt"
+
+# ============================================================================
+# KEY TRUST & WEB OF TRUST
+# ============================================================================
+
+# Sign someone's public key (vouch for identity)
+gpg --sign-key <key_id>
+$ key_id: echo "friend@example.com"
+
+# Set trust level for key
+gpg --edit-key <key_id>
+# Then: trust → select level (1-5) → quit
+$ key_id: echo "friend@example.com"
+
+# Trust levels:
+# 1 = Don't know / Won't say
+# 2 = Don't trust
+# 3 = Marginal trust
+# 4 = Full trust
+# 5 = Ultimate trust (your own keys)
+
+# List key signatures
+gpg --list-sigs <key_id>
+$ key_id: echo "user@example.com"
+
+# Check key fingerprint (verify identity)
+gpg --fingerprint <key_id>
+$ key_id: echo "friend@example.com"
+
+# ============================================================================
+# KEYSERVER OPERATIONS
+# ============================================================================
+
+# Upload public key to keyserver
+gpg --keyserver <keyserver_url> --send-keys <key_id>
+$ keyserver_url: echo -e "hkps://keys.openpgp.org\nhkps://keyserver.ubuntu.com"
+$ key_id: echo "ABCD1234"
+
+# Search for key on keyserver
+gpg --keyserver <keyserver_url> --search-keys <email>
+$ keyserver_url: echo "hkps://keys.openpgp.org"
+$ email: echo "friend@example.com"
+
+# Receive key from keyserver
+gpg --keyserver <keyserver_url> --recv-keys <key_id>
+$ keyserver_url: echo "hkps://keys.openpgp.org"
+$ key_id: echo "ABCD1234EF567890"
+
+# Refresh keys from keyserver (check for updates/revocations)
+gpg --refresh-keys
+
+# Popular keyservers:
+# hkps://keys.openpgp.org
+# hkps://keyserver.ubuntu.com
+# hkps://keys.mailvelope.com
+
+# ============================================================================
+# REVOCATION & KEY EXPIRATION
+# ============================================================================
+
+# Generate revocation certificate (do this IMMEDIATELY after key creation!)
+gpg --output revoke_cert.asc --gen-revoke <key_id>
+$ key_id: echo "user@example.com"
+
+# Import revocation certificate (revoke compromised key)
+gpg --import revoke_cert.asc
+
+# Upload revoked key to keyserver
+gpg --keyserver hkps://keys.openpgp.org --send-keys <key_id>
+$ key_id: echo "ABCD1234"
+
+# Change key expiration date
+gpg --edit-key <key_id>
+# Then: expire → select new expiration → save
+$ key_id: echo "user@example.com"
+
+# ============================================================================
+# GPG AGENT & CACHING
+# ============================================================================
+
+# Start GPG agent
+gpg-agent --daemon
+
+# Kill GPG agent
+gpgconf --kill gpg-agent
+
+# Reload GPG agent config
+gpgconf --reload gpg-agent
+
+# Set passphrase cache timeout (in ~/.gnupg/gpg-agent.conf)
+# default-cache-ttl 600
+# max-cache-ttl 7200
+
+# Disable passphrase caching
+# default-cache-ttl 0
+# max-cache-ttl 1
+
+# Clear cached passphrases
+gpgconf --reload gpg-agent
+
+# ============================================================================
+# EMAIL ENCRYPTION
+# ============================================================================
+
+# Encrypt email message
+gpg --armor --encrypt --sign --recipient <recipient> message.txt
+
+# Decrypt received email
+gpg --decrypt encrypted_email.asc
+
+# Thunderbird + Enigmail
+# Install Enigmail extension → Import key → Enable encryption
+
+# Protonmail (built-in PGP)
+# Settings → Keys → Import/export GPG keys
+
+# Mutt email client with GPG
+# Add to ~/.muttrc:
+# set pgp_use_gpg_agent = yes
+# set pgp_sign_as = YOUR_KEY_ID
+
+# ============================================================================
+# ADVANCED OPTIONS
+# ============================================================================
+
+# Specify output file
+gpg --output <output_file> --encrypt <input_file>
+$ output_file: echo "secret.gpg"
+$ input_file: echo "document.txt"
+
+# Encrypt with compression
+gpg --compress-algo <algorithm> --encrypt <file>
+$ algorithm: echo -e "zip\nzlib\nbzip2"
+$ file: echo "large_file.tar"
+
+# Use specific cipher algorithm
+gpg --cipher-algo <algorithm> --encrypt <file>
+$ algorithm: echo -e "AES256\nAES192\nAES128"
+$ file: echo "secret.txt"
+
+# Batch mode (no prompts, for scripts)
+gpg --batch --yes --encrypt --recipient <recipient> <file>
+$ recipient: echo "friend@example.com"
+$ file: echo "automated.txt"
+
+# Verbose output (debugging)
+gpg --verbose --encrypt <file>
+$ file: echo "test.txt"
+
+# ============================================================================
+# BEST PRACTICES & OPSEC
+# ============================================================================
+
+# Always generate revocation certificate after key creation
+# Store revocation cert in secure location (offline backup)
+
+# Use strong passphrase (20+ characters, random)
+# Consider using diceware passphrase
+
+# Set key expiration (1-2 years recommended)
+# Renew before expiration, don't let it lapse
+
+# Use subkeys for daily operations
+# Keep master key offline
+
+# Backup private keys securely
+# Use encrypted USB drive or paper backup
+
+# Verify fingerprints in person when possible
+# Don't trust keys from keyservers alone
+
+# Regularly refresh keys from keyservers
+# Check for revocations
+
+# Use ASCII armor for email/text transmission
+# Use binary for file storage (smaller)
+
+# Don't encrypt to untrusted keys
+# Verify recipient identity first
+
+# ============================================================================
+# CONFIGURATION FILES
+# ============================================================================
+
+# GPG config: ~/.gnupg/gpg.conf
+# Example settings:
+# default-key YOUR_KEY_ID
+# keyserver hkps://keys.openpgp.org
+# use-agent
+# armor
+
+# GPG agent config: ~/.gnupg/gpg-agent.conf
+# default-cache-ttl 600
+# max-cache-ttl 7200
+# pinentry-program /usr/bin/pinentry-gtk-2
+
+# ============================================================================
+# TROUBLESHOOTING
+# ============================================================================
+
+# Fix "No public key" error
+# Import missing key from keyserver
+
+# Fix "Unusable public key" error
+# Trust the key: gpg --edit-key <key_id> → trust
+
+# Reset GPG permissions
+chmod 700 ~/.gnupg
+chmod 600 ~/.gnupg/*
+
+# Rebuild GPG trust database
+gpg --check-trustdb
+
+# Check GPG version
+gpg --version

@@ -1,0 +1,62 @@
+% recon-advanced, osint
+
+# Search for breached credentials (Have I Been Pwned)
+curl "https://haveibeenpwned.com/api/v3/breachedaccount/<email>" -H "hibp-api-key: <api_key>"
+$ email: echo -e "user@example.com"
+
+# Search Shodan for specific service
+shodan search <query>
+$ query: echo -e "apache\nnginx\nIIS\napache 2.4.49"
+
+# Hunt for exposed databases on Shodan
+shodan search "product:MongoDB"
+
+# Certificate transparency search (find subdomains)
+curl -s "https://crt.sh/?q=%25.<domain>&output=json" | jq -r '.[].name_value' | sort -u
+$ domain: echo -e "example.com\ntarget.com"
+
+# Hunter.io email discovery
+curl "https://api.hunter.io/v2/domain-search?domain=<domain>&api_key=<api_key>"
+$ domain: echo -e "example.com\ntarget.com"
+
+# Check Flare breach data
+# Visit: https://flare.io (web-based search)
+
+# Search PasteBin dumps (NetBootCamp)
+# Visit: https://netbootcamp.org/pastesearch.html
+# Or Intel Techniques: https://inteltechniques.com/osint/pastebins.html
+
+# Check BeenVerified for person intel
+# Visit: https://beenverified.com (commercial OSINT)
+
+# URL typosquatting detection with urlcrazy
+urlcrazy <domain> -o <output_file>
+$ domain: echo -e "google.com\ntarget.com"
+$ output_file: echo "Report.txt"
+
+# LinkedIn company employee enumeration
+# Use LinkedIn Sales Navigator or manual search
+# Profile format: https://linkedin.com/in/[username]
+
+% recon-ng, osint
+
+# Launch recon-ng interactive mode
+recon-ng
+
+# Load workspace in recon-ng
+recon-ng -w <workspace_name>
+$ workspace_name: echo -e "client1\ntarget_recon\nbugbounty"
+
+# Run specific recon-ng module
+recon-ng -m <module_path> -o <option>=<value>
+$ module_path: echo -e "recon/domains-hosts/hackertarget\nrecon/hosts-hosts/resolve"
+$ option: echo -e "SOURCE\nDOMAIN"
+$ value: echo -e "example.com\n192.168.1.1"
+
+# List all recon-ng modules
+recon-ng -M
+
+# Install recon-ng module
+recon-ng -m <module_path> -x "marketplace install <module_name>"
+$ module_path: echo "recon/domains-hosts/hackertarget"
+$ module_name: echo -e "hackertarget\nthreatcrowd\nsublist3r"

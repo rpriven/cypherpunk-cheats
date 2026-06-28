@@ -1,0 +1,510 @@
+% anti-surveillance, counter-surveillance, privacy, anonymity, tracking
+
+# ============================================================================
+# UNDERSTANDING SURVEILLANCE
+# ============================================================================
+
+# Types of surveillance
+# - Mass surveillance (NSA, Five Eyes, PRISM)
+# - Targeted surveillance (law enforcement, private investigators)
+# - Corporate surveillance (ad tech, data brokers, analytics)
+# - State surveillance (oppressive regimes, censorship)
+# - Interpersonal surveillance (stalkers, abusers)
+
+# Surveillance vectors
+# - Network monitoring (ISP, VPN, Tor exit nodes)
+# - Device tracking (GPS, cell towers, WiFi/Bluetooth beacons)
+# - Behavioral tracking (cookies, fingerprinting, analytics)
+# - Physical surveillance (CCTV, license plate readers)
+# - Social surveillance (social media, contacts, metadata)
+# - Biometric surveillance (facial recognition, gait analysis)
+
+# ============================================================================
+# NETWORK ANTI-SURVEILLANCE
+# ============================================================================
+
+# VPN (Virtual Private Network)
+# Hides traffic from ISP, not from VPN provider
+# Choose no-logs VPN: Mullvad, IVPN, ProtonVPN
+
+# Install and connect to VPN
+sudo apt install openvpn
+sudo openvpn --config vpn_config.ovpn
+
+# Check VPN connection
+curl ifconfig.me
+
+# Tor (The Onion Router)
+# Multi-hop encryption, anonymity network
+# See tor.cheat for full Tor guide
+
+# Start Tor
+sudo systemctl start tor
+
+# Route traffic through Tor
+torsocks <command>
+$ command: echo -e "curl https://check.torproject.org\\nwget https://example.com"
+
+# I2P (Invisible Internet Project)
+# Anonymous network layer, decentralized
+# Install: https://geti2p.net/
+
+# DNS encryption (prevent ISP DNS spying)
+# DNS-over-HTTPS (DoH)
+# Firefox: about:config → network.trr.mode = 2
+
+# DNS-over-TLS (DoT) with systemd-resolved
+sudo nano /etc/systemd/resolved.conf
+# DNS=1.1.1.1 1.0.0.1
+# DNSOverTLS=yes
+sudo systemctl restart systemd-resolved
+
+# dnscrypt-proxy (encrypted DNS)
+sudo apt install dnscrypt-proxy
+sudo systemctl enable dnscrypt-proxy
+sudo systemctl start dnscrypt-proxy
+
+# ============================================================================
+# DEVICE TRACKING PREVENTION
+# ============================================================================
+
+# GPS tracking (smartphones)
+# Disable location services when not needed
+# Android: Settings → Location → Off
+# iOS: Settings → Privacy → Location Services → Off
+
+# Airplane mode (disables all radios)
+# Prevents: Cell tower, WiFi, Bluetooth, NFC tracking
+
+# Remove battery (older phones)
+# Only true way to ensure phone is off
+
+# Faraday bag/pouch
+# Blocks all electromagnetic signals
+# Test with: call phone while in bag (shouldn't ring)
+
+# MAC address randomization
+# Prevents WiFi tracking
+
+# Linux (NetworkManager)
+sudo nano /etc/NetworkManager/conf.d/wifi-random-mac.conf
+# [device]
+# wifi.scan-rand-mac-address=yes
+# [connection]
+# wifi.cloned-mac-address=random
+
+# macOS
+# System Preferences → Network → Advanced → Use private Wi-Fi address
+
+# Android
+# Settings → Network & Internet → WiFi → WiFi preferences → Use randomized MAC
+
+# Bluetooth tracking prevention
+# Disable Bluetooth when not in use
+# Randomize Bluetooth MAC if possible
+
+# ============================================================================
+# BROWSER ANTI-SURVEILLANCE
+# ============================================================================
+
+# Browser fingerprinting defense
+# See browser-hardening.cheat for full guide
+
+# Essential settings
+# - Block third-party cookies
+# - Enable tracking protection
+# - Disable WebRTC (IP leak)
+# - Use uBlock Origin
+# - Enable HTTPS-only mode
+
+# Test fingerprint uniqueness
+# EFF Cover Your Tracks: https://coveryourtracks.eff.org/
+
+# Browser isolation (containers)
+# Firefox Multi-Account Containers
+# Separate: Banking, Shopping, Social, Work, Anonymous
+
+# Clear cookies on exit
+# Settings → Privacy → Cookies → Delete on close
+
+# ============================================================================
+# PHYSICAL SURVEILLANCE COUNTERMEASURES
+# ============================================================================
+
+# Camera covering
+# Laptop: Webcam cover, tape, slide cover
+# Phone: Remove when not in video call
+
+# Microphone disabling
+# BIOS disable (if available)
+# Physical disconnect (advanced)
+# Ultrasonic tracking defense (inaudible ads)
+
+# RFID blocking
+# Credit cards: RFID-blocking wallet
+# Passport: RFID sleeve
+# Key fobs: Faraday pouch
+
+# Gait analysis defense
+# Put pebble in shoe (changes walk pattern)
+# Reflective/IR-blocking clothing
+
+# Facial recognition defense
+# Face masks, sunglasses, hats
+# CV Dazzle (makeup patterns)
+# Adversarial fashion (pattern clothing)
+# IR LEDs (invisible to eye, blind cameras)
+
+# License plate tracking
+# No perfect solution (illegal to obscure)
+# PhotoBlocker spray (questionable effectiveness)
+# Avoid toll roads/automated systems when possible
+
+# ============================================================================
+# SOCIAL MEDIA ANTI-SURVEILLANCE
+# ============================================================================
+
+# Privacy settings (maximum)
+# Facebook: Settings → Privacy → Friends only
+# Instagram: Private account, disable tagging
+# Twitter: Protected tweets, disable location
+# LinkedIn: Limit profile visibility
+
+# Disable location tagging
+# Don't post real-time location
+# Wait until you've left before posting
+
+# Limit personal information
+# Don't share: phone, address, workplace, school, family
+# Use fake birthday (security questions)
+
+# Review tagged photos
+# Untag yourself from compromising photos
+# Enable tag approval before appearing on profile
+
+# Remove metadata from photos before posting
+# See metadata-removal.cheat
+exiftool -all= photo.jpg
+
+# ============================================================================
+# SMARTPHONE HARDENING
+# ============================================================================
+
+# GrapheneOS (privacy-focused Android)
+# Install on Pixel devices
+# https://grapheneos.org/
+
+# CalyxOS (privacy Android alternative)
+# https://calyxos.org/
+
+# LineageOS (de-Googled Android)
+# https://lineageos.org/
+
+# iOS privacy settings
+# Settings → Privacy → Tracking → Ask App Not to Track
+# Settings → Privacy → Analytics → Share iPhone Analytics (OFF)
+
+# Android privacy settings
+# Settings → Google → Manage your Google Account → Data & privacy
+# Turn off: Location History, Web & App Activity
+
+# Disable app permissions
+# Review: Location, Camera, Microphone, Contacts
+# Only grant when needed
+
+# App alternatives (privacy-focused)
+# Maps: OsmAnd, Organic Maps
+# Keyboard: AnySoftKeyboard, OpenBoard
+# Browser: Mull (Firefox), Brave
+# Messaging: Signal, Element
+# Email: K-9 Mail (with ProtonMail)
+
+# ============================================================================
+# OPERATING SYSTEM HARDENING
+# ============================================================================
+
+# Privacy-focused Linux distros
+# Tails (amnesiac, Tor-based): https://tails.boum.org/
+# Whonix (Tor workstation): https://www.whonix.org/
+# Qubes OS (security by isolation): https://www.qubes-os.org/
+
+# Disable telemetry (Ubuntu)
+ubuntu-report -f send no
+
+# Disable telemetry (Windows)
+# Settings → Privacy → Diagnostics & feedback → Off
+
+# macOS privacy
+# System Preferences → Security & Privacy → Privacy
+# Disable: Location Services (when not needed), Analytics
+
+# Firewall (block outbound connections)
+sudo ufw enable
+sudo ufw default deny outgoing
+sudo ufw allow out to any port 443
+sudo ufw allow out to any port 80
+
+# Hosts file blocking (ad/tracker domains)
+sudo curl -o /etc/hosts https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+
+# Pi-hole (network-wide ad/tracker blocking)
+# Install on Raspberry Pi or Docker
+# https://pi-hole.net/
+
+# ============================================================================
+# EMAIL ANTI-SURVEILLANCE
+# ============================================================================
+
+# Encrypted email providers
+# ProtonMail: https://proton.me/mail
+# Tutanota: https://tutanota.com/
+# Mailfence: https://mailfence.com/
+
+# Email aliasing (hide real address)
+# SimpleLogin: https://simplelogin.io/
+# AnonAddy: https://anonaddy.com/
+# Apple Hide My Email
+# Firefox Relay: https://relay.firefox.com/
+
+# PGP/GPG encryption
+# See gpg.cheat for full guide
+gpg --gen-key
+gpg --armor --export email@example.com > public_key.asc
+
+# Temporary/disposable email
+# 10 Minute Mail: https://10minutemail.com/
+# Guerrilla Mail: https://www.guerrillamail.com/
+# Temp Mail: https://temp-mail.org/
+
+# ============================================================================
+# MESSAGING ANTI-SURVEILLANCE
+# ============================================================================
+
+# Secure messaging (E2EE)
+# Signal (best all-around): https://signal.org/
+# Element/Matrix (federated): https://element.io/
+# Wire (business-friendly): https://wire.com/
+
+# Signal hardening
+# Enable registration lock (PIN)
+# Enable disappearing messages (default)
+# Enable screen security (no screenshots)
+# Disable link previews
+
+# Metadata resistance
+# Signal sealed sender (hides sender metadata)
+# Session (no phone number required)
+
+# Anonymous messaging
+# Ricochet Refresh (Tor-based): https://www.ricochetrefresh.net/
+# Briar (peer-to-peer): https://briarproject.org/
+
+# ============================================================================
+# SEARCH ENGINE PRIVACY
+# ============================================================================
+
+# Private search engines
+# DuckDuckGo: https://duckduckgo.com/
+# Startpage: https://www.startpage.com/
+# Searx (self-hosted): https://searx.space/
+# Brave Search: https://search.brave.com/
+
+# Search without logging in
+# Use private/incognito mode
+# Clear cookies after each session
+
+# Avoid Google (if possible)
+# Google tracks all searches (even logged out)
+# Builds profile based on IP, cookies, fingerprint
+
+# ============================================================================
+# PAYMENT PRIVACY
+# ============================================================================
+
+# Cash (most private)
+# No digital trail
+# Untraceable
+
+# Cryptocurrency (pseudo-anonymous)
+# Monero (privacy-focused): https://www.getmonero.org/
+# Bitcoin (with mixing): CoinJoin, Wasabi Wallet
+
+# Privacy-focused debit cards
+# Privacy.com (virtual cards)
+# Revolut (disposable virtual cards)
+
+# Gift cards (pseudo-anonymous)
+# Buy with cash
+# Use for online purchases
+
+# ============================================================================
+# DIGITAL ASSISTANT PRIVACY
+# ============================================================================
+
+# Disable voice assistants
+# Alexa: Mute button, unplug when not in use
+# Google Home: Mute button, disable voice match
+# Siri: Settings → Siri & Search → Disable
+
+# Delete voice recordings
+# Amazon: Alexa Privacy → Review Voice History → Delete
+# Google: myactivity.google.com → Voice & Audio → Delete
+
+# Self-hosted alternatives
+# Mycroft (open source): https://mycroft.ai/
+# Rhasspy (privacy-first): https://rhasspy.readthedocs.io/
+
+# ============================================================================
+# IOT DEVICE HARDENING
+# ============================================================================
+
+# IoT risks
+# Cameras, smart TVs, thermostats, lights = surveillance devices
+
+# Network segmentation
+# Put IoT on separate VLAN/network
+# Block internet access when not needed
+
+# Change default passwords
+# Use strong unique passwords
+# Disable UPnP
+
+# Disable unnecessary features
+# Microphones, cameras (if not needed)
+# Cloud connectivity (use local control)
+
+# Pi-hole for IoT blocking
+# Block telemetry/analytics domains
+
+# ============================================================================
+# COUNTER-SURVEILLANCE DETECTION
+# ============================================================================
+
+# Physical surveillance detection
+# Multiple passes (vary route)
+# Use reflections (windows, mirrors)
+# Note suspicious people/vehicles
+# Sudden stops/direction changes
+
+# Digital surveillance indicators
+# Battery draining faster (spyware)
+# Phone hot when idle (background processes)
+# Unusual data usage (exfiltration)
+# Strange noises on calls
+# Unexpected reboots
+
+# Network surveillance detection
+# Monitor network connections
+sudo netstat -tulpn
+
+# Check for unusual processes
+ps aux | grep -v grep
+
+# Check DNS queries
+sudo tcpdump -i any port 53
+
+# ============================================================================
+# BURNER DEVICES & IDENTITIES
+# ============================================================================
+
+# Burner phone (for high-threat scenarios)
+# Prepaid, cash-purchased
+# No personal info linked
+# Disposable after use
+
+# Burner laptop
+# Fresh OS install (Tails, Linux Live USB)
+# No personal accounts logged in
+# Factory reset after use
+
+# Burner identity
+# Separate email (Tutanota, ProtonMail)
+# Separate phone number (Burner app, Hushed)
+# Separate payment method (cash, gift cards)
+# Never mix with real identity
+
+# ============================================================================
+# DEAD DROPS & COVERT COMMUNICATION
+# ============================================================================
+
+# Dead drop (physical)
+# Leave data in agreed location
+# Retrieve later, no direct contact
+
+# Digital dead drop
+# Upload to cloud, share credentials separately
+# OnionShare (Tor hidden service)
+
+# Steganography (hidden messages)
+# Hide data in images
+steghide embed -cf image.jpg -ef secret.txt
+
+# Extract hidden data
+steghide extract -sf image.jpg
+
+# ============================================================================
+# ANTI-SURVEILLANCE CHECKLIST
+# ============================================================================
+
+# Daily
+# [ ] Use VPN/Tor for sensitive browsing
+# [ ] Airplane mode when not using phone
+# [ ] Cover webcam when not in use
+
+# Weekly
+# [ ] Clear browser cookies/history
+# [ ] Review app permissions
+# [ ] Check unusual battery drain
+
+# Monthly
+# [ ] Review social media privacy settings
+# [ ] Check data broker sites (opt out)
+# [ ] Audit connected devices
+
+# Quarterly
+# [ ] Rotate burner identities
+# [ ] Review surveillance threat model
+# [ ] Update anti-surveillance measures
+
+# ============================================================================
+# LEGAL CONSIDERATIONS
+# ============================================================================
+
+# Know your rights
+# Right to privacy (varies by country)
+# Right to refuse searches (with exceptions)
+# Right to remain silent
+
+# Recording laws
+# One-party vs two-party consent
+# Know your jurisdiction
+
+# Counter-surveillance legality
+# Generally legal to protect your own privacy
+# Interfering with investigations may be illegal
+# Consult lawyer if unsure
+
+# ============================================================================
+# RESOURCES
+# ============================================================================
+
+# Privacy guides
+# EFF Surveillance Self-Defense: https://ssd.eff.org/
+# Privacy Guides: https://www.privacyguides.org/
+# PRISM Break: https://prism-break.org/
+
+# Books
+# "Permanent Record" by Edward Snowden
+# "No Place to Hide" by Glenn Greenwald
+# "The Art of Invisibility" by Kevin Mitnick
+
+# Tools
+# OSINT tools (to see your exposure)
+# Burner phone apps: Burner, Hushed
+# Encrypted communication: Signal, Element
+
+# Communities
+# r/privacy (Reddit)
+# r/privacytoolsIO (Reddit)
+# PrivacyGuides forum
+

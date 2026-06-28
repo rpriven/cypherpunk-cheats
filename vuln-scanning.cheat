@@ -1,0 +1,67 @@
+% vulnerability-scanning, pentesting
+
+# Nessus scan via CLI
+/opt/nessus/bin/nessuscli scan <target>
+$ target: echo -e "192.168.1.0/24\n10.0.0.1\ntarget.com"
+
+# Nessus scan list
+/opt/nessus/bin/nessuscli scan --list
+
+# Nexpose scan via CLI
+/opt/rapid7/nexpose/nsc/nsc.sh -s <site_id> -t <target>
+$ site_id: echo -e "1\n2\n3"
+$ target: echo -e "192.168.1.0/24\n10.0.0.1"
+
+# Nuclei vulnerability scan
+nuclei -u <url> -t <template_path>
+$ url: echo -e "https://target.com\nhttp://192.168.1.1"
+$ template_path: echo -e "~/nuclei-templates/cves/\n~/nuclei-templates/exposures/"
+
+# Nuclei scan with all templates
+nuclei -u <url> -t ~/nuclei-templates/ -severity critical,high,medium
+
+# Nuclei scan targets from file
+nuclei -l <targets_file> -t ~/nuclei-templates/cves/
+$ targets_file: echo -e "targets.txt\nurls.txt\ndomains.txt"
+
+# Update Nuclei templates
+nuclei -update-templates
+
+# OpenVAS scan via CLI (requires setup)
+gvm-cli --gmp-username <username> --gmp-password <password> socket --xml "<create_task><name>scan</name><target><hosts><host><name><target></name></host></hosts></target></create_task>"
+$ username: echo "admin"
+$ password: echo "password"
+$ target: echo -e "192.168.1.0/24\n10.0.0.1"
+
+# Scan with Nessus policy
+/opt/nessus/bin/nessuscli scan --policy <policy_name> <target>
+$ policy_name: echo -e "Basic Network Scan\nWeb Application Tests"
+$ target: echo -e "192.168.1.0/24\ntarget.com"
+
+% metasploit, exploitation
+
+# Start Metasploit console
+msfconsole
+
+# Search exploits in Metasploit
+msfconsole -q -x "search <keyword>; exit"
+$ keyword: echo -e "apache\nmicrosoft\nlog4j\nproxyshell"
+
+# Use specific exploit module
+msfconsole -q -x "use <exploit_path>; show options; exit"
+$ exploit_path: echo -e "exploit/windows/smb/ms17_010_eternalblue\nexploit/multi/http/log4shell"
+
+# Search Exploit-DB
+searchsploit <keyword>
+$ keyword: echo -e "apache 2.4\nwindows 10\njoomla 3.9"
+
+# Download exploit from Exploit-DB
+searchsploit -m <exploit_id>
+$ exploit_id: echo -e "50383\n49821\n48506"
+
+# Search GitHub for exploits
+gh search repos <keyword> --topic exploit
+$ keyword: echo -e "cve-2021-44228\nproxyshell\nlog4j"
+
+# MetasploitAI (AI-assisted exploitation)
+# Visit: https://metasploitai.com

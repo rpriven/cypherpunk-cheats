@@ -1,0 +1,72 @@
+% smb, file-shares, lateral-movement
+
+# Snaffler - search SMB shares for sensitive data
+Snaffler.exe -s -o <output_file>
+$ output_file: echo "snaffler_results.txt"
+
+# Snaffler with specific share
+Snaffler.exe -s -d <domain> -u <username> -p <password> -c <computer>
+$ domain: echo -e "CORP\nDOMAIN"
+$ username: echo "user"
+$ password: echo "password"
+$ computer: echo -e "DC01\nFS01\nSRV01"
+
+# Manspider - spider SMB shares
+manspider <target_file> -d <domain> -u <username> -p <password> -e <extensions>
+$ target_file: echo -e "targets.txt\nhosts.txt"
+$ domain: echo -e "CORP\nDOMAIN"
+$ username: echo "user"
+$ password: echo "password"
+$ extensions: echo -e "xlsx,docx,pdf\ntxt,config,ps1"
+
+# Manspider search for keywords
+manspider <target_file> -d <domain> -u <username> -p <password> -c <keyword>
+$ target_file: echo "targets.txt"
+$ domain: echo "CORP"
+$ username: echo "user"
+$ password: echo "password"
+$ keyword: echo -e "password\nssn\ncreditcard\napi_key"
+
+# PySnaffler - Python version of Snaffler
+pysnaffler.py -t <target> -u <username> -p <password>
+$ target: echo -e "192.168.1.10\nFS01.corp.local"
+$ username: echo "user"
+$ password: echo "password"
+
+# SnafflePy - search SMB shares
+snafflepy.py -d <domain> -u <username> -p <password> -t <target>
+$ domain: echo -e "CORP\nDOMAIN"
+$ username: echo "user"
+$ password: echo "password"
+$ target: echo -e "192.168.1.10\nFS01"
+
+# FSRM (File Server Resource Manager) - Windows built-in
+# Check FSRM quota
+fsutil quota query <drive>
+$ drive: echo -e "C:\nD:\nE:"
+
+# List SMB shares with smbclient
+smbclient -L //<target> -U <username>%<password>
+$ target: echo -e "192.168.1.10\nFS01.corp.local"
+$ username: echo "user"
+$ password: echo "password"
+
+# Mount SMB share
+mount -t cifs //<target>/<share> <mount_point> -o username=<username>,password=<password>
+$ target: echo -e "192.168.1.10\nFS01"
+$ share: echo -e "Share\nData\nBackup"
+$ mount_point: echo -e "/mnt/share\n/tmp/mount"
+$ username: echo "user"
+$ password: echo "password"
+
+# Enumerate shares with NetExec
+nxc smb <target> -u <username> -p <password> --shares
+$ target: echo -e "192.168.1.0/24\n10.0.0.1"
+$ username: echo "user"
+$ password: echo "password"
+
+# Spider shares with NetExec
+nxc smb <target> -u <username> -p <password> -M spider_plus
+$ target: echo -e "192.168.1.10\nFS01"
+$ username: echo "user"
+$ password: echo "password"

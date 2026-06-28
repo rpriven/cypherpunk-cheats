@@ -1,0 +1,541 @@
+% secure-os, tails, whonix, qubes, privacy-os, hardened-linux
+
+# ============================================================================
+# SECURE & PRIVACY-FOCUSED OPERATING SYSTEMS
+# ============================================================================
+
+# Operating system security spectrum
+# Tails - Amnesiac, Tor-routed, live system
+# Whonix - Tor workstation, VM-based isolation
+# Qubes OS - Security by compartmentalization
+# Hardened Linux - Custom secure configurations
+
+# Use cases
+# Tails: Journalism, whistleblowing, high-risk anonymity
+# Whonix: Daily secure browsing, privacy research
+# Qubes OS: Multi-level security, handling untrusted files
+# Hardened Linux: Development, general secure computing
+
+# ============================================================================
+# TAILS (THE AMNESIAC INCOGNITO LIVE SYSTEM)
+# ============================================================================
+
+# Tails overview
+# - Live USB/DVD (no installation, leaves no trace)
+# - All connections routed through Tor
+# - Amnesia (no persistent storage by default)
+# - Cryptographic tools included
+# - Based on Debian Linux
+
+# Download Tails
+# https://tails.boum.org/install/
+
+# Verify Tails download (CRITICAL)
+wget https://tails.boum.org/tails-signing.key
+gpg --import tails-signing.key
+gpg --verify tails-amd64-*.img.sig tails-amd64-*.img
+
+# Create Tails USB (Linux)
+# Find USB device
+lsblk
+
+# Write Tails image (DANGER: destroys data on USB)
+sudo dd if=tails-amd64-*.img of=/dev/sdX bs=16M status=progress && sync
+
+# Or use Tails Installer
+sudo apt install tails-installer
+tails-installer
+
+# Boot Tails
+# 1. Insert USB
+# 2. Boot from USB (F12/F2 for boot menu)
+# 3. Select "Tails" from boot menu
+
+# ============================================================================
+# TAILS FEATURES
+# ============================================================================
+
+# Tor Browser (default browser)
+# All connections routed through Tor
+# Pre-configured for anonymity
+
+# Persistent storage (optional)
+# Applications → Tails → Configure persistent volume
+# Encrypt with strong passphrase (20+ characters)
+# Select what to persist: GnuPG, SSH, browser bookmarks, etc.
+
+# Encrypted persistent storage
+# Must be enabled each boot
+# Unlock with passphrase at welcome screen
+
+# Additional software (persist across reboots)
+# Applications → Tails → Additional Software
+# Add packages to install automatically on boot
+
+# MAC address spoofing
+# Enabled by default (randomizes MAC on each boot)
+# Prevents network tracking
+
+# Secure deletion
+# Files → Right-click → Wipe
+# Uses secure deletion (overwrites data)
+
+# ============================================================================
+# TAILS USE CASES
+# ============================================================================
+
+# Whistleblowing
+# Use Tails to access SecureDrop
+# No trace left on computer
+
+# Journalism
+# Protect sources
+# Secure communication
+# Anonymous research
+
+# Activism
+# Avoid surveillance
+# Communicate securely
+# Organize anonymously
+
+# High-risk browsing
+# Banking on public computer (not recommended, but safer)
+# Accessing sensitive information
+# Avoiding censorship
+
+# ============================================================================
+# TAILS BEST PRACTICES
+# ============================================================================
+
+# Never use Tails on home/work network if hiding from ISP
+# Use public WiFi (but not same location repeatedly)
+
+# Don't login to personal accounts
+# Breaks anonymity linkage
+
+# Don't use BitTorrent over Tor
+# Deanonymization risk
+
+# Verify Tails signature every download
+# Prevents compromised ISO
+
+# Use strong persistent storage passphrase
+# If captured, protects encrypted data
+
+# Physical security
+# Keep Tails USB physically secure
+# Hide or destroy if compromised
+
+# ============================================================================
+# WHONIX (TOR WORKSTATION)
+# ============================================================================
+
+# Whonix overview
+# Two VMs: Gateway (Tor) + Workstation
+# Workstation can't bypass Tor (network isolated)
+# Even if workstation compromised, anonymity preserved
+
+# Download Whonix
+# https://www.whonix.org/wiki/Download
+
+# Installation options
+# 1. VirtualBox (easiest)
+# 2. KVM
+# 3. Qubes-Whonix (integrated with Qubes OS)
+
+# Install Whonix VirtualBox
+# Download: Whonix-XFCE-*.ova
+# VirtualBox → File → Import Appliance → Select OVA
+
+# Verify Whonix signature
+gpg --import <whonix-signing-key>
+gpg --verify Whonix-*.ova.asc Whonix-*.ova
+
+# Start Whonix
+# 1. Start Whonix-Gateway VM first
+# 2. Wait for Tor connection
+# 3. Start Whonix-Workstation VM
+
+# ============================================================================
+# WHONIX CONFIGURATION
+# ============================================================================
+
+# Whonix-Gateway (Tor)
+# Tor routes all workstation traffic
+# Configure: Tor bridges, exit node selection
+
+# Whonix-Workstation (user environment)
+# Isolated from network (only through Gateway)
+# Install applications normally
+
+# Update Whonix
+# In Workstation:
+sudo apt update && sudo apt upgrade
+
+# Use bridges (if Tor blocked)
+# Gateway → Anon Connection Wizard → Use bridges
+
+# Stream isolation
+# Different apps use different Tor circuits
+# Pre-configured for: Browser, chat, Bitcoin
+
+# ============================================================================
+# WHONIX USE CASES
+# ============================================================================
+
+# Daily secure browsing
+# Research sensitive topics
+# Access .onion sites
+# Cryptocurrency transactions
+
+# Software development
+# Test applications with Tor
+# Pentesting with anonymity
+
+# Communication
+# Email, chat, forum posting
+# Anonymous publishing
+
+# ============================================================================
+# WHONIX BEST PRACTICES
+# ============================================================================
+
+# Keep both VMs updated
+# Gateway and Workstation need regular updates
+
+# Use snapshots
+# Before installing new software, take VM snapshot
+# Revert if issues
+
+# Multiple workstations
+# Different tasks = different workstations
+# Clone Workstation VM for isolation
+
+# Don't share files between host and Whonix
+# Reduces anonymity (metadata leaks)
+
+# Disable unnecessary services
+# Reduces attack surface
+
+# ============================================================================
+# QUBES OS (SECURITY BY COMPARTMENTALIZATION)
+# ============================================================================
+
+# Qubes overview
+# Security through isolation (VM-based)
+# Different VMs (qubes) for different tasks
+# Compromise of one qube doesn't affect others
+
+# Requirements
+# - 16GB+ RAM (32GB recommended)
+# - 64-bit CPU with VT-x/AMD-V
+# - 128GB+ disk space
+
+# Download Qubes OS
+# https://www.qubes-os.org/downloads/
+
+# Verify Qubes signature
+gpg --import <qubes-release-signing-key>
+gpg --verify Qubes-*.iso.asc Qubes-*.iso
+
+# Create installation media
+sudo dd if=Qubes-*.iso of=/dev/sdX bs=1M status=progress && sync
+
+# Install Qubes
+# Boot from USB → Follow installer
+# Enable disk encryption (LUKS)
+
+# ============================================================================
+# QUBES ARCHITECTURE
+# ============================================================================
+
+# Qube types
+# - AppVMs: Application virtual machines (work, personal, etc.)
+# - TemplateVMs: Base VMs for AppVMs (Fedora, Debian, Whonix)
+# - StandaloneVMs: Independent VMs (not based on template)
+# - DisposableVMs: Temporary VMs (deleted after use)
+# - sys-net: Network VM
+# - sys-firewall: Firewall VM
+# - sys-usb: USB VM
+
+# Color coding
+# Red: Untrusted (random downloads, suspicious links)
+# Orange: Work
+# Yellow: Personal
+# Green: Banking/financial
+# Blue: Sys VMs (network, firewall)
+
+# ============================================================================
+# USING QUBES OS
+# ============================================================================
+
+# Create new qube
+# Qubes Manager → Create New Qube
+# Select: template, networking, color
+
+# Start application in qube
+# Applications menu → qube name → app
+
+# File transfer between qubes
+# Right-click file → Send to another qube
+# (Prompts for confirmation - security feature)
+
+# Copy/paste between qubes
+# Disabled by default (security)
+# Enable: Qube Settings → Copy/paste
+
+# ============================================================================
+# QUBES USE CASES
+# ============================================================================
+
+# Separate work and personal
+# Work qube: company email, files
+# Personal qube: personal email, social media
+# Compromise of one doesn't affect other
+
+# Banking isolation
+# Dedicated banking qube (green)
+# No other activities
+# If compromised, personal/work unaffected
+
+# Untrusted files
+# DisposableVM for opening unknown files
+# PDF from unknown source? Open in disposable
+# Closed after viewing, any malware gone
+
+# Development
+# Dev qube for coding
+# Test qube for running untrusted code
+# Isolated from personal data
+
+# ============================================================================
+# QUBES WHONIX INTEGRATION
+# ============================================================================
+
+# Qubes-Whonix
+# Whonix Gateway + Workstation as Qubes VMs
+# Best of both: Qubes isolation + Whonix anonymity
+
+# Install Qubes-Whonix
+# Qubes → Tools → Qubes Update → Install Templates
+# Select: Whonix-Gateway, Whonix-Workstation
+
+# Create Whonix AppVM
+# Qubes Manager → Create New Qube
+# Template: whonix-workstation
+# Networking: sys-whonix
+
+# All traffic from AppVM routed through Tor
+
+# ============================================================================
+# QUBES BEST PRACTICES
+# ============================================================================
+
+# Template minimization
+# Keep templates minimal (only essential software)
+# Install apps in AppVMs when possible
+
+# Regular template updates
+# Templates need updates (AppVMs inherit)
+# Qubes → Qubes Update
+
+# Use DisposableVMs for untrusted content
+# Random downloads, suspicious emails
+# Automatic cleanup
+
+# Separate sensitive data
+# Banking, cryptocurrency, passwords
+# Dedicated isolated qube
+
+# Physical qubes
+# USB qube (sys-usb) isolates USB devices
+# Prevents USB attacks
+
+# ============================================================================
+# HARDENED LINUX DISTRIBUTIONS
+# ============================================================================
+
+# Hardened distros (non-Tails/Whonix/Qubes)
+# Parrot Security OS - Pentesting + privacy tools
+# BlackArch - Comprehensive pentesting distro
+# Kali Linux - Offensive security (less privacy-focused)
+# Alpine Linux - Minimal, security-focused
+# OpenBSD - Security by design (not Linux, but relevant)
+
+# Parrot Security
+# https://www.parrotsec.org/
+# Debian-based, privacy tools pre-installed
+# AnonSurf (Tor routing), encrypted home
+
+# BlackArch
+# https://blackarch.org/
+# Arch-based, 2500+ pentesting tools
+# Designed for security professionals
+
+# ============================================================================
+# DIY HARDENED LINUX (DEBIAN/UBUNTU)
+# ============================================================================
+
+# Harden existing Linux installation
+
+# Full disk encryption (during install)
+# Select "Use LVM with encryption"
+# Strong passphrase (20+ characters)
+
+# Automatic updates
+sudo apt install unattended-upgrades
+sudo dpkg-reconfigure -plow unattended-upgrades
+
+# Firewall (UFW)
+sudo ufw enable
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+
+# Disable unnecessary services
+systemctl list-units --type=service --state=running
+sudo systemctl disable <service>
+
+# Kernel hardening (sysctl)
+sudo nano /etc/sysctl.conf
+# Add:
+# kernel.dmesg_restrict = 1
+# kernel.kptr_restrict = 2
+# net.ipv4.conf.all.log_martians = 1
+# net.ipv4.conf.default.rp_filter = 1
+
+sudo sysctl -p
+
+# AppArmor (mandatory access control)
+sudo apt install apparmor apparmor-utils
+sudo systemctl enable apparmor
+
+# Firejail (sandbox applications)
+sudo apt install firejail
+firejail firefox
+
+# ============================================================================
+# SECURE BOOT & UEFI
+# ============================================================================
+
+# Enable Secure Boot
+# BIOS/UEFI → Secure Boot → Enabled
+
+# Enroll MOK (for custom kernels)
+sudo mokutil --import /path/to/key.der
+
+# UEFI password
+# BIOS/UEFI → Set Supervisor Password
+# Prevents unauthorized boot changes
+
+# ============================================================================
+# PRIVACY-FOCUSED MOBILE OS
+# ============================================================================
+
+# GrapheneOS (Android, Pixel devices)
+# https://grapheneos.org/
+# Hardened Android, privacy-first
+# Sandboxed Google Play (optional)
+
+# CalyxOS (Android, multiple devices)
+# https://calyxos.org/
+# Privacy + usability balance
+# microG (open source Google Services alternative)
+
+# LineageOS (Android, many devices)
+# https://lineageos.org/
+# De-Googled Android
+# Community-driven
+
+# Ubuntu Touch (mobile Linux)
+# https://ubuntu-touch.io/
+# True Linux phone OS
+# Open source
+
+# postmarketOS (Alpine Linux for phones)
+# https://postmarketos.org/
+# Linux distro for smartphones
+# Privacy-focused
+
+# ============================================================================
+# LIVE LINUX DISTROS (BESIDES TAILS)
+# ============================================================================
+
+# Persistent live USB (Ubuntu-based)
+# Create with persistence partition
+# Encrypted persistence
+
+# Create persistent Ubuntu USB (Linux)
+sudo apt install usb-creator-gtk
+usb-creator-gtk
+
+# Kali Live with persistence
+# https://www.kali.org/docs/usb/usb-persistence/
+
+# Porteus (fast live system)
+# https://porteus.org/
+# Modular, runs entirely in RAM
+
+# ============================================================================
+# COMPARISON: TAILS vs WHONIX vs QUBES
+# ============================================================================
+
+# Tails
+# Pros: True amnesia, no trace, simple
+# Cons: Not persistent (by design), Tor-only
+# Use: Journalism, whistleblowing, high-risk anonymity
+
+# Whonix
+# Pros: Tor isolation, VM-based, daily use friendly
+# Cons: Requires host OS, VM overhead
+# Use: Daily secure browsing, research, cryptocurrency
+
+# Qubes
+# Pros: Best compartmentalization, multiple security levels
+# Cons: Steep learning curve, high RAM requirements
+# Use: Multi-level security needs, handling untrusted files
+
+# ============================================================================
+# SECURE OS DECISION TREE
+# ============================================================================
+
+# Need amnesia (no trace)?
+# → Tails
+
+# Need Tor anonymity for daily use?
+# → Whonix
+
+# Need strong compartmentalization?
+# → Qubes (with Qubes-Whonix for Tor)
+
+# Need pentesting tools + privacy?
+# → Parrot Security OS
+
+# Need mobile privacy?
+# → GrapheneOS (Pixel) or CalyxOS
+
+# Want to harden existing system?
+# → Hardened Debian/Ubuntu
+
+# ============================================================================
+# RESOURCES
+# ============================================================================
+
+# Tails documentation
+# https://tails.boum.org/doc/
+
+# Whonix documentation
+# https://www.whonix.org/wiki/Documentation
+
+# Qubes documentation
+# https://www.qubes-os.org/doc/
+
+# Hardening guides
+# CIS Benchmarks: https://www.cisecurity.org/cis-benchmarks/
+# DISA STIGs: https://public.cyber.mil/stigs/
+
+# Communities
+# r/tails (Reddit)
+# r/Whonix (Reddit)
+# r/Qubes (Reddit)
+# Qubes forum: https://forum.qubes-os.org/
+

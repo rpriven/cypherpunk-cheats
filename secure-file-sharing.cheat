@@ -1,0 +1,572 @@
+% file-sharing, transfer, encrypted-sharing, onionshare, magic-wormhole
+
+# ============================================================================
+# SECURE FILE SHARING OVERVIEW
+# ============================================================================
+
+# Insecure file sharing methods (avoid)
+# - Unencrypted email attachments (readable by provider)
+# - Public cloud links (Dropbox, Google Drive public links)
+# - Unencrypted FTP
+# - HTTP file sharing (no encryption)
+
+# Secure file sharing principles
+# - End-to-end encryption (provider can't read)
+# - Temporary links (expire after use)
+# - No account required (anonymous)
+# - Self-hosted (no third-party)
+# - Tor support (anonymity)
+
+# ============================================================================
+# ONIONSHARE (TOR-BASED FILE SHARING)
+# ============================================================================
+
+# OnionShare features
+# - Share files anonymously via Tor
+# - Creates temporary Tor hidden service (.onion URL)
+# - No third-party servers
+# - End-to-end encrypted
+# - Auto-stops sharing after download (optional)
+
+# Install OnionShare (Linux)
+sudo apt install onionshare
+
+# Install OnionShare (macOS)
+brew install onionshare
+
+# Install OnionShare (Windows/all platforms)
+# Download: https://onionshare.org/
+
+# Share files (GUI)
+# 1. Open OnionShare
+# 2. Add files/folders
+# 3. Start Sharing
+# 4. Copy .onion URL → Send to recipient via secure channel (Signal, etc.)
+# 5. Recipient opens in Tor Browser
+
+# Share files (CLI)
+onionshare <file_or_folder>
+$ file_or_folder: echo -e "/tmp/secret.pdf\\n~/Documents/sensitive/"
+
+# Share with auto-stop (stops after first download)
+onionshare --autostop <file>
+$ file: echo "confidential.pdf"
+
+# Share with persistent URL (doesn't change)
+onionshare --persistent <file>
+$ file: echo "document.pdf"
+
+# Receive files (anonymous file drop)
+onionshare --receive
+
+# Recipients upload files to your .onion URL
+# Saved to ~/OnionShare folder
+
+# Host website (serve static site anonymously)
+onionshare --website <website_folder>
+$ website_folder: echo "~/my_site/"
+
+# Chat mode (anonymous chat room)
+onionshare --chat
+
+# ============================================================================
+# MAGIC WORMHOLE (ENCRYPTED PEER-TO-PEER)
+# ============================================================================
+
+# Magic Wormhole features
+# - End-to-end encrypted
+# - No server stores data (peer-to-peer via PAKE)
+# - Simple "wormhole code" (short phrase)
+# - Cross-platform
+
+# Install Magic Wormhole (Linux)
+sudo apt install magic-wormhole
+
+# Install Magic Wormhole (macOS)
+brew install magic-wormhole
+
+# Install Magic Wormhole (Python/pip)
+pip install magic-wormhole
+
+# Send file
+wormhole send <file>
+$ file: echo -e "document.pdf\\nsecret.tar.gz"
+
+# Displays wormhole code (e.g., "7-guitarist-revenge")
+# Share code with recipient via secure channel
+
+# Receive file
+wormhole receive <wormhole_code>
+$ wormhole_code: echo "7-guitarist-revenge"
+
+# Send directory
+tar czf - <directory> | wormhole send
+$ directory: echo "~/important_files/"
+
+# Receive directory
+wormhole receive <code> | tar xzf -
+
+# ============================================================================
+# FIREFOX SEND (DISCONTINUED, ALTERNATIVES)
+# ============================================================================
+
+# Firefox Send (discontinued)
+# Was: https://send.firefox.com/ (shut down in 2020)
+
+# Alternatives to Firefox Send
+# - send.vis.ee (self-hosted Send instance)
+# - send.tresorit.com (Tresorit Send, 5 GB free)
+# - sendgb.com (SendGB, 5 GB free, 90 days)
+
+# Self-host Send (using send.vis.ee codebase)
+# https://github.com/timvisee/send
+
+# Docker self-hosted Send
+docker run -d -p 1443:1443 --name send registry.gitlab.com/timvisee/send:latest
+
+# ============================================================================
+# ENCRYPTED CLOUD FILE SHARING
+# ============================================================================
+
+# Tresorit Send
+# https://send.tresorit.com/
+# - End-to-end encrypted
+# - 5 GB file size limit (free)
+# - Password protection
+# - Expiration dates
+
+# Send file via Tresorit Send
+# 1. Visit: https://send.tresorit.com/
+# 2. Upload file
+# 3. Set password (optional)
+# 4. Set expiration
+# 5. Share link + password separately
+
+# ProtonDrive
+# https://proton.me/drive
+# - End-to-end encrypted cloud storage
+# - Share links with password
+# - Swiss jurisdiction
+# - Free: 5 GB, Paid: up to 500 GB
+
+# Cryptomator + Dropbox/Google Drive
+# Encrypt files locally before uploading
+
+# Install Cryptomator
+sudo apt install cryptomator
+# Or download: https://cryptomator.org/
+
+# Workflow
+# 1. Create Cryptomator vault
+# 2. Unlock vault (creates virtual drive)
+# 3. Copy files to virtual drive (auto-encrypted)
+# 4. Encrypted files stored in cloud folder
+# 5. Share encrypted files (recipient needs vault password)
+
+# ============================================================================
+# CROC (ENCRYPTED PEER-TO-PEER TRANSFER)
+# ============================================================================
+
+# Croc features
+# - End-to-end encrypted
+# - Resume interrupted transfers
+# - Multi-relay support
+# - Cross-platform
+
+# Install croc (Linux)
+curl https://getcroc.schollz.com | bash
+
+# Install croc (Go)
+go install github.com/schollz/croc/v9@latest
+
+# Send file with croc
+croc send <file>
+$ file: echo -e "document.pdf\\narchive.tar.gz"
+
+# Displays code phrase (e.g., "code-word-1234")
+# Share with recipient
+
+# Receive file with croc
+croc <code_phrase>
+$ code_phrase: echo "code-word-1234"
+
+# Send folder
+croc send --zip <folder>
+$ folder: echo "~/my_documents/"
+
+# Use custom relay server
+croc --relay <relay_server> send <file>
+$ relay_server: echo "relay.example.com:9009"
+
+# Self-host croc relay
+croc relay
+
+# ============================================================================
+# SYNC THING (ENCRYPTED SYNC)
+# ============================================================================
+
+# Syncthing features
+# - Continuous sync (not one-time transfer)
+# - End-to-end encrypted
+# - Peer-to-peer (no central server)
+# - Cross-platform
+
+# Install Syncthing (Linux)
+sudo apt install syncthing
+
+# Install Syncthing (macOS)
+brew install syncthing
+
+# Start Syncthing
+syncthing
+
+# Access web UI
+# http://localhost:8384/
+
+# Add device
+# 1. Get device ID (Settings → Show ID)
+# 2. Add remote device (Actions → Add Device)
+# 3. Share folder with device
+
+# Use case: Ongoing secure sync between devices
+
+# ============================================================================
+# RSYNC OVER SSH (ENCRYPTED TRANSFER)
+# ============================================================================
+
+# rsync + SSH = encrypted file transfer
+
+# Basic rsync over SSH
+rsync -avz -e ssh <source> <user>@<host>:<destination>
+$ source: echo -e "/home/user/file.txt\\n~/Documents/"
+$ user: echo "username"
+$ host: echo "server.example.com"
+$ destination: echo "/remote/path/"
+
+# Rsync with progress
+rsync -avz --progress -e ssh <source> <user>@<host>:<destination>
+
+# Rsync download from server
+rsync -avz -e ssh <user>@<host>:<source> <local_destination>
+$ user: echo "username"
+$ host: echo "server.example.com"
+$ source: echo "/remote/file.txt"
+$ local_destination: echo "~/Downloads/"
+
+# Rsync with compression
+rsync -avz -e ssh <source> <user>@<host>:<destination>
+
+# ============================================================================
+# SCP (SECURE COPY)
+# ============================================================================
+
+# SCP = Secure Copy (SSH-based)
+
+# Copy file to remote server
+scp <file> <user>@<host>:<destination>
+$ file: echo -e "document.pdf\\n~/file.txt"
+$ user: echo "username"
+$ host: echo "server.example.com"
+$ destination: echo "/remote/path/"
+
+# Copy file from remote server
+scp <user>@<host>:<remote_file> <local_destination>
+$ user: echo "username"
+$ host: echo "server.example.com"
+$ remote_file: echo "/remote/file.txt"
+$ local_destination: echo "~/Downloads/"
+
+# Copy directory recursively
+scp -r <directory> <user>@<host>:<destination>
+$ directory: echo "~/my_folder/"
+
+# SCP with specific port
+scp -P <port> <file> <user>@<host>:<destination>
+$ port: echo "2222"
+
+# ============================================================================
+# NEXTCLOUD (SELF-HOSTED CLOUD)
+# ============================================================================
+
+# Nextcloud = Self-hosted cloud storage (Dropbox alternative)
+
+# Install Nextcloud (Docker)
+docker run -d -p 8080:80 --name nextcloud \
+  -v nextcloud:/var/www/html \
+  nextcloud
+
+# Or use Nextcloud snap
+sudo snap install nextcloud
+
+# Access Nextcloud
+# http://localhost:8080/
+
+# Share files via Nextcloud
+# 1. Upload files
+# 2. Right-click → Share
+# 3. Create public link
+# 4. Set password, expiration
+# 5. Share link
+
+# Nextcloud end-to-end encryption
+# Settings → Security → Enable E2EE
+# Encrypt folders before sharing
+
+# ============================================================================
+# KEYBASE (ENCRYPTED FILE SHARING)
+# ============================================================================
+
+# Keybase features
+# - End-to-end encrypted
+# - Identity verification (PGP, social media)
+# - Encrypted chat + file sharing
+# - Public folders (signed, not encrypted)
+
+# Install Keybase
+# Download: https://keybase.io/download
+
+# Share file via Keybase
+# 1. Open Keybase
+# 2. Select contact
+# 3. Drag & drop file into chat
+
+# Keybase Filesystem (KBFS)
+# Encrypted filesystem in: /keybase/private/<you>/
+
+# Share folder via KBFS
+# 1. Create folder: /keybase/private/<you>,<friend>/
+# 2. Add files to folder
+# 3. Both users can access (encrypted)
+
+# Public signed folder
+# /keybase/public/<you>/
+# Publicly readable, cryptographically signed
+
+# ============================================================================
+# ENCYPTED EMAIL (LARGE ATTACHMENTS)
+# ============================================================================
+
+# PGP-encrypted email attachment
+# See gpg.cheat for encryption
+
+# Encrypt file
+gpg --encrypt --armor --recipient <recipient_email> <file>
+$ recipient_email: echo "friend@example.com"
+$ file: echo "document.pdf"
+
+# Email encrypted file.asc as attachment
+
+# Alternative: Age encryption
+# See age.cheat
+
+# Encrypt file with age
+age --encrypt --recipient <age_public_key> --output <output> <file>
+$ age_public_key: echo "age1abc..."
+$ output: echo "encrypted.age"
+$ file: echo "document.pdf"
+
+# ============================================================================
+# TEMPORARY FILE HOSTING SERVICES
+# ============================================================================
+
+# SendGB
+# https://www.sendgb.com/
+# - 5 GB free
+# - 90 days retention
+# - Password protection
+
+# WeTransfer
+# https://wetransfer.com/
+# - 2 GB free (no account)
+# - 7 days retention
+# - Email notification
+
+# MEGA
+# https://mega.nz/
+# - 20 GB free
+# - End-to-end encrypted
+# - Account required
+
+# File.io (ephemeral)
+# https://www.file.io/
+# - One-time download (file deleted after download)
+# - No account required
+
+# Upload to file.io (CLI)
+curl --upload-file <file> https://file.io/
+$ file: echo "document.pdf"
+
+# ============================================================================
+# QRCODE FILE SHARING (SMALL FILES)
+# ============================================================================
+
+# Share small data via QR code
+
+# Generate QR code from file
+# Install qrencode
+sudo apt install qrencode
+
+# Create QR code from text
+cat <file> | qrencode -t UTF8
+$ file: echo "secret.txt"
+
+# Create QR code image
+qrencode -o <output_image> -r <file>
+$ output_image: echo "qr.png"
+$ file: echo "data.txt"
+
+# Scan QR code (mobile)
+# Use phone camera or QR code reader app
+
+# ============================================================================
+# SPLIT & ENCRYPT (LARGE FILES)
+# ============================================================================
+
+# Split large file into smaller encrypted chunks
+
+# Split file
+split -b 100M <large_file> <prefix>
+$ large_file: echo "bigfile.tar.gz"
+$ prefix: echo "part_"
+
+# Creates: part_aa, part_ab, part_ac, etc.
+
+# Encrypt each part
+for part in part_*; do
+  gpg --encrypt --recipient <recipient_email> "$part"
+done
+
+# Share encrypted parts separately (different channels)
+
+# Recipient: Decrypt and reassemble
+for part in part_*.gpg; do
+  gpg --decrypt "$part" > "${part%.gpg}"
+done
+cat part_* > original_file.tar.gz
+
+# ============================================================================
+# STEGANOGRAPHY (HIDDEN FILE SHARING)
+# ============================================================================
+
+# Hide file inside image (see anti-forensics.cheat)
+
+# Install steghide
+sudo apt install steghide
+
+# Hide file in image
+steghide embed -cf <cover_image> -ef <secret_file> -p <passphrase>
+$ cover_image: echo "photo.jpg"
+$ secret_file: echo "document.pdf"
+$ passphrase: echo "StrongPassword123"
+
+# Share cover_image.jpg via normal channels
+
+# Extract hidden file
+steghide extract -sf <image_with_hidden_data> -p <passphrase>
+$ image_with_hidden_data: echo "photo.jpg"
+$ passphrase: echo "StrongPassword123"
+
+# ============================================================================
+# SECURITY BEST PRACTICES
+# ============================================================================
+
+# Always encrypt before sharing
+# Use: GPG, age, VeraCrypt, or E2EE service
+
+# Share password separately
+# Send link via one channel (Signal)
+# Send password via different channel (Email)
+
+# Use expiring links
+# Set expiration dates on shared files
+# Reduces exposure window
+
+# Verify recipient identity
+# Confirm recipient before sharing sensitive data
+# Use out-of-band verification (voice call, in-person)
+
+# Delete after sharing
+# Sender: Delete original file securely (shred)
+# Recipient: Acknowledge receipt, sender can delete shared copy
+
+# Use Tor for anonymity
+# OnionShare for maximum anonymity
+# VPN for moderate privacy
+
+# Avoid public WiFi for sensitive transfers
+# Use VPN or wait for secure connection
+
+# ============================================================================
+# SECURE FILE SHARING CHECKLIST
+# ============================================================================
+
+# Before sharing
+# [ ] Encrypt file (GPG, age, VeraCrypt)
+# [ ] Choose secure method (OnionShare, Magic Wormhole, Tresorit)
+# [ ] Set expiration / auto-delete
+# [ ] Password protect (if service supports)
+# [ ] Verify recipient identity
+
+# During sharing
+# [ ] Share link via secure channel (Signal, encrypted email)
+# [ ] Share password via different channel
+# [ ] Confirm recipient received file
+
+# After sharing
+# [ ] Delete shared file from service
+# [ ] Securely delete original (shred)
+# [ ] Verify recipient can decrypt/open file
+
+# ============================================================================
+# COMPARISON: SECURE FILE SHARING METHODS
+# ============================================================================
+
+# OnionShare
+# Pros: Maximum anonymity (Tor), no third-party
+# Cons: Requires Tor Browser, slower
+# Use: High-risk sharing, whistleblowing, journalism
+
+# Magic Wormhole
+# Pros: Simple, fast, no account, E2EE
+# Cons: Requires CLI/app on both ends
+# Use: Quick secure transfers between techies
+
+# Tresorit Send / ProtonDrive
+# Pros: E2EE, easy to use, web-based
+# Cons: Third-party service, file size limits
+# Use: General secure file sharing
+
+# Syncthing
+# Pros: Continuous sync, E2EE, no third-party
+# Cons: Setup required on both ends, ongoing sync (not one-time)
+# Use: Secure sync between devices
+
+# rsync/scp over SSH
+# Pros: Encrypted, standard tools, scriptable
+# Cons: Requires SSH access, command-line
+# Use: Server-to-server transfers, automated backups
+
+# ============================================================================
+# RESOURCES
+# ============================================================================
+
+# OnionShare
+# Website: https://onionshare.org/
+# Documentation: https://docs.onionshare.org/
+
+# Magic Wormhole
+# GitHub: https://github.com/magic-wormhole/magic-wormhole
+# Documentation: https://magic-wormhole.readthedocs.io/
+
+# Croc
+# GitHub: https://github.com/schollz/croc
+# Website: https://schollz.com/software/croc6/
+
+# Syncthing
+# Website: https://syncthing.net/
+# Documentation: https://docs.syncthing.net/
+
+# Cryptomator
+# Website: https://cryptomator.org/
+# Documentation: https://docs.cryptomator.org/
+

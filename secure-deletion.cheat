@@ -1,0 +1,545 @@
+% secure-deletion, shred, wipe, forensics, data-destruction
+
+# ============================================================================
+# WHY SECURE DELETION MATTERS
+# ============================================================================
+
+# Regular delete doesn't actually remove data
+# - File system marks space as "available"
+# - Data remains on disk until overwritten
+# - Easily recoverable with forensic tools
+
+# Secure deletion overwrites data multiple times
+# Modern drives: 1-3 passes usually sufficient
+# Old magnetic drives: 7-35 passes (DoD standard)
+
+# ============================================================================
+# SHRED - Secure File Deletion
+# ============================================================================
+
+# Install shred (usually pre-installed)
+sudo apt install coreutils
+
+# Basic secure delete (default 3 passes)
+shred <file>
+$ file: echo -e \"sensitive.txt\\nsecret.pdf\"
+
+# Delete and remove file
+shred -u <file>
+$ file: echo \"document.txt\"
+
+# Verbose output (show progress)
+shred -v <file>
+$ file: echo \"data.csv\"
+
+# Specify number of passes
+shred -n <passes> <file>
+$ passes: echo -e \"1\\n3\\n7\\n35\"
+$ file: echo \"secret.docx\"
+
+# Full secure delete with removal
+shred -vfz -n 5 <file>
+$ file: echo -e \"passwords.txt\\nkeys.pem\"
+
+# shred options explained:
+# -v = verbose (show progress)
+# -f = force (change permissions if needed)
+# -z = final pass with zeros (hide shredding)
+# -n = number of overwrite passes
+# -u = remove file after shredding
+
+# Shred multiple files
+shred -vfz -n 3 file1.txt file2.pdf file3.docx
+
+# Shred all files in directory
+find /path/to/dir -type f -exec shred -vfz -n 3 {} \\;
+
+# ============================================================================
+# SECURE-DELETE PACKAGE (Multiple Tools)
+# ============================================================================
+
+# Install secure-delete suite
+sudo apt install secure-delete
+
+# srm - Secure rm (file deletion)
+srm <file>
+$ file: echo -e \"sensitive.doc\\nsecret_key.pem\"
+
+# srm with fast mode (1 pass)
+srm -f <file>
+$ file: echo \"temp_data.txt\"
+
+# srm recursive (directory)
+srm -r <directory>
+$ directory: echo -e \"~/old_projects\\n/tmp/sensitive\"
+
+# srm with DoD 5220.22-M standard (7 passes)
+srm -v <file>
+$ file: echo \"classified.pdf\"
+
+# sfill - Secure free space wipe
+# WARNING: Takes long time, writes until disk full
+sfill -v <directory>
+$ directory: echo -e \"/home/user\\n/tmp\"
+
+# sfill fast mode (only free space, not inodes)
+sfill -f <directory>
+$ directory: echo \"/home/user\"
+
+# sswap - Secure swap wipe
+# Check swap partitions first
+swapon --show
+
+# Wipe swap (disable swap first)
+sudo swapoff -a
+sudo sswap /dev/sdXY
+sudo swapon -a
+
+# smem - Secure memory wipe (clear RAM)
+# Fills memory with random data then frees it
+smem
+
+# ============================================================================
+# WIPE - Advanced Secure Deletion
+# ============================================================================
+
+# Install wipe
+sudo apt install wipe
+
+# Basic wipe (default 34 passes - Gutmann method)
+wipe <file>
+$ file: echo \"confidential.txt\"
+
+# Quick wipe (4 passes)
+wipe -q <file>
+$ file: echo \"temp.dat\"
+
+# Wipe directory recursively
+wipe -r <directory>
+$ directory: echo -e \"~/old_work\\n/tmp/cache\"
+
+# Force wipe (no confirmation)
+wipe -f <file>
+$ file: echo \"delete_me.pdf\"
+
+# Wipe with custom passes
+wipe -Q <passes> <file>
+$ passes: echo -e \"1\\n7\\n35\"
+$ file: echo \"data.xlsx\"
+
+# Wipe free space on partition
+wipe -F /dev/sdX
+
+# ============================================================================
+# DD - Low-Level Disk Wiping
+# ============================================================================
+
+# DANGER: dd is destructive - verify device first!
+# Check device name
+lsblk
+fdisk -l
+
+# Wipe entire disk with zeros
+sudo dd if=/dev/zero of=/dev/sdX bs=1M status=progress
+
+# Wipe with random data (more secure)
+sudo dd if=/dev/urandom of=/dev/sdX bs=1M status=progress
+
+# Wipe specific number of blocks
+sudo dd if=/dev/urandom of=/dev/sdX bs=1M count=1000 status=progress
+
+# Wipe only first 10MB (destroy partition table)
+sudo dd if=/dev/urandom of=/dev/sdX bs=1M count=10
+
+# ============================================================================
+# SCRUB - RAID-Aware Secure Deletion
+# ============================================================================
+
+# Install scrub
+sudo apt install scrub
+
+# Scrub file (patterns + verification)
+scrub -p nnsa <file>
+$ file: echo \"sensitive_data.bin\"
+
+# Scrub patterns available:
+# nnsa    - NNSA Policy Letter NAP-14.1-C (3 passes)
+# dod     - DoD 5220.22-M (7 passes)
+# bsi     - German BSI (9 passes)
+# gutmann - Gutmann method (35 passes)
+# schneier - Bruce Schneier algorithm (7 passes)
+# pfitzner7 - Roy Pfitzner 7-pass method
+
+# Scrub disk
+sudo scrub -p dod /dev/sdX
+
+# Scrub with specific pattern
+sudo scrub -p gutmann /dev/sdX
+
+# Scrub free space
+scrub -X /path/to/mount
+
+# ============================================================================
+# CRYPTSETUP - Cryptographic Erase
+# ============================================================================
+
+# Fastest method for encrypted drives
+# Destroy encryption header = data unrecoverable
+
+# Check if device is LUKS encrypted
+sudo cryptsetup luksDump /dev/sdX
+
+# Erase LUKS header (instant crypto-shredding)
+sudo cryptsetup luksErase /dev/sdX
+
+# Backup header before erase (optional)
+sudo cryptsetup luksHeaderBackup /dev/sdX --header-backup-file header.img
+
+# ============================================================================
+# TRIM/DISCARD (SSD Optimization)
+# ============================================================================
+
+# SSDs handle deletion differently (TRIM)
+# Secure deletion harder on SSDs due to wear leveling
+
+# Check if TRIM supported
+sudo hdparm -I /dev/sdX | grep TRIM
+
+# Manual TRIM on mounted partition
+sudo fstrim -v /
+
+# Enable automatic TRIM (systemd)
+sudo systemctl enable fstrim.timer
+sudo systemctl start fstrim.timer
+
+# Force TRIM entire device
+sudo blkdiscard /dev/sdX
+
+# Secure erase SSD (ATA Secure Erase)
+# Check if supported
+sudo hdparm -I /dev/sdX | grep -i erase
+
+# Set security password
+sudo hdparm --user-master u --security-set-pass password /dev/sdX
+
+# Execute secure erase
+sudo hdparm --user-master u --security-erase password /dev/sdX
+
+# ============================================================================
+# NVME SECURE ERASE
+# ============================================================================
+
+# Check NVMe device
+sudo nvme list
+
+# Format with secure erase
+sudo nvme format /dev/nvme0n1 -s 1
+
+# Cryptographic erase (if supported)
+sudo nvme format /dev/nvme0n1 -s 2
+
+# ============================================================================
+# SECURE DELETION BY FILE SYSTEM
+# ============================================================================
+
+# EXT4 secure deletion flag
+# Mark file for secure deletion
+chattr +s <file>
+$ file: echo \"secure_me.txt\"
+
+# Check attributes
+lsattr <file>
+$ file: echo \"secure_me.txt\"
+
+# Remove secure deletion flag
+chattr -s <file>
+$ file: echo \"secure_me.txt\"
+
+# BTRFS
+# No built-in secure deletion
+# Use shred/scrub before deletion
+
+# ZFS
+# Supports encryption at dataset level
+# Destroy dataset = crypto-shred
+
+# ============================================================================
+# MEMORY (RAM) WIPING
+# ============================================================================
+
+# Clear page cache
+sync
+echo 3 | sudo tee /proc/sys/vm/drop_caches
+
+# Clear swap
+sudo swapoff -a
+sudo swapon -a
+
+# Overwrite freed memory (smem from secure-delete)
+smem
+
+# Cold boot attack mitigation
+# Enable RAM encryption in BIOS/UEFI if available
+
+# ============================================================================
+# BROWSER CACHE & HISTORY DELETION
+# ============================================================================
+
+# Firefox secure deletion
+# Clear all history: CTRL+SHIFT+DEL → Everything
+
+# Manually wipe Firefox cache
+rm -rf ~/.cache/mozilla/firefox/*
+rm -rf ~/.mozilla/firefox/*/cache2/*
+
+# Shred Firefox history database
+cd ~/.mozilla/firefox/*.default-release/
+shred -vfz -n 3 places.sqlite
+
+# Chrome/Chromium secure deletion
+rm -rf ~/.cache/google-chrome/*
+rm -rf ~/.config/google-chrome/Default/Cache/*
+
+# ============================================================================
+# TEMPORARY FILES & LOGS
+# ============================================================================
+
+# Find and shred temporary files
+find /tmp -type f -exec shred -vfz -n 3 {} \\;
+
+# Shred old logs
+sudo find /var/log -type f -mtime +30 -exec shred -vfz -n 1 {} \\;
+
+# Clear systemd journal
+sudo journalctl --vacuum-time=1d
+
+# Clear bash history
+shred -vfz -n 3 ~/.bash_history
+history -c
+
+# Disable bash history for session
+unset HISTFILE
+
+# ============================================================================
+# SECURE DELETION OF SPECIFIC FILE TYPES
+# ============================================================================
+
+# Shred all PDFs in directory
+find ~/Documents -name "*.pdf" -exec shred -vfz -n 3 {} \\;
+
+# Shred all images
+find ~/Pictures -type f \\( -name "*.jpg" -o -name "*.png" \\) -exec shred -vfz -n 3 {} \\;
+
+# Shred SSH keys
+shred -vfz -n 7 ~/.ssh/id_rsa
+
+# Shred GPG keys
+shred -vfz -n 7 ~/.gnupg/secring.gpg
+
+# ============================================================================
+# FREE SPACE WIPING
+# ============================================================================
+
+# Create large file with random data to fill free space
+cat /dev/urandom > /home/deleteme.dat
+# Wait until disk full, then:
+rm /home/deleteme.dat
+
+# Using dd
+dd if=/dev/urandom of=/home/wipefile bs=1M
+rm /home/wipefile
+
+# Using sfill (secure-delete package)
+sfill -v /home/
+
+# BleachBit free space wipe (GUI)
+bleachbit --clean system.free_disk_space
+
+# ============================================================================
+# SECURE DELETION SCRIPTS
+# ============================================================================
+
+# Secure delete script (shred wrapper)
+#!/bin/bash
+# secure_delete.sh
+for file in "$@"; do
+    if [ -f "$file" ]; then
+        shred -vfz -n 3 "$file"
+        echo "Securely deleted: $file"
+    else
+        echo "Not a file: $file"
+    fi
+done
+
+# Make executable
+chmod +x secure_delete.sh
+
+# Use it
+./secure_delete.sh file1.txt file2.pdf file3.docx
+
+# ============================================================================
+# FULL DISK DESTRUCTION WORKFLOW
+# ============================================================================
+
+# Before selling/disposing of drive:
+# 1. Backup important data
+# 2. Boot from live USB (Tails, Ubuntu Live)
+# 3. Identify target drive (lsblk)
+# 4. Wipe entire drive
+sudo shred -vfz -n 1 /dev/sdX
+
+# Or for faster wipe (single pass random)
+sudo dd if=/dev/urandom of=/dev/sdX bs=1M status=progress
+
+# 5. Verify (should show random data)
+sudo dd if=/dev/sdX bs=1M count=10 | hexdump -C
+
+# 6. (Optional) Create new partition table
+sudo fdisk /dev/sdX
+# g (create GPT table), w (write)
+
+# ============================================================================
+# ANDROID/MOBILE SECURE DELETION
+# ============================================================================
+
+# Android encryption
+# Settings → Security → Encrypt phone
+
+# Factory reset (after encryption)
+# Settings → System → Reset → Factory reset
+
+# iOS secure deletion
+# Settings → General → Transfer or Reset iPhone → Erase All Content and Settings
+
+# Physical destruction (if needed)
+# - Drill through memory chips
+# - Professional shredding service
+
+# ============================================================================
+# CLOUD STORAGE DELETION
+# ============================================================================
+
+# Most cloud services don't truly delete
+# Files remain in backups/snapshots
+
+# Best practices:
+# 1. Encrypt before uploading (see age.cheat, gpg.cheat)
+# 2. Delete encryption keys when removing files
+# 3. Don't trust cloud provider deletion
+
+# Google Drive
+# Delete → Empty trash → Wait 30 days
+
+# Dropbox
+# Delete → Permanently delete
+
+# ============================================================================
+# FORENSIC VERIFICATION
+# ============================================================================
+
+# Test if data is recoverable (after secure deletion)
+# Use forensic tools to attempt recovery
+
+# PhotoRec (file recovery tool)
+sudo apt install testdisk
+photorec /dev/sdX
+
+# Foremost (file carving)
+sudo apt install foremost
+foremost -t all -i /dev/sdX -o /output/dir
+
+# If recovery succeeds, your deletion wasn't secure enough!
+
+# ============================================================================
+# DBAN (DARIK'S BOOT AND NUKE)
+# ============================================================================
+
+# Bootable ISO for complete disk wiping
+# Download: https://dban.org/
+
+# Create bootable USB
+sudo dd if=dban.iso of=/dev/sdX bs=1M status=progress
+
+# Boot from USB, select drive, start wipe
+# Recommended method: DoD Short (3 passes)
+
+# ============================================================================
+# BEST PRACTICES
+# ============================================================================
+
+# Preventive measures (better than deletion)
+# - Encrypt all drives (see veracrypt.cheat)
+# - Use encrypted file systems
+# - Don't store sensitive data unnecessarily
+# - Use RAM disks for temporary sensitive work
+
+# Deletion strategy by threat level
+# Low (personal files): shred -n 1
+# Medium (sensitive docs): shred -n 3
+# High (classified): shred -n 7
+# Maximum (life/death): crypto-shred + physical destruction
+
+# SSD considerations
+# - Secure deletion less effective on SSDs
+# - TRIM helps but not guaranteed
+# - Best: Full disk encryption + crypto-shred
+# - Or: Physical destruction
+
+# ============================================================================
+# COMMON MISTAKES
+# ============================================================================
+
+# ❌ Using "rm -rf" and thinking it's secure
+# ✅ Use shred/srm/wipe instead
+
+# ❌ Forgetting about backups
+# ✅ Securely delete all backup copies
+
+# ❌ Not wiping free space
+# ✅ Use sfill after deleting sensitive files
+
+# ❌ Deleting files without wiping metadata
+# ✅ Check file system journals/logs
+
+# ❌ Trusting cloud provider deletion
+# ✅ Encrypt before upload, delete keys
+
+# ❌ Selling drive without wiping
+# ✅ Full wipe + verification before disposal
+
+# ============================================================================
+# EMERGENCY DELETION
+# ============================================================================
+
+# Quick emergency wipe (if time limited)
+# Wipe most sensitive files first, free space last
+
+# Priority deletion order:
+# 1. SSH/GPG keys (~/.ssh, ~/.gnupg)
+# 2. Browser history/cache
+# 3. Documents folder
+# 4. Email (~/Maildir, ~/.thunderbird)
+# 5. Home directory
+# 6. Swap partition
+# 7. Free space
+
+# One-liner emergency wipe (home directory)
+find ~/ -type f -exec shred -n 1 -u {} \\; 2>/dev/null
+
+# ============================================================================
+# LEGAL CONSIDERATIONS
+# ============================================================================
+
+# Obstruction of justice concerns
+# Secure deletion may be illegal in some contexts
+# - During active investigation
+# - Under subpoena/warrant
+# - Corporate document retention policies
+
+# Know your jurisdiction's laws
+# Consult lawyer if unsure
+
+# Plausible deniability
+# Hidden volumes (VeraCrypt)
+# Steganography
+

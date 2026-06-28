@@ -1,0 +1,308 @@
+% metadata, exif, sanitization, privacy
+
+# ============================================================================
+# EXIFTOOL - Universal Metadata Tool
+# ============================================================================
+
+# Install exiftool
+sudo apt install libimage-exiftool-perl
+
+# View all metadata
+exiftool <file>
+$ file: echo -e "photo.jpg\ndocument.pdf\nvideo.mp4"
+
+# View specific metadata tags
+exiftool -GPS* <image_file>
+$ image_file: echo "photo.jpg"
+
+# Remove ALL metadata
+exiftool -all= <file>
+$ file: echo -e "photo.jpg\ndocument.pdf"
+
+# Remove metadata and keep original
+exiftool -all= -o <output_file> <input_file>
+$ output_file: echo "cleaned.jpg"
+$ input_file: echo "original.jpg"
+
+# Remove metadata from all files in directory
+exiftool -all= *.jpg
+
+# Remove GPS data only
+exiftool -gps:all= <image>
+$ image: echo "photo_with_location.jpg"
+
+# Remove specific tags
+exiftool -Author= -Creator= <file>
+$ file: echo "document.pdf"
+
+# Batch remove metadata (preserve originals)
+exiftool -all= -r <directory>
+$ directory: echo -e "~/Pictures\n~/Documents"
+
+# Remove metadata WITHOUT creating backup files
+exiftool -all= -overwrite_original <file>
+$ file: echo "photo.jpg"
+
+# ============================================================================
+# MAT2 - Metadata Anonymisation Toolkit
+# ============================================================================
+
+# Install mat2
+sudo apt install mat2
+
+# Check if file contains metadata
+mat2 --check <file>
+$ file: echo -e "document.pdf\nphoto.jpg\naudio.mp3"
+
+# Remove metadata
+mat2 <file>
+$ file: echo -e "document.pdf\nimage.png"
+
+# Clean file with lightweight mode (faster, less thorough)
+mat2 --lightweight <file>
+$ file: echo "large_image.jpg"
+
+# Clean and specify output location
+mat2 --output-directory <output_dir> <file>
+$ output_dir: echo "/tmp/cleaned"
+$ file: echo "document.pdf"
+
+# List supported file types
+mat2 --list
+
+# ============================================================================
+# PDF SANITIZATION
+# ============================================================================
+
+# Remove PDF metadata with exiftool
+exiftool -all:all= document.pdf
+
+# Clean PDF with mat2
+mat2 document.pdf
+
+# PDF metadata removal with pdftk
+pdftk input.pdf output output.pdf compress
+
+# Remove PDF metadata with qpdf
+qpdf --linearize --object-streams=generate input.pdf output.pdf
+
+# Print PDF and scan (nuclear option - removes ALL metadata/tracking)
+# lp input.pdf
+# (Scan printed pages back to PDF)
+
+# ============================================================================
+# IMAGE METADATA REMOVAL
+# ============================================================================
+
+# Remove EXIF from JPG (exiftool)
+exiftool -all= -overwrite_original photo.jpg
+
+# Remove EXIF with jhead
+jhead -purejpg <image>
+$ image: echo "photo.jpg"
+
+# Remove EXIF with ImageMagick (also recompresses)
+convert <input> -strip <output>
+$ input: echo "original.jpg"
+$ output: echo "cleaned.jpg"
+
+# Remove EXIF from PNG
+exiftool -all= image.png
+
+# Batch clean all images
+exiftool -all= -overwrite_original -r ~/Pictures/
+
+# ============================================================================
+# AUDIO/VIDEO METADATA
+# ============================================================================
+
+# Remove metadata from MP3
+eyeD3 --remove-all <audio_file>
+$ audio_file: echo "song.mp3"
+
+# Remove metadata from video (ffmpeg)
+ffmpeg -i input.mp4 -map_metadata -1 -c:v copy -c:a copy output.mp4
+
+# Strip metadata from all videos in folder
+for file in *.mp4; do ffmpeg -i "$file" -map_metadata -1 -c copy "cleaned_$file"; done
+
+# ============================================================================
+# OFFICE DOCUMENTS
+# ============================================================================
+
+# Remove Word/Excel/PowerPoint metadata (LibreOffice)
+# File → Properties → Reset Properties → Clear All
+
+# CLI: Convert to PDF (removes some metadata)
+libreoffice --headless --convert-to pdf document.docx
+
+# Remove metadata from Office docs with exiftool
+exiftool -all= document.docx
+
+# ============================================================================
+# DOCUMENT SANITIZATION WORKFLOW
+# ============================================================================
+
+# Complete document sanitization:
+# 1. Remove metadata
+exiftool -all= -overwrite_original document.pdf
+
+# 2. Convert to different format and back (removes hidden data)
+pdftk document.pdf output temp.pdf compress
+qpdf --object-streams=generate temp.pdf sanitized.pdf
+
+# 3. Verify metadata removed
+exiftool sanitized.pdf
+
+# ============================================================================
+# CHECKING FOR HIDDEN DATA
+# ============================================================================
+
+# Check for hidden text/layers in PDF
+pdfinfo <pdf_file>
+$ pdf_file: echo "document.pdf"
+
+# Extract all text from PDF (find hidden content)
+pdftotext <pdf_file> -
+$ pdf_file: echo "document.pdf"
+
+# Check PDF structure
+pdftk <pdf_file> dump_data
+$ pdf_file: echo "document.pdf"
+
+# Analyze document for hidden data
+binwalk <file>
+$ file: echo "suspicious_document.pdf"
+
+# ============================================================================
+# COMMON METADATA FIELDS TO REMOVE
+# ============================================================================
+
+# Images:
+# - GPS coordinates (location)
+# - Camera make/model
+# - Date/time taken
+# - Software used
+# - Author/Creator
+
+# PDFs:
+# - Author, Creator, Producer
+# - Creation/Modification dates
+# - Software version
+# - Comments/annotations
+# - Hidden text/layers
+
+# Office Docs:
+# - Author, Company
+# - Edit history
+# - Comments/tracked changes
+# - Template information
+# - Filesystem paths
+
+# Audio/Video:
+# - Artist, Album, Genre
+# - Creation date
+# - GPS coordinates (videos)
+# - Camera/recording device info
+
+# ============================================================================
+# SAFE SHARING WORKFLOW
+# ============================================================================
+
+# Before sharing any file:
+# 1. Check metadata
+exiftool file.jpg
+
+# 2. Remove metadata
+mat2 file.jpg
+
+# 3. Verify removal
+exiftool file.cleaned.jpg
+
+# 4. (Optional) Convert format
+convert file.cleaned.jpg -quality 95 file_final.jpg
+
+# 5. Final check
+exiftool file_final.jpg
+
+# ============================================================================
+# GUI TOOLS
+# ============================================================================
+
+# GIMP (image editor)
+# File → Export → Uncheck "Save EXIF data"
+
+# Metadata Cleaner (GUI for mat2)
+# Install: flatpak install flathub fr.romainvigier.MetadataCleaner
+
+# ExifCleaner (cross-platform GUI)
+# https://exifcleaner.com
+
+# ============================================================================
+# BEST PRACTICES
+# ============================================================================
+
+# Always check files before sharing
+# Use mat2 or exiftool as default
+
+# For sensitive documents: Convert to image, then back to PDF
+# (Removes all hidden data/metadata)
+
+# Screenshots are safer than photos
+# (No GPS, camera info)
+
+# Use disposable/anonymous accounts for sharing
+# Even without metadata, file itself may be traceable
+
+# Consider: Print → Scan → OCR for max sanitization
+# Nuclear option, but removes ALL tracking
+
+# Test your workflow
+# Remove metadata, check with exiftool, verify
+
+# ============================================================================
+# BATCH PROCESSING SCRIPTS
+# ============================================================================
+
+# Clean all images recursively
+find ~/Pictures -type f \( -name "*.jpg" -o -name "*.png" \) -exec exiftool -all= -overwrite_original {} \;
+
+# Clean all PDFs in directory
+for pdf in *.pdf; do mat2 "$pdf"; done
+
+# Clean and organize
+#!/bin/bash
+for file in *; do
+    exiftool -all= -overwrite_original "$file"
+    mv "$file" "cleaned_$file"
+done
+
+# ============================================================================
+# VERIFICATION
+# ============================================================================
+
+# Verify no GPS data
+exiftool -GPS* photo.jpg | grep -i gps
+
+# Verify no author info
+exiftool -Author -Creator document.pdf
+
+# Check file size (cleaned should be smaller)
+ls -lh original.jpg cleaned.jpg
+
+# ============================================================================
+# TROUBLESHOOTING
+# ============================================================================
+
+# exiftool not removing metadata
+# Try: exiftool -all:all= (removes more)
+
+# mat2 "Unsupported file format"
+# Check: mat2 --list for supported types
+
+# PDF still has metadata after cleaning
+# Try converting: pdftk → qpdf → exiftool chain
+
+# File corrupted after cleaning
+# Always test on copy first
+# Some formats don't support metadata removal

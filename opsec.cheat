@@ -1,0 +1,505 @@
+% opsec, operational-security, privacy, anonymity, security-culture
+
+# ============================================================================
+# OPERATIONAL SECURITY (OPSEC) FUNDAMENTALS
+# ============================================================================
+
+# OPSEC Definition
+# Identifying critical information and preventing adversaries from obtaining it
+
+# The 5-Step OPSEC Process
+# 1. Identify critical information
+# 2. Analyze threats
+# 3. Analyze vulnerabilities
+# 4. Assess risk
+# 5. Apply appropriate countermeasures
+
+# Core Principle: Assume breach
+# Design systems assuming adversary has partial access
+
+# ============================================================================
+# THREAT MODELING
+# ============================================================================
+
+# Questions to answer:
+# - What am I trying to protect?
+# - Who am I trying to protect it from?
+# - How bad are the consequences if I fail?
+# - How likely is the threat to occur?
+# - How much trouble am I willing to go through?
+
+# Common threat actors:
+# - Government surveillance (NSA, Five Eyes)
+# - Corporations (data brokers, ad tech)
+# - Cybercriminals (ransomware, identity theft)
+# - Domestic abusers / stalkers
+# - Employers / schools
+# - Oppressive regimes
+
+# Threat model examples:
+# Journalist: Government surveillance, source protection
+# Activist: Surveillance, doxxing, physical threats
+# Average user: Corporate tracking, data breaches
+# Criminal: Law enforcement, forensics
+
+# ============================================================================
+# IDENTITY COMPARTMENTALIZATION
+# ============================================================================
+
+# Separate identities for different contexts
+# - Legal name identity (government, banking)
+# - Professional identity (work, LinkedIn)
+# - Personal identity (friends, social media)
+# - Anonymous identity (activism, research)
+# - Pseudonymous identities (online communities)
+
+# Never cross-contaminate identities
+# Use different: emails, phones, browsers, devices, accounts
+
+# Example separation:
+# Real Name → Banking, taxes, medical
+# Work Name → Professional email, LinkedIn, conferences
+# Handle1 → Twitter, Reddit, public discussions
+# Handle2 → Security research, bug bounties
+# Anonymous → Tor, whistleblowing, sensitive research
+
+# ============================================================================
+# ACCOUNT SECURITY HYGIENE
+# ============================================================================
+
+# Password management
+# Use password manager (Bitwarden, KeePassXC, 1Password)
+# Unique password per account (30+ characters)
+# Enable 2FA everywhere (TOTP > SMS > nothing)
+# Use hardware keys (YubiKey, Nitrokey) for critical accounts
+
+# Password generation
+pwgen -s 32 1
+
+# Check if email in breach (HIBP)
+curl "https://haveibeenpwned.com/api/v3/breachedaccount/email@example.com"
+
+# Account security checklist
+# [ ] Unique strong password
+# [ ] 2FA enabled (TOTP or hardware key)
+# [ ] Recovery email set (separate identity)
+# [ ] Security questions (use fake answers stored in password manager)
+# [ ] Login notifications enabled
+# [ ] Review connected apps/permissions quarterly
+# [ ] Remove unused accounts
+
+# ============================================================================
+# COMMUNICATION SECURITY
+# ============================================================================
+
+# Secure messaging hierarchy (best to worst)
+# 1. Signal (E2EE, metadata resistance, open source)
+# 2. Wire (E2EE, self-hosted option)
+# 3. Element/Matrix (E2EE, federated, self-hosted)
+# 4. Telegram (not E2EE by default, metadata leaks)
+# 5. WhatsApp (E2EE but owned by Meta)
+# 6. SMS (unencrypted, avoid)
+
+# Email security
+# - Use ProtonMail or Tutanota for sensitive emails
+# - PGP/GPG for encryption (see gpg.cheat)
+# - Assume all email is compromised (even encrypted)
+# - Use temporary emails for signups (guerrillamail, temp-mail)
+
+# Voice calls
+# - Signal for encrypted calls
+# - Avoid regular phone calls for sensitive topics
+# - Use burner phones for high-threat scenarios
+
+# ============================================================================
+# DEVICE SECURITY
+# ============================================================================
+
+# Full disk encryption (FDE)
+# Linux: LUKS (see veracrypt.cheat)
+sudo cryptsetup luksFormat /dev/sdX
+sudo cryptsetup luksOpen /dev/sdX encrypted_drive
+
+# Check if encrypted
+lsblk -f
+
+# macOS: FileVault
+# System Preferences → Security & Privacy → FileVault → Turn On
+
+# Windows: BitLocker
+# Control Panel → BitLocker Drive Encryption
+
+# Screen lock policy
+# Lock after 5 minutes idle
+# Require password immediately after sleep
+xset s 300 5
+xset dpms 600 600 600
+
+# BIOS/UEFI password
+# Prevents unauthorized boot device changes
+
+# Secure boot
+# Prevents bootkit/rootkit attacks
+# Enable in BIOS/UEFI
+
+# ============================================================================
+# PHYSICAL SECURITY
+# ============================================================================
+
+# Device protection
+# - Never leave devices unattended
+# - Use privacy screens (3M privacy filters)
+# - Tape over cameras when not in use
+# - Disable microphone in BIOS (if possible)
+# - Use RFID-blocking wallet
+# - Faraday bag for phones (blocks all signals)
+
+# Travel security
+# - Use burner laptop/phone for sensitive travel
+# - Encrypt all drives before crossing borders
+# - Back up data before travel, wipe device
+# - Assume devices compromised after crossing hostile borders
+# - Never unlock devices under duress (know your rights)
+
+# Home security
+# - Lock devices when leaving room
+# - Store backups in fireproof safe
+# - Keep hardware keys in separate location
+# - Shred sensitive documents (cross-cut shredder)
+
+# ============================================================================
+# METADATA AWARENESS
+# ============================================================================
+
+# Metadata is data about data
+# Examples:
+# - Photos: GPS, camera model, timestamp
+# - Documents: author, edit history, software version
+# - Emails: sender, recipient, timestamp, IP
+# - Files: creation date, modification date, MAC addresses
+
+# Remove metadata (see metadata-removal.cheat)
+exiftool -all= file.jpg
+
+# Metadata you can't avoid:
+# - ISP knows your browsing (use VPN)
+# - Email headers reveal IP (use Tor)
+# - Phone company knows location (use airplane mode)
+# - Signal server knows when you're online (use sealed sender)
+
+# ============================================================================
+# NETWORK SECURITY
+# ============================================================================
+
+# Home network hardening
+# - Change default router password
+# - Disable WPS
+# - Use WPA3 (or WPA2 if WPA3 unavailable)
+# - Disable UPnP
+# - Disable remote management
+# - Change default SSID (don't include personal info)
+# - Enable router firewall
+# - Segment IoT devices (separate VLAN)
+
+# VPN usage (see vpn.cheat)
+# Use for:
+# - Public WiFi
+# - Torrenting
+# - Hiding traffic from ISP
+# - Geo-restriction bypass
+
+# Don't use VPN for:
+# - Banking (flags fraud detection)
+# - Anything requiring your real identity
+# - Tor (use Tor alone or VPN → Tor)
+
+# DNS security
+# Use encrypted DNS (DoH or DoT)
+# Options: Cloudflare 1.1.1.1, Quad9 9.9.9.9
+
+# Configure DoH in Firefox
+# about:config → network.trr.mode = 2
+# network.trr.uri = https://mozilla.cloudflare-dns.com/dns-query
+
+# ============================================================================
+# SOCIAL ENGINEERING DEFENSES
+# ============================================================================
+
+# Phishing awareness
+# Check sender email carefully (look for typos)
+# Hover over links before clicking
+# Don't trust urgent requests
+# Verify requests through separate channel
+# Never give passwords over phone/email
+
+# Vishing (voice phishing)
+# Verify caller identity
+# Call back on known number
+# Don't give info over phone
+# Be suspicious of urgency
+
+# Pretexting
+# Don't overshare on social media
+# Use fake answers for security questions
+# Limit public information
+
+# ============================================================================
+# ONLINE FOOTPRINT REDUCTION
+# ============================================================================
+
+# Audit online presence
+# Google yourself (all name variations)
+# Check data broker sites (Spokeo, BeenVerified, WhitePages)
+# Search email addresses
+# Review old social media posts
+
+# Remove information from data brokers
+# Opt out of: Spokeo, WhitePages, PeopleFinder, Intelius
+# Use removal services: DeleteMe, Privacy Duck
+
+# Social media privacy settings
+# Facebook: Settings → Privacy → Limit past posts
+# Twitter: Protected tweets, limit tagging
+# Instagram: Private account, review followers
+# LinkedIn: Limit profile visibility
+
+# Delete old accounts
+# Use: https://justdelete.me/
+# Or: Account → Settings → Delete Account
+
+# ============================================================================
+# SECURE COMPUTING HABITS
+# ============================================================================
+
+# Software updates
+# Enable automatic updates for:
+# - Operating system
+# - Browser
+# - Security software
+# - All applications
+
+# Check for updates manually
+sudo apt update && sudo apt upgrade
+brew update && brew upgrade
+
+# Antivirus/EDR (if needed)
+# Linux: ClamAV
+sudo apt install clamav
+sudo freshclam
+clamscan -r /home/
+
+# Firewall
+# Enable UFW (Linux)
+sudo ufw enable
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+
+# Check firewall status
+sudo ufw status verbose
+
+# ============================================================================
+# BACKUP STRATEGY (3-2-1 RULE)
+# ============================================================================
+
+# 3-2-1 Backup Rule
+# 3 copies of data
+# 2 different storage types
+# 1 offsite copy
+
+# Backup tools
+# Linux: rsync, restic, borg
+# macOS: Time Machine
+# Cross-platform: Duplicati, rclone
+
+# Encrypted backups (restic)
+restic init --repo /backup/location
+restic backup /home/user --repo /backup/location
+
+# Cloud backup (encrypted)
+# Rclone to cloud storage
+rclone sync /home/user remote:backup --encrypt
+
+# Test backups regularly
+# Restore random files monthly to verify integrity
+
+# ============================================================================
+# SECURE DISPOSAL
+# ============================================================================
+
+# Securely delete files (see secure-deletion.cheat)
+shred -vfz -n 5 sensitive_file.txt
+
+# Wipe free space
+# Linux
+sfill -f /home/
+# or
+cat /dev/urandom > /home/deleteme.dat
+rm /home/deleteme.dat
+
+# Wipe entire drive before disposal
+sudo dd if=/dev/urandom of=/dev/sdX bs=1M status=progress
+
+# Physical destruction (if necessary)
+# - Drill holes through platters
+# - Degauss magnetic media
+# - Professional shredding service
+
+# ============================================================================
+# DIGITAL HYGIENE CHECKLIST
+# ============================================================================
+
+# Daily
+# [ ] Lock screen when leaving device
+# [ ] Check for suspicious emails/messages
+# [ ] Clear browser history/cookies (if not automated)
+
+# Weekly
+# [ ] Review account login notifications
+# [ ] Check for software updates
+# [ ] Backup important data
+
+# Monthly
+# [ ] Change critical passwords (if compromised)
+# [ ] Review connected apps/permissions
+# [ ] Audit active sessions
+# [ ] Review firewall/security logs
+
+# Quarterly
+# [ ] Review threat model
+# [ ] Audit online presence (Google yourself)
+# [ ] Delete unused accounts
+# [ ] Review and rotate encryption keys
+# [ ] Test backup restoration
+
+# Yearly
+# [ ] Full security audit
+# [ ] Review all passwords (check HIBP)
+# [ ] Update emergency contacts
+# [ ] Document security procedures
+
+# ============================================================================
+# OPSEC FAILURES (WHAT NOT TO DO)
+# ============================================================================
+
+# Common mistakes:
+# ❌ Reusing passwords across accounts
+# ❌ Using SMS 2FA (SIM swapping attacks)
+# ❌ Posting travel plans on social media
+# ❌ Using real name for anonymous accounts
+# ❌ Clicking links in unsolicited emails
+# ❌ Connecting to public WiFi without VPN
+# ❌ Saving passwords in browser
+# ❌ Not encrypting sensitive files
+# ❌ Using same email for everything
+# ❌ Ignoring software updates
+# ❌ Oversharing personal information online
+# ❌ Using "forgot password" with real security questions
+# ❌ Not having backups
+
+# ============================================================================
+# OPSEC FOR HIGH-THREAT SCENARIOS
+# ============================================================================
+
+# Journalist/Activist OPSEC
+# - Use Tails OS for sensitive work
+# - Air-gapped device for sensitive documents
+# - Tor for anonymity
+# - Signal for communication
+# - Dead drops for physical exchanges
+# - Secure source protection protocols
+# - Document handling procedures
+# - Duress codes/plans
+
+# Whistleblower OPSEC
+# - Never use work devices/networks
+# - Use SecureDrop for submissions
+# - Use Tor Browser (not VPN)
+# - No personal identifiers in communications
+# - Remove all metadata from documents
+# - Consider timing of submissions (avoid obvious timing)
+
+# Cryptocurrency OPSEC
+# - Hardware wallets for storage
+# - Use mixing/tumbling services
+# - Separate identities per wallet
+# - Use Tor for transactions
+# - Never KYC with main identity
+
+# ============================================================================
+# SECURITY CULTURE
+# ============================================================================
+
+# Need to know principle
+# Only share information with those who need it
+
+# Verify trust
+# Confirm identity through multiple channels
+
+# Document security
+# Encrypt sensitive documents
+# Secure file sharing protocols
+# Clear device screen when discussing sensitive info
+
+# Meeting security
+# Check for surveillance devices
+# Use Faraday bags for phones
+# Meet in public places (CCTV is less concerning than recording)
+# Assume all electronic communications monitored
+
+# ============================================================================
+# LEGAL CONSIDERATIONS
+# ============================================================================
+
+# Know your rights (varies by country)
+# Right to remain silent
+# Right to refuse device searches (sometimes)
+# Right to attorney
+
+# Border crossings
+# Assume devices will be seized/imaged
+# Know your rights at borders (limited protections)
+# Use burner devices when possible
+
+# Warrant canaries
+# Public statement indicating no government demands
+# Removal indicates legal pressure (gag order)
+
+# ============================================================================
+# INSPECT SECRETS WITHOUT EXPOSING THEM
+# ============================================================================
+
+# Confirm a secret EXISTS without printing it
+grep -q '^API_KEY=' ~/.env && echo present || echo missing
+
+# Check a secret's length without revealing it (catch truncation/corruption)
+awk -F= '/^API_KEY=/{print length($2)}' ~/.env
+
+# Fingerprint a secret to compare two copies without showing either
+sha256sum ~/.env | cut -d' ' -f1
+
+# Verify a file's signature without exposing its contents
+gpg --verify <signature_file> <file>
+
+# NOTE: these prove a PROPERTY of a secret (exists / length / matches) — not its value.
+# That's good opsec hygiene, NOT cryptographic zero-knowledge (no soundness, no untrusting verifier).
+
+# ============================================================================
+# RESOURCES
+# ============================================================================
+
+# OPSEC Reading
+# - "The Art of Invisibility" by Kevin Mitnick
+# - "Extreme Privacy" by Michael Bazzell
+# - Security in a Box: https://securityinabox.org/
+# - EFF Surveillance Self-Defense: https://ssd.eff.org/
+
+# OPSEC Communities
+# - r/privacy (Reddit)
+# - r/opsec (Reddit)
+# - Privacy Guides: https://www.privacyguides.org/
+
+# Threat intelligence
+# - HIBP: https://haveibeenpwned.com/
+# - CVE Database: https://cve.mitre.org/
+# - Security mailing lists
+

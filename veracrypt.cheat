@@ -1,0 +1,539 @@
+% veracrypt, truecrypt, encryption, full-disk-encryption, hidden-volumes
+
+# ============================================================================
+# VERACRYPT OVERVIEW
+# ============================================================================
+
+# VeraCrypt
+# - Open source disk encryption (successor to TrueCrypt)
+# - Cross-platform (Windows, macOS, Linux)
+# - Supports: Full disk encryption, containers, hidden volumes
+# - Strong encryption: AES-256, Serpent, Twofish (or cascades)
+
+# Use cases
+# - Encrypt entire drive (system or non-system)
+# - Create encrypted containers (virtual encrypted disks)
+# - Hidden volumes (plausible deniability)
+# - Encrypted USB drives
+
+# ============================================================================
+# INSTALLATION
+# ============================================================================
+
+# Install VeraCrypt (Linux)
+# Download from official website
+wget https://launchpad.net/veracrypt/trunk/1.25.9/+download/veracrypt-1.25.9-setup.tar.bz2
+
+# Extract and install
+tar -xvjf veracrypt-1.25.9-setup.tar.bz2
+./veracrypt-1.25.9-setup-gui-x64
+
+# Or install from repo (Ubuntu/Debian)
+sudo add-apt-repository ppa:unit193/encryption
+sudo apt update && sudo apt install veracrypt
+
+# Install VeraCrypt (macOS)
+# Download DMG from: https://www.veracrypt.fr/en/Downloads.html
+# Mount DMG, run installer
+
+# Install VeraCrypt (Windows)
+# Download EXE from: https://www.veracrypt.fr/en/Downloads.html
+# Run installer
+
+# ============================================================================
+# CREATE ENCRYPTED CONTAINER (FILE)
+# ============================================================================
+
+# Encrypted container = encrypted file that acts as virtual disk
+
+# Create container (GUI)
+# 1. VeraCrypt → Create Volume
+# 2. Select: "Create an encrypted file container"
+# 3. Volume Type: "Standard VeraCrypt volume" (or "Hidden" for plausible deniability)
+# 4. Volume Location: Choose file path (e.g., /home/user/encrypted.vc)
+# 5. Encryption: AES (or cascade for extra security)
+# 6. Volume Size: Enter size (MB, GB)
+# 7. Password: Strong passphrase (20+ characters)
+# 8. Filesystem: Linux Ext4 / Windows NTFS / macOS HFS+
+# 9. Format: Move mouse randomly (generates entropy)
+
+# Create container (CLI)
+veracrypt -t -c \
+  --volume-type=normal \
+  --size=1G \
+  --encryption=AES \
+  --hash=SHA-512 \
+  --filesystem=ext4 \
+  --pim=0 \
+  --keyfiles="" \
+  --random-source=/dev/urandom \
+  /path/to/container.vc
+
+# Enter password when prompted
+
+# ============================================================================
+# MOUNT ENCRYPTED CONTAINER
+# ============================================================================
+
+# Mount container (GUI)
+# 1. VeraCrypt → Select file (container.vc)
+# 2. Volumes → Mount Volume
+# 3. Enter password
+# 4. Access mounted volume (e.g., /media/veracrypt1)
+
+# Mount container (CLI)
+veracrypt /path/to/container.vc /mount/point
+
+# Mount with specific options
+veracrypt -t --mount /path/to/container.vc /mount/point --pim=0 --keyfiles="" --protect-hidden=no
+
+# Auto-mount on startup (add to /etc/fstab)
+# /path/to/container.vc /mount/point veracrypt defaults 0 0
+
+# ============================================================================
+# UNMOUNT (DISMOUNT) CONTAINER
+# ============================================================================
+
+# Unmount container (GUI)
+# 1. VeraCrypt → Select mounted volume
+# 2. Volumes → Dismount
+
+# Unmount container (CLI)
+veracrypt -d /path/to/container.vc
+
+# Unmount all volumes
+veracrypt -d
+
+# Force unmount (if busy)
+sudo veracrypt -d --force /mount/point
+
+# ============================================================================
+# FULL DISK ENCRYPTION (NON-SYSTEM)
+# ============================================================================
+
+# Encrypt non-system partition or drive
+# Example: Encrypt external USB drive
+
+# Create encrypted partition (GUI)
+# 1. VeraCrypt → Create Volume
+# 2. Select: "Encrypt a non-system partition/drive"
+# 3. Volume Type: Standard (or Hidden)
+# 4. Device: Select partition (e.g., /dev/sdb1)
+# 5. Volume Creation Mode: Create encrypted volume and format it
+# 6. Encryption: AES
+# 7. Password: Strong passphrase
+# 8. Format: Ext4 / NTFS / FAT
+
+# WARNING: This destroys all data on partition!
+
+# Mount encrypted partition
+veracrypt /dev/sdb1 /media/usb
+
+# ============================================================================
+# SYSTEM ENCRYPTION (FULL DISK ENCRYPTION)
+# ============================================================================
+
+# WARNING: System encryption only supported on Windows
+# Linux users: Use LUKS instead (see below)
+
+# Windows system encryption
+# 1. VeraCrypt → System → Encrypt System Partition/Drive
+# 2. Type: Normal (or Hidden OS)
+# 3. Area: Encrypt entire drive (recommended)
+# 4. Boot Options: Single-boot or Multi-boot
+# 5. Encryption: AES
+# 6. Password: Strong passphrase
+# 7. Create rescue disk (IMPORTANT!)
+# 8. Wipe mode: 1-pass (or 7-pass for paranoia)
+# 9. Pre-test: System encryption test (reboot required)
+# 10. Encrypt: Full encryption begins
+
+# VeraCrypt boot password
+# Enter password before Windows boots
+# Pre-boot authentication
+
+# ============================================================================
+# LUKS (LINUX ALTERNATIVE TO VERACRYPT SYSTEM ENCRYPTION)
+# ============================================================================
+
+# LUKS = Linux Unified Key Setup
+# Native Linux disk encryption (more integrated than VeraCrypt)
+
+# Encrypt new drive with LUKS
+sudo cryptsetup luksFormat /dev/sdX
+
+# Open LUKS encrypted drive
+sudo cryptsetup luksOpen /dev/sdX encrypted_drive
+
+# Mount LUKS drive
+sudo mount /dev/mapper/encrypted_drive /mnt
+
+# Unmount LUKS drive
+sudo umount /mnt
+sudo cryptsetup luksClose encrypted_drive
+
+# Check LUKS header
+sudo cryptsetup luksDump /dev/sdX
+
+# ============================================================================
+# HIDDEN VOLUMES (PLAUSIBLE DENIABILITY)
+# ============================================================================
+
+# Hidden volume concept
+# - Outer volume: Contains decoy data
+# - Hidden volume: Contains real secrets (hidden inside outer volume)
+# - Two passwords: One for outer, one for hidden
+
+# Under duress
+# - Reveal outer volume password
+# - Adversary sees decoy data
+# - Hidden volume remains secret
+
+# Create hidden volume (GUI)
+# 1. VeraCrypt → Create Volume
+# 2. Select: "Create an encrypted file container"
+# 3. Volume Type: "Hidden VeraCrypt volume"
+# 4. Outer Volume: Create first (follow prompts)
+# 5. Hidden Volume: Created inside outer volume
+# 6. Two separate passwords (outer vs hidden)
+
+# Important: Protect hidden volume from overwriting
+# When mounting outer volume, use "Protect hidden volume" option
+# Prevents accidental data corruption of hidden volume
+
+# Mount outer volume
+veracrypt --mount /path/to/container.vc /mount/point
+# Enter outer password
+
+# Mount hidden volume
+veracrypt --mount /path/to/container.vc /mount/point
+# Enter hidden password
+
+# ============================================================================
+# HIDDEN OPERATING SYSTEM (WINDOWS ONLY)
+# ============================================================================
+
+# Hidden OS concept
+# - Decoy OS: Fake Windows with innocuous data
+# - Hidden OS: Real Windows with secrets
+# - Boot with different password to access different OS
+
+# Create hidden OS
+# 1. VeraCrypt → System → Create Hidden Operating System
+# 2. Follow wizard (creates decoy OS, then hidden OS)
+# 3. WARNING: Very complex, backup first!
+
+# Boot to hidden OS
+# Enter hidden OS password at pre-boot authentication
+
+# Boot to decoy OS
+# Enter decoy OS password at pre-boot authentication
+
+# ============================================================================
+# KEYFILES
+# ============================================================================
+
+# Keyfile = file used as part of encryption key
+# Combines password + keyfile for authentication
+
+# Use keyfile
+# 1. VeraCrypt → Settings → Keyfiles → Add Keyfiles
+# 2. Select file(s) to use as keyfiles
+# 3. When mounting, select keyfiles along with password
+
+# Benefits
+# - Two-factor authentication (password + file)
+# - Stronger security (even if password compromised)
+
+# Generate keyfile
+veracrypt --create-keyfile /path/to/keyfile.key
+
+# Mount with keyfile
+veracrypt --keyfiles=/path/to/keyfile.key /path/to/container.vc /mount/point
+
+# ============================================================================
+# PIM (PERSONAL ITERATIONS MULTIPLIER)
+# ============================================================================
+
+# PIM increases key derivation iterations
+# Higher PIM = more secure, but slower to mount
+
+# Default PIM: 0 (uses default iterations)
+# Custom PIM: 1-2147468 (higher = more iterations)
+
+# When to use PIM
+# - Weak password (increase PIM to compensate)
+# - Extra security (even with strong password)
+
+# Set PIM when creating volume
+# During volume creation, specify PIM value
+
+# Mount with PIM
+veracrypt --pim=500 /path/to/container.vc /mount/point
+
+# ============================================================================
+# ENCRYPTION ALGORITHMS
+# ============================================================================
+
+# Supported algorithms
+# - AES (256-bit) - Industry standard, fast
+# - Serpent (256-bit) - Highly secure, slower
+# - Twofish (256-bit) - Secure, good performance
+
+# Cascades (multiple algorithms)
+# - AES-Twofish
+# - AES-Twofish-Serpent
+# - Serpent-AES
+# - Serpent-Twofish-AES
+# - Twofish-Serpent
+
+# Recommendation
+# AES alone is sufficient for most use cases
+# Cascades for paranoid security (overkill for most)
+
+# Hash algorithms
+# - SHA-512 (recommended)
+# - SHA-256
+# - Whirlpool
+# - Streebog
+
+# ============================================================================
+# TRAVELER DISK SETUP (PORTABLE)
+# ============================================================================
+
+# Traveler disk = Portable VeraCrypt on USB
+
+# Create traveler disk
+# 1. VeraCrypt → Tools → Traveler Disk Setup
+# 2. Select USB drive
+# 3. Include VeraCrypt executable
+# 4. Creates autorun for Windows
+
+# Use traveler disk
+# 1. Plug in USB
+# 2. Run VeraCrypt from USB
+# 3. Mount encrypted container on USB
+
+# ============================================================================
+# BACKUP & RECOVERY
+# ============================================================================
+
+# Backup VeraCrypt header
+# Header contains encryption metadata (critical for recovery)
+
+# Backup header (GUI)
+# VeraCrypt → Tools → Backup Volume Header
+
+# Restore header (if corrupted)
+# VeraCrypt → Tools → Restore Volume Header
+
+# Backup encrypted containers
+# Copy .vc files to backup location
+# Ensure backup is also encrypted (or secure location)
+
+# Rescue disk (system encryption)
+# Created during system encryption setup
+# Burn to CD/DVD or save ISO
+# Use if system encrypted drive becomes unbootable
+
+# ============================================================================
+# SECURITY BEST PRACTICES
+# ============================================================================
+
+# Strong passwords
+# - 20+ characters
+# - Mix: uppercase, lowercase, numbers, symbols
+# - Use passphrase (5-7 random words)
+# - Don't reuse passwords
+
+# Generate strong password
+pwgen -s 32 1
+
+# Keyfile storage
+# - Store keyfile separately from encrypted volume
+# - USB drive, different computer, encrypted cloud
+
+# Never store password in plain text
+# - Use password manager (KeePassXC, Bitwarden)
+# - Memorize critical passwords
+
+# Plausible deniability
+# - Use hidden volumes for sensitive data
+# - Outer volume must have realistic decoy data
+# - Practice accessing both volumes
+
+# Regular backups
+# - Backup encrypted containers regularly
+# - Test restoration process
+# - Store backups securely (encrypted, offsite)
+
+# ============================================================================
+# PERFORMANCE OPTIMIZATION
+# ============================================================================
+
+# Hardware acceleration
+# Modern CPUs support AES-NI (hardware AES encryption)
+# VeraCrypt automatically uses AES-NI if available
+
+# Check AES-NI support (Linux)
+grep aes /proc/cpuinfo
+
+# Benchmark encryption algorithms
+# VeraCrypt → Tools → Benchmark
+
+# Filesystem choice
+# - Ext4 (Linux) - Good performance
+# - NTFS (Windows) - Compatible, good performance
+# - exFAT (cross-platform) - Slower, but compatible
+
+# Pre-allocate container (faster creation)
+# During container creation, select "Quick format"
+# Or: Pre-allocate full size (more secure)
+
+# ============================================================================
+# COMMON ISSUES & TROUBLESHOOTING
+# ============================================================================
+
+# "Device already in use" error
+# Volume is already mounted
+veracrypt -d  # Dismount all volumes
+
+# "Wrong password" error
+# - Check Caps Lock
+# - Try different keyboard layout
+# - Verify PIM (if used)
+# - Restore header backup (if corrupted)
+
+# Slow mounting
+# - High PIM value (reduce if acceptable)
+# - Weak CPU (hardware limitation)
+
+# Can't mount on macOS
+# Install osxfuse: brew install --cask osxfuse
+# Reboot after installation
+
+# Volume corrupted
+# - Restore header from backup
+# - Use VeraCrypt repair tools
+# - If no backup, data likely unrecoverable
+
+# ============================================================================
+# VERACRYPT VS ALTERNATIVES
+# ============================================================================
+
+# VeraCrypt vs LUKS
+# VeraCrypt: Cross-platform, hidden volumes, GUI
+# LUKS: Linux native, better integration, faster
+
+# VeraCrypt vs BitLocker (Windows)
+# VeraCrypt: Open source, more secure, cross-platform
+# BitLocker: Native Windows, TPM support, easier
+
+# VeraCrypt vs FileVault (macOS)
+# VeraCrypt: Open source, hidden volumes, portable
+# FileVault: Native macOS, integrated, easier
+
+# VeraCrypt vs TrueCrypt
+# VeraCrypt: Actively maintained, security improvements
+# TrueCrypt: Discontinued, not recommended
+
+# ============================================================================
+# COMMAND LINE CHEAT SHEET
+# ============================================================================
+
+# Create volume
+veracrypt -t -c --size=1G --encryption=AES --filesystem=ext4 /path/to/container.vc
+
+# Mount volume
+veracrypt /path/to/container.vc /mount/point
+
+# Mount with keyfile
+veracrypt --keyfiles=/path/to/keyfile.key /path/to/container.vc /mount/point
+
+# Mount with PIM
+veracrypt --pim=500 /path/to/container.vc /mount/point
+
+# Unmount volume
+veracrypt -d /path/to/container.vc
+
+# Unmount all volumes
+veracrypt -d
+
+# List mounted volumes
+veracrypt -l
+
+# Change volume password
+veracrypt --change /path/to/container.vc
+
+# Backup header
+veracrypt --backup-header /path/to/container.vc
+
+# Restore header
+veracrypt --restore-header /path/to/container.vc
+
+# ============================================================================
+# AUTOMATION & SCRIPTS
+# ============================================================================
+
+# Auto-mount on login (systemd service)
+sudo nano /etc/systemd/system/veracrypt-mount.service
+
+# [Unit]
+# Description=Mount VeraCrypt volume
+# After=network.target
+#
+# [Service]
+# Type=oneshot
+# ExecStart=/usr/bin/veracrypt --text --mount /path/to/container.vc /mount/point --password="PASSWORD" --pim=0 --keyfiles="" --protect-hidden=no
+# ExecStop=/usr/bin/veracrypt -d /path/to/container.vc
+# RemainAfterExit=yes
+#
+# [Install]
+# WantedBy=multi-user.target
+
+sudo systemctl enable veracrypt-mount.service
+sudo systemctl start veracrypt-mount.service
+
+# WARNING: Storing password in script is insecure!
+
+# Better: Use keyfile + password prompt
+# Or: Use GNOME Keyring / macOS Keychain
+
+# ============================================================================
+# LEGAL CONSIDERATIONS
+# ============================================================================
+
+# Encryption legality
+# - Legal in most countries (USA, EU, Canada, etc.)
+# - Banned/restricted in some countries (check local laws)
+
+# Forced disclosure
+# - Some jurisdictions can compel password disclosure
+# - Plausible deniability (hidden volumes) may help
+
+# Know your rights
+# - Right to remain silent (varies by country)
+# - Right to refuse password disclosure (varies)
+# - Consult lawyer if uncertain
+
+# ============================================================================
+# RESOURCES
+# ============================================================================
+
+# Official VeraCrypt
+# Website: https://www.veracrypt.fr/
+# Documentation: https://www.veracrypt.fr/en/Documentation.html
+# Downloads: https://www.veracrypt.fr/en/Downloads.html
+
+# Security audit
+# OSTIF VeraCrypt audit: https://ostif.org/the-veracrypt-audit-results/
+
+# Community
+# VeraCrypt forums: https://sourceforge.net/p/veracrypt/discussion/
+# r/VeraCrypt (Reddit)
+
+# Alternatives
+# LUKS: https://gitlab.com/cryptsetup/cryptsetup
+# BitLocker: https://docs.microsoft.com/en-us/windows/security/information-protection/bitlocker/
+# FileVault: https://support.apple.com/en-us/HT204837
+

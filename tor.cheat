@@ -1,0 +1,289 @@
+% tor, anonymity, onion, darknet
+
+# ============================================================================
+# TOR BROWSER & USAGE
+# ============================================================================
+
+# Launch Tor Browser
+./start-tor-browser.desktop
+
+# Tor Browser security level
+# Settings → Privacy & Security → Security Level
+# Standard (default), Safer (disables some JS), Safest (disables all JS/media)
+
+# Check Tor circuit
+# Click onion icon in URL bar → View circuit
+
+# Request new Tor circuit for site
+# Click onion icon → New Circuit for this Site
+
+# Request completely new identity (clears cookies, changes circuit)
+# Hamburger menu → New Identity
+
+# Check if using Tor
+# Visit: https://check.torproject.org
+
+# ============================================================================
+# TOR DAEMON (CLI)
+# ============================================================================
+
+# Install Tor daemon
+sudo apt install tor
+
+# Start Tor service
+sudo systemctl start tor
+
+# Enable Tor on boot
+sudo systemctl enable tor
+
+# Check Tor status
+sudo systemctl status tor
+
+# Tor daemon default SOCKS proxy
+# localhost:9050
+
+# Test Tor connection
+curl --socks5 localhost:9050 https://check.torproject.org
+
+# Torify any command (route through Tor)
+torify <command>
+$ command: echo -e "curl https://ifconfig.me\nwget https://example.com"
+
+# Alternative: torsocks
+torsocks <command>
+$ command: echo -e "ssh user@host\ncurl https://api.ipify.org"
+
+# Check current Tor IP
+curl --socks5 localhost:9050 https://api.ipify.org
+
+# ============================================================================
+# TOR CONFIGURATION
+# ============================================================================
+
+# Tor config file
+# /etc/tor/torrc
+
+# Configure Tor SOCKS port
+# In /etc/tor/torrc:
+# SocksPort 9050
+
+# Configure Tor control port
+# ControlPort 9051
+# HashedControlPassword <hashed_password>
+
+# Generate Tor control password hash
+tor --hash-password <your_password>
+$ your_password: echo "MySecretPassword"
+
+# Allow Tor connections from LAN (caution!)
+# SocksPort 0.0.0.0:9050
+
+# Exit node selection by country
+# ExitNodes {us},{ca},{gb}
+# StrictNodes 1
+
+# Exclude specific exit nodes
+# ExcludeExitNodes {ru},{cn},{kp}
+
+# Entry node selection (entry guards)
+# EntryNodes {us},{ca},{gb}
+
+# Use bridges (if Tor is blocked)
+# UseBridges 1
+# Bridge <bridge_address>
+
+# ============================================================================
+# TOR BRIDGES (Circumvent Censorship)
+# ============================================================================
+
+# Get bridges from Tor Project
+# Visit: https://bridges.torproject.org/
+
+# Configure obfs4 bridges in torrc
+UseBridges 1
+ClientTransportPlugin obfs4 exec /usr/bin/obfs4proxy
+Bridge obfs4 <IP>:<PORT> <FINGERPRINT> cert=<CERT> iat-mode=0
+
+# Example bridge line
+# Bridge obfs4 192.0.2.1:1234 ABCDEF1234567890 cert=abcdef iat-mode=0
+
+# Get bridges via email
+# Email bridges@torproject.org with "get transport obfs4" in body
+
+# Meek bridges (CDN-based, harder to block)
+ClientTransportPlugin meek_lite exec /usr/bin/obfs4proxy
+Bridge meek_lite 0.0.2.0:2 url=https://meek.azureedge.net/
+
+# Snowflake bridges (WebRTC-based)
+ClientTransportPlugin snowflake exec /usr/bin/snowflake-client
+Bridge snowflake 192.0.2.3:1 fingerprint=2B280B23E1107BB62ABFC40DDCC8824814F80A72
+
+# ============================================================================
+# TOR HIDDEN SERVICES (ONION SERVICES)
+# ============================================================================
+
+# Create hidden service (serve local web server)
+# In /etc/tor/torrc:
+HiddenServiceDir /var/lib/tor/hidden_service/
+HiddenServicePort 80 127.0.0.1:8080
+
+# Restart Tor to generate onion address
+sudo systemctl restart tor
+
+# Get your onion address
+sudo cat /var/lib/tor/hidden_service/hostname
+# Example output: abc123def456ghi789.onion
+
+# Hidden service with multiple ports
+HiddenServiceDir /var/lib/tor/my_service/
+HiddenServicePort 80 127.0.0.1:8080
+HiddenServicePort 22 127.0.0.1:22
+
+# V3 onion addresses (longer, more secure)
+# Default in Tor 0.3.5+
+# Format: 56-character.onion
+
+# ============================================================================
+# ONIONSHARE - Easy Hidden Service File Sharing
+# ============================================================================
+
+# Install OnionShare
+sudo apt install onionshare
+
+# Share files anonymously
+onionshare <file_or_folder>
+$ file_or_folder: echo -e "/tmp/secret.pdf\n~/Documents/sensitive/"
+
+# Receive files anonymously
+onionshare --receive
+
+# Host website as onion service
+onionshare --website <website_folder>
+$ website_folder: echo "~/my_site/"
+
+# OnionShare with custom settings
+onionshare --persistent --public <file>
+
+# ============================================================================
+# TOR WITH PROXYCHAINS
+# ============================================================================
+
+# Configure proxychains for Tor
+# Edit /etc/proxychains4.conf:
+# socks5 127.0.0.1 9050
+
+# Use Tor with any application
+proxychains <application>
+$ application: echo -e "firefox\nnmap -sT target.com\nssh user@host"
+
+# Proxychains with Tor example
+proxychains curl https://check.torproject.org/api/ip
+
+# ============================================================================
+# TOR BROWSER HARDENING
+# ============================================================================
+
+# Disable WebRTC (IP leak risk)
+# about:config → media.peerconnection.enabled → false
+
+# Disable JavaScript (max security)
+# NoScript extension → Disable globally
+
+# Always use HTTPS
+# HTTPS Everywhere extension (built-in)
+
+# Resist fingerprinting
+# about:config → privacy.resistFingerprinting → true
+
+# Disable geolocation
+# about:config → geo.enabled → false
+
+# Clear cookies on exit
+# Settings → Privacy & Security → Cookies and Site Data → Delete on close
+
+# ============================================================================
+# ONION SITE DIRECTORIES
+# ============================================================================
+
+# The Hidden Wiki (directory of onion sites)
+# http://zqktlwiuavvvqqt4ybvgvi7tyo4hjl5xgfuvpdf6otjiycgwqbym2qad.onion/
+
+# DuckDuckGo Onion
+# https://duckduckgogg42xjoc72x3sjasowoarfbgcmvfimaftt6twagswzczad.onion/
+
+# ProtonMail Onion
+# https://protonmailrmez3lotccipshtkleegetolb73fuirgj7r4o4vfu7ozyd.onion/
+
+# Tor Project Onion
+# http://2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion/
+
+# ============================================================================
+# TOR RELAY SETUP (Contribute to Network)
+# ============================================================================
+
+# Run middle relay (safer than exit)
+# In /etc/tor/torrc:
+Nickname MyTorRelay
+ORPort 9001
+DirPort 9030
+ExitPolicy reject *:*
+ContactInfo your@email.com
+
+# Set bandwidth limits
+RelayBandwidthRate 100 KBytes
+RelayBandwidthBurst 200 KBytes
+
+# Restart Tor
+sudo systemctl restart tor
+
+# Monitor relay stats
+# Visit: https://metrics.torproject.org/rs.html
+
+# ============================================================================
+# TOR SAFETY & OPSEC
+# ============================================================================
+
+# NEVER log into personal accounts over Tor (deanonymization risk)
+# NEVER download/open files directly from Tor (use Tails or Whonix)
+# NEVER maximize Tor Browser window (fingerprinting)
+# NEVER install browser extensions (fingerprinting)
+# ALWAYS verify .onion addresses (typosquatting)
+# ALWAYS use HTTPS onion sites when available
+# CONSIDER using Tor over VPN (or VPN over Tor)
+# CONSIDER using Tails OS for maximum anonymity
+
+# ============================================================================
+# TOR + VPN LAYERING
+# ============================================================================
+
+# Option 1: VPN → Tor (VPN sees you, Tor doesn't)
+# 1. Connect to VPN
+# 2. Launch Tor Browser
+
+# Option 2: Tor → VPN (Tor sees you, VPN doesn't)
+# 1. Configure torrc to use VPN as exit
+# 2. More complex, less common
+
+# Recommended: VPN → Tor for most threat models
+
+# ============================================================================
+# TROUBLESHOOTING
+# ============================================================================
+
+# Tor not connecting
+# Check logs: journalctl -u tor -f
+# Try bridges if blocked
+# Check firewall: sudo ufw allow 9050/tcp
+
+# Slow Tor speeds
+# Normal - Tor trades speed for anonymity
+# Try new circuit
+# Avoid .onion sites with heavy media
+
+# Check Tor circuit path
+# Tor Browser: Click onion icon
+# CLI: Use arm (relay monitor)
+
+# Reset Tor identity
+# Delete: ~/.local/share/torbrowser/
+# Reinstall Tor Browser

@@ -1,0 +1,523 @@
+% email, privacy, protonmail, tutanota, pgp, encryption
+
+# ============================================================================
+# EMAIL PRIVACY OVERVIEW
+# ============================================================================
+
+# Email privacy challenges
+# - Metadata always visible (sender, recipient, timestamp, IP)
+# - Content readable by email provider (unless E2EE)
+# - Subject lines never encrypted
+# - Forwarding/CC/BCC creates multiple copies
+# - Email headers reveal technical information
+
+# Privacy hierarchy (best to worst)
+# 1. Self-hosted encrypted email (high effort)
+# 2. ProtonMail / Tutanota (E2EE, Switzerland/Germany)
+# 3. Mailfence (Belgian, PGP support)
+# 4. FastMail (Australian, privacy-focused but not E2EE)
+# 5. Gmail / Outlook (convenient, zero privacy)
+
+# ============================================================================
+# PROTONMAIL (END-TO-END ENCRYPTED EMAIL)
+# ============================================================================
+
+# ProtonMail features
+# - Zero-access encryption (provider can't read emails)
+# - Swiss jurisdiction (strong privacy laws)
+# - Open source clients
+# - Tor onion service available
+# - No logging of IP addresses (with some caveats)
+
+# Sign up for ProtonMail
+# https://proton.me/mail
+
+# Free tier limits
+# - 500 MB storage
+# - 150 messages per day
+# - 1 email address
+# - Limited support
+
+# Paid tier benefits
+# - More storage (15 GB - 500 GB)
+# - Custom domains
+# - Multiple addresses
+# - ProtonVPN included (Plus and higher)
+
+# ProtonMail encryption
+# ProtonMail ↔ ProtonMail: Automatic E2EE
+# ProtonMail ↔ Other: Optional password-protected encryption
+
+# Send encrypted email to non-ProtonMail user
+# Compose → Lock icon → Set password → Share password separately
+
+# ProtonMail Bridge (desktop email client)
+# Allows using ProtonMail with Thunderbird, Apple Mail, Outlook
+# https://proton.me/mail/bridge
+
+# Install ProtonMail Bridge (Linux)
+wget https://proton.me/download/bridge/protonmail-bridge_amd64.deb
+sudo dpkg -i protonmail-bridge_amd64.deb
+
+# Configure Thunderbird with Bridge
+# Bridge → Add account → Copy IMAP/SMTP settings → Add to Thunderbird
+
+# ============================================================================
+# TUTANOTA (GERMAN E2EE EMAIL)
+# ============================================================================
+
+# Tutanota features
+# - End-to-end encryption (email + subject line + contacts)
+# - German jurisdiction (GDPR compliance)
+# - Open source
+# - No third-party trackers
+# - Encrypted calendar included
+
+# Sign up for Tutanota
+# https://tutanota.com/
+
+# Free tier
+# - 1 GB storage
+# - 1 email address
+# - 48-hour support response
+
+# Paid tier benefits
+# - More storage (20 GB - 1 TB)
+# - Custom domains
+# - Aliases (up to 100)
+# - Faster support
+
+# Tutanota encryption
+# Tutanota ↔ Tutanota: Automatic E2EE (subject included)
+# Tutanota ↔ Other: Optional password-protected E2EE
+
+# Tutanota desktop app
+# Download: https://tutanota.com/download/
+
+# ============================================================================
+# EMAIL ALIASING (HIDE REAL ADDRESS)
+# ============================================================================
+
+# Email alias services
+# Protect primary email, prevent tracking, reduce spam
+
+# SimpleLogin (recommended)
+# https://simplelogin.io/
+# - Unlimited aliases (Premium)
+# - Reply from alias
+# - PGP support
+# - Open source
+
+# Sign up for SimpleLogin
+# https://simplelogin.io/
+
+# Create alias
+# Dashboard → New alias → Enter name → Create
+
+# AnonAddy (alternative)
+# https://anonaddy.com/
+# - Similar to SimpleLogin
+# - Self-hostable
+
+# Firefox Relay (Mozilla)
+# https://relay.firefox.com/
+# - Free tier: 5 aliases
+# - Premium: Unlimited aliases
+
+# Apple Hide My Email (iOS/macOS)
+# Settings → iCloud → Hide My Email
+# Generates random addresses that forward to real email
+
+# DuckDuckGo Email Protection
+# https://duckduckgo.com/email/
+# - Free
+# - Removes trackers from emails
+
+# ============================================================================
+# PGP/GPG EMAIL ENCRYPTION
+# ============================================================================
+
+# PGP/GPG for any email provider
+# See gpg.cheat for full key management guide
+
+# Generate PGP key
+gpg --full-generate-key
+
+# Export public key (share with contacts)
+gpg --armor --export <your_email> > publickey.asc
+$ your_email: echo "you@example.com"
+
+# Import contact's public key
+gpg --import <contact_publickey.asc>
+$ contact_publickey.asc: echo "friend_key.asc"
+
+# Encrypt email message
+echo "Secret message" | gpg --encrypt --armor --recipient <contact_email> > encrypted.asc
+$ contact_email: echo "friend@example.com"
+
+# Decrypt received email
+gpg --decrypt encrypted_email.asc
+
+# ============================================================================
+# THUNDERBIRD WITH PGP (ENIGMAIL/OPENPGP)
+# ============================================================================
+
+# Install Thunderbird
+sudo apt install thunderbird
+
+# Built-in OpenPGP support (Thunderbird 78+)
+# No Enigmail extension needed
+
+# Generate key in Thunderbird
+# Account Settings → End-To-End Encryption → Add Key
+# Generate new key
+
+# Import existing PGP key
+# Account Settings → End-To-End Encryption → Add Key
+# Import key from file
+
+# Send encrypted email
+# Compose → Options → Encrypt message
+# Select recipient's public key
+
+# Sign email
+# Compose → Options → Digitally sign message
+
+# ============================================================================
+# MAILFENCE (PGP-COMPATIBLE SECURE EMAIL)
+# ============================================================================
+
+# Mailfence features
+# - Belgian jurisdiction (privacy-friendly)
+# - Built-in PGP support
+# - Digital signatures
+# - No ads
+# - 2FA support
+
+# Sign up for Mailfence
+# https://mailfence.com/
+
+# Mailfence pricing
+# Free: 500 MB storage
+# Entry ($2.50/mo): 5 GB storage, custom domain
+# Pro ($7.50/mo): 20 GB, advanced features
+
+# Import PGP key to Mailfence
+# Settings → Security → Encryption → Import key
+
+# Send encrypted email
+# Compose → Encrypt (lock icon) → Send
+
+# ============================================================================
+# TEMPORARY/DISPOSABLE EMAIL
+# ============================================================================
+
+# Use for signups, one-time registrations
+
+# 10 Minute Mail
+# https://10minutemail.com/
+# Temporary email (10 minutes, extendable)
+
+# Guerrilla Mail
+# https://www.guerrillamail.com/
+# Disposable email, can send/receive
+
+# Temp Mail
+# https://temp-mail.org/
+# Random temporary address
+
+# Burner Mail
+# https://burnermail.io/
+# Create disposable forwarding addresses
+
+# ============================================================================
+# EMAIL HEADER ANALYSIS (PRIVACY LEAKS)
+# ============================================================================
+
+# Email headers reveal
+# - Originating IP address
+# - Email client software
+# - Mail server path
+# - Timestamps
+
+# View email headers (Thunderbird)
+# Open email → More → View Source
+
+# View email headers (Gmail web)
+# Open email → Three dots → Show original
+
+# Common header fields
+# From: Sender address
+# To: Recipient address
+# Subject: Email subject (never encrypted)
+# Date: Timestamp
+# Received: Mail server path (contains IP addresses)
+# X-Originating-IP: Sender's IP address
+
+# Analyze headers for privacy leaks
+# Look for: Real IP, location data, identifying info
+
+# Strip revealing headers (when forwarding)
+# Use email provider's privacy features
+# Or: Copy content to new email (don't forward)
+
+# ============================================================================
+# EMAIL TRACKER BLOCKING
+# ============================================================================
+
+# Email tracking pixels
+# Invisible 1x1 pixel images embedded in emails
+# Reports when email opened, device type, location
+
+# Blocking trackers (Thunderbird)
+# Preferences → Privacy → Mail Content → Block remote content
+
+# DuckDuckGo Email Protection
+# Automatically removes trackers from emails
+# https://duckduckgo.com/email/
+
+# Hey.com (tracker blocking built-in)
+# https://www.hey.com/
+# $99/year, strong privacy features
+
+# ============================================================================
+# EMAIL PROVIDER COMPARISON
+# ============================================================================
+
+# ProtonMail
+# Pros: E2EE, Swiss privacy, Tor support, open source
+# Cons: Web only (unless Bridge), Bridge requires paid account
+# Cost: Free tier available, paid from $4/mo
+
+# Tutanota
+# Pros: E2EE (including subject), German privacy, open source
+# Cons: Less integration with other apps, custom protocol
+# Cost: Free tier available, paid from €1/mo
+
+# Mailfence
+# Pros: Standard protocols (IMAP/SMTP), PGP support, Belgian privacy
+# Cons: Not zero-knowledge (provider can access if compelled)
+# Cost: Free tier available, paid from $2.50/mo
+
+# Posteo
+# Pros: Anonymous signup (no personal info required), green energy, ethical
+# Cons: No free tier, basic features
+# Cost: €1/mo
+
+# StartMail
+# Pros: Privacy focus, PGP support, disposable aliases
+# Cons: Netherlands jurisdiction
+# Cost: $59.95/year
+
+# ============================================================================
+# SELF-HOSTED EMAIL (MAXIMUM CONTROL)
+# ============================================================================
+
+# Self-hosted email advantages
+# - Complete control over data
+# - No third-party access
+# - Custom configuration
+
+# Self-hosted email disadvantages
+# - Complex setup and maintenance
+# - Spam filtering challenges
+# - Deliverability issues (blacklists)
+# - Server costs
+
+# Mail-in-a-Box (easy self-hosted email)
+# https://mailinabox.email/
+# One-command installation
+# Ubuntu 22.04 required
+
+# Install Mail-in-a-Box
+curl -s https://mailinabox.email/setup.sh | sudo bash
+
+# Mailcow (Docker-based email server)
+# https://mailcow.email/
+# Modern web UI, comprehensive features
+
+# ============================================================================
+# EMAIL OPSEC BEST PRACTICES
+# ============================================================================
+
+# Separate email accounts by identity
+# Personal: Real name email
+# Work: Work email
+# Anonymous: ProtonMail / Tutanota
+# Signups: Disposable / alias
+
+# Never link identities
+# Don't use personal email for anonymous activities
+# Don't reference other accounts in emails
+
+# Subject line privacy
+# Never put sensitive info in subject
+# Subject always visible (even with PGP)
+# Tutanota encrypts subjects (ProtonMail doesn't)
+
+# Avoid email for highly sensitive communication
+# Use Signal, Element, or other E2EE messengers
+# Email has inherent metadata leakage
+
+# Use aliases for online accounts
+# SimpleLogin, AnonAddy for account signups
+# Prevents tracking across services
+
+# ============================================================================
+# METADATA MINIMIZATION
+# ============================================================================
+
+# Email metadata always visible to provider
+# - Sender, recipient, timestamp
+# - IP addresses (in headers)
+# - Email size
+
+# Reduce metadata leakage
+# Use Tor when accessing webmail (hides IP)
+# Use VPN (hides IP from email provider)
+# Use ProtonMail / Tutanota (minimal logging)
+
+# Tor with ProtonMail
+# ProtonMail onion service: https://protonmailrmez3lotccipshtkleegetolb73fuirgj7r4o4vfu7ozyd.onion/
+
+# Tor with Tutanota
+# Use Tor Browser to access: https://tutanota.com/
+
+# ============================================================================
+# PROTONMAIL ADVANCED FEATURES
+# ============================================================================
+
+# Custom domain (paid plans)
+# Settings → Domains → Add domain
+# Configure DNS records (MX, SPF, DKIM)
+
+# ProtonMail import/export
+# Settings → Import-Export → Import emails
+# Supports: Gmail, Outlook, Yahoo
+
+# ProtonMail filters (paid plans)
+# Settings → Filters → Add filter
+# Auto-organize incoming mail
+
+# ProtonMail encrypted contacts
+# Contacts stored with zero-access encryption
+# Can't be read by ProtonMail
+
+# ProtonMail VPN integration
+# ProtonVPN included with Plus and higher plans
+# Unified account management
+
+# ============================================================================
+# TUTANOTA ADVANCED FEATURES
+# ============================================================================
+
+# Encrypted calendar
+# Calendar tab → Create event
+# E2EE, syncs across devices
+
+# Secure password reset
+# Can disable password reset (maximum security)
+# Settings → Security → Disable password reset
+# WARNING: If you forget password, account is unrecoverable
+
+# Tutanota for business
+# Custom domain, team management
+# Admin console for organization
+
+# Tutanota whitelist mode
+# Settings → Security → Whitelist
+# Only receive emails from approved senders
+
+# ============================================================================
+# SECURING EMAIL ON MOBILE
+# ============================================================================
+
+# ProtonMail app (iOS/Android)
+# Download: App Store / Play Store / F-Droid
+# F-Droid (open source): https://f-droid.org/
+
+# Tutanota app (iOS/Android)
+# Download: App Store / Play Store / F-Droid
+
+# K-9 Mail (Android, open source)
+# Supports PGP via OpenKeychain
+# https://k9mail.app/
+
+# Install K-9 Mail + OpenKeychain
+# F-Droid → K-9 Mail, OpenKeychain
+# Import PGP key to OpenKeychain
+# Configure K-9 to use OpenKeychain
+
+# FairEmail (Android, privacy-focused)
+# https://email.faircode.eu/
+# Tracker blocking, encryption support
+
+# ============================================================================
+# EMAIL MIGRATION
+# ============================================================================
+
+# Migrating to secure email
+
+# Step 1: Set up new secure email
+# ProtonMail, Tutanota, or Mailfence
+
+# Step 2: Import old emails (optional)
+# ProtonMail Bridge → Import via IMAP
+# Or: Manually forward important emails
+
+# Step 3: Update accounts gradually
+# Start with new signups
+# Update critical services (banking, social media)
+# Notify contacts
+
+# Step 4: Set up forwarding (temporary)
+# Old email → New email
+# Gradually phase out old address
+
+# Step 5: Close old account
+# After 6-12 months of forwarding
+# Delete or abandon old account
+
+# ============================================================================
+# EMAIL PRIVACY CHECKLIST
+# ============================================================================
+
+# Setup
+# [ ] Choose privacy-focused provider (ProtonMail / Tutanota)
+# [ ] Enable 2FA on email account
+# [ ] Set up email aliases (SimpleLogin / AnonAddy)
+# [ ] Import PGP keys (if using)
+# [ ] Configure email client securely
+
+# Daily use
+# [ ] Use aliases for new signups
+# [ ] Don't put sensitive info in subject lines
+# [ ] Verify recipient before sending sensitive info
+# [ ] Use disappearing messages for sensitive topics (Signal instead)
+
+# Maintenance
+# [ ] Review connected services quarterly
+# [ ] Delete old unnecessary emails
+# [ ] Update PGP keys before expiration
+# [ ] Check for data breaches (haveibeenpwned.com)
+
+# ============================================================================
+# RESOURCES
+# ============================================================================
+
+# Privacy email guides
+# EFF Email Self-Defense: https://emailselfdefense.fsf.org/
+# Privacy Guides Email: https://www.privacyguides.org/email/
+
+# Email security testing
+# Email Privacy Tester: https://www.emailprivacytester.com/
+
+# PGP key servers
+# keys.openpgp.org
+# keyserver.ubuntu.com
+
+# Communities
+# r/ProtonMail (Reddit)
+# r/tutanota (Reddit)
+# r/privacy (Reddit)
+

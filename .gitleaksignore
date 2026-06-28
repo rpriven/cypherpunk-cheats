@@ -1,0 +1,4 @@
+# Verified false positives (reviewed, not real secrets):
+# Canonical jwt.io example token — payload {"sub":"1234567890"} — used to
+# demonstrate JWT decoding in api-testing.cheat. Not a real credential.
+api-testing.cheat:jwt:41

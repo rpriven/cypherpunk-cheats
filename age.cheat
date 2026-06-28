@@ -1,0 +1,202 @@
+% age, encryption, modern-crypto
+
+# ============================================================================
+# AGE - Modern File Encryption (Simpler Alternative to GPG)
+# ============================================================================
+
+# Install age
+sudo apt install age
+
+# Generate age key pair
+age-keygen > key.txt
+
+# Generate key pair with output to specific file
+age-keygen -o ~/.config/age/key.txt
+
+# View public key from private key file
+grep 'public key:' key.txt
+
+# ============================================================================
+# FILE ENCRYPTION
+# ============================================================================
+
+# Encrypt file with recipient's public key
+age --encrypt --recipient <public_key> --output <output_file> <input_file>
+$ public_key: echo "age1abcdef1234567890..."
+$ output_file: echo "secret.age"
+$ input_file: echo "document.txt"
+
+# Short form
+age -e -r <public_key> -o <output> <input>
+
+# Encrypt for multiple recipients
+age -e -r <recipient1> -r <recipient2> -o encrypted.age plaintext.txt
+$ recipient1: echo "age1abc..."
+$ recipient2: echo "age1xyz..."
+
+# Encrypt with passphrase (symmetric)
+age --passphrase --output secret.age document.txt
+
+# Short form
+age -p -o secret.age document.txt
+
+# ============================================================================
+# FILE DECRYPTION
+# ============================================================================
+
+# Decrypt with private key
+age --decrypt --identity <key_file> --output <output> <encrypted_file>
+$ key_file: echo -e "~/.config/age/key.txt\nkey.txt"
+$ output: echo "decrypted.txt"
+$ encrypted_file: echo "secret.age"
+
+# Short form
+age -d -i <key_file> -o <output> <encrypted>
+
+# Decrypt passphrase-encrypted file
+age --decrypt --output decrypted.txt encrypted.age
+# (will prompt for passphrase)
+
+# Decrypt to stdout
+age -d -i key.txt encrypted.age
+
+# ============================================================================
+# SSH KEY INTEGRATION
+# ============================================================================
+
+# Encrypt using SSH public key
+age -e -R ~/.ssh/id_ed25519.pub -o secret.age document.txt
+
+# Decrypt using SSH private key
+age -d -i ~/.ssh/id_ed25519 -o document.txt secret.age
+
+# Convert SSH key to age format
+ssh-keygen -l -f ~/.ssh/id_ed25519.pub | age-keygen -y
+
+# ============================================================================
+# PIPING & STDIN/STDOUT
+# ============================================================================
+
+# Encrypt from stdin
+echo "secret message" | age -e -r <public_key> > message.age
+
+# Decrypt to stdout
+age -d -i key.txt message.age
+
+# Encrypt directory (tar + age)
+tar czf - ~/Documents | age -e -r <public_key> > backup.tar.gz.age
+
+# Decrypt directory
+age -d -i key.txt backup.tar.gz.age | tar xzf -
+
+# ============================================================================
+# GITHUB PUBLIC KEY ENCRYPTION
+# ============================================================================
+
+# Encrypt file for GitHub user
+age -e -R https://github.com/<username>.keys -o secret.age file.txt
+$ username: echo "github_username"
+
+# Example
+age -e -R https://github.com/torvalds.keys -o message.age message.txt
+
+# ============================================================================
+# ADVANCED USAGE
+# ============================================================================
+
+# Encrypt with multiple identity files
+age -e -i key1.txt -i key2.txt -o encrypted.age plaintext.txt
+
+# Use armor format (ASCII, like GPG --armor)
+age --armor -e -r <public_key> plaintext.txt > encrypted.asc
+
+# Encrypt file in-place (replace original)
+age -e -r <public_key> -o temp.age file.txt && mv temp.age file.txt.age && rm file.txt
+
+# Batch encrypt multiple files
+for file in *.txt; do age -e -r <public_key> -o "$file.age" "$file"; done
+
+# ============================================================================
+# KEY MANAGEMENT
+# ============================================================================
+
+# Store keys securely
+mkdir -p ~/.config/age
+chmod 700 ~/.config/age
+age-keygen -o ~/.config/age/key.txt
+chmod 600 ~/.config/age/key.txt
+
+# Multiple identity files
+age-keygen -o ~/.config/age/personal.txt
+age-keygen -o ~/.config/age/work.txt
+
+# Extract public key from private key
+grep 'public key:' ~/.config/age/key.txt | awk '{print $NF}'
+
+# ============================================================================
+# COMPARISON: AGE vs GPG
+# ============================================================================
+
+# AGE advantages:
+# - Simpler syntax
+# - Smaller attack surface
+# - Modern cryptography (ChaCha20-Poly1305, X25519)
+# - No keyservers or web of trust complexity
+# - SSH key integration
+# - Smaller binaries
+
+# GPG advantages:
+# - Mature ecosystem
+# - Email client integration
+# - Web of trust / key signing
+# - Hardware token support (YubiKey)
+# - Detached signatures
+
+# ============================================================================
+# BEST PRACTICES
+# ============================================================================
+
+# Always backup private keys
+cp ~/.config/age/key.txt /secure/backup/location/
+
+# Use SSH keys when possible (one less key to manage)
+age -e -R ~/.ssh/id_ed25519.pub file.txt
+
+# For long-term storage, use multiple recipients
+age -e -r <key1> -r <key2> -r <key3> -o encrypted.age important.txt
+
+# Use passphrase encryption for one-off files
+age -p -o temporary_secret.age temp_file.txt
+
+# Combine with tar for directory encryption
+tar czf - ~/sensitive_dir | age -e -r <public_key> > backup.tar.gz.age
+
+# ============================================================================
+# INTEGRATION WITH OTHER TOOLS
+# ============================================================================
+
+# age with sops (Secrets OPerationS)
+# Encrypt configuration files with age keys
+sops --age <public_key> secrets.yaml
+
+# age with Ansible Vault alternative
+# Use age instead of ansible-vault
+
+# age with password managers
+# Encrypt password database exports
+age -p -o passwords_backup.age passwords.csv
+
+# ============================================================================
+# TROUBLESHOOTING
+# ============================================================================
+
+# "No key for recipient" error
+# Make sure you're using the PUBLIC key for -r flag
+# And PRIVATE key (identity) for -i flag
+
+# Passphrase not working
+# age stores scrypt parameters with file
+# Must use exact same passphrase
+
+# Check age version
+age --version
