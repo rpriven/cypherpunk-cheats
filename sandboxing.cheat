@@ -1,0 +1,59 @@
+% sandboxing, isolation, firejail, bubblewrap, flatpak, distrobox, security
+
+# Sandboxing isolates untrusted apps/code from your home dir, keys, and network.
+# Layered: Flatpak+Flatseal (GUI apps) | firejail/bwrap (any binary) | distrobox/podman (untrusted code)
+
+# --- FIREJAIL (wrap a sandbox around any binary) ---
+
+# Run an app inside firejail (uses its default profile if one exists)
+firejail <app>
+
+# Run with a private throwaway home — the app sees none of your real files
+firejail --private <app>
+
+# Run with NO network access
+firejail --net=none <app>
+
+# Private home + private tmp
+firejail --private --private-tmp <app>
+
+# List available profiles / running sandboxes
+ls /etc/firejail/*.profile
+firejail --list
+
+$ app: ls /usr/bin --- --column 1
+
+# --- BUBBLEWRAP (low-level unprivileged sandbox; what Flatpak uses underneath) ---
+
+# Throwaway home, no network, dies with parent
+bwrap --ro-bind /usr /usr --symlink usr/bin /bin --symlink usr/lib /lib \
+  --tmpfs /home --tmpfs /tmp --unshare-all --die-with-parent <cmd>
+
+# --- FLATPAK + FLATSEAL (GUI app permissions) ---
+
+# Install an app as a (sandboxed) flatpak
+flatpak install flathub <app_id>
+
+# Inspect an app's granted permissions
+flatpak info --show-permissions <app_id>
+
+# Revoke home-folder access / cut off the network (CLI equivalent of Flatseal)
+flatpak override --user --nofilesystem=home <app_id>
+flatpak override --user --unshare=network <app_id>
+
+# Reset an app's overrides
+flatpak override --user --reset <app_id>
+
+# Install Flatseal (GUI permission manager)
+flatpak install flathub com.github.tchx84.Flatseal
+
+# --- DISTROBOX / PODMAN (isolate untrusted code & AI-generated builds) ---
+
+# Throwaway dev container, kept off your home + keys
+distrobox create --name sandbox --image debian:stable && distrobox enter sandbox
+
+# One-off rootless container, auto-removed, only the current dir mounted
+podman run --rm -it --userns=keep-id -v "$PWD":/work:Z -w /work debian:stable bash
+
+# NOTE: distro choice is orthogonal to isolation. Compartmentalize on a normal distro
+# (Flatpak+Flatseal + firejail/bwrap + podman/distrobox) = ~70% of Qubes benefit, ~10% of the friction.

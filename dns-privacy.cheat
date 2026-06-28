@@ -1,0 +1,51 @@
+% dns, privacy, dnscrypt, unbound, doh, dot, pihole
+
+# DNS queries reveal every domain you visit. Encrypt them (DoH/DoT) and/or self-host
+# a resolver (unbound / Pi-hole) so no third party logs your lookups.
+
+# --- INSPECT current DNS ---
+
+# Which resolver am I actually using?
+resolvectl status
+cat /etc/resolv.conf
+
+# Leak test (your egress IP + a who-am-I lookup)
+curl -s https://1.1.1.1/cdn-cgi/trace | grep -E '^ip|^loc'
+dig +short whoami.akamai.net
+
+# Query a specific resolver directly
+dig @<resolver> <domain>
+
+$ resolver: echo -e "1.1.1.1\n9.9.9.9\n127.0.0.1"
+
+# --- DoT via systemd-resolved (simplest encrypted DNS) ---
+
+# Edit /etc/systemd/resolved.conf:
+#   DNS=9.9.9.9#dns.quad9.net
+#   DNSOverTLS=yes
+sudo systemctl restart systemd-resolved
+resolvectl query example.com
+
+# --- dnscrypt-proxy (DoH / DNSCrypt + anonymized relays) ---
+
+sudo systemctl restart dnscrypt-proxy
+sudo systemctl status dnscrypt-proxy
+# config: /etc/dnscrypt-proxy/dnscrypt-proxy.toml  (set require_dnssec, anonymized_dns)
+
+# --- unbound (your own recursive, DNSSEC-validating resolver — no upstream logging) ---
+
+sudo unbound-checkconf
+sudo systemctl restart unbound
+# then point resolv.conf / resolved at 127.0.0.1
+
+# --- Pi-hole (network-wide ad/tracker blocking + your own resolver) ---
+
+# Run via Docker (or install from the StartOS marketplace)
+docker run -d --name pihole -e TZ=Etc/UTC \
+  -p 53:53/tcp -p 53:53/udp -p 80:80 -v pihole_etc:/etc/pihole pihole/pihole
+
+# Update blocklists (gravity) / tail the live query log
+docker exec pihole pihole -g
+docker exec pihole pihole -t
+
+# Point your router's (or clients') DNS at the Pi-hole's IP to cover the whole LAN

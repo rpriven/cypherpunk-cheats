@@ -1,0 +1,61 @@
+% ssh, hardening, sshd, openssh, security
+
+# Harden SSH: keys-only, no root, modern crypto, rate-limited.
+# ALWAYS keep a second session open while editing sshd_config so a typo can't lock you out.
+
+# --- KEYS ---
+
+# Generate a modern key (ed25519)
+ssh-keygen -t ed25519 -C "<comment>"
+
+# Hardware-backed key (FIDO2 / YubiKey — requires a touch to use)
+ssh-keygen -t ed25519-sk -C "<comment>"
+
+# Copy your public key to a server
+ssh-copy-id <user>@<host>
+
+# Add a key with confirm-on-use (agent prompts before every use)
+ssh-add -c ~/.ssh/id_ed25519
+
+$ host: grep -hoP '^Host \K[^*]+' ~/.ssh/config 2>/dev/null
+
+# --- sshd_config HARDENING (/etc/ssh/sshd_config) ---
+
+# Keys only, no root, no passwords:
+#   PermitRootLogin no
+#   PasswordAuthentication no
+#   KbdInteractiveAuthentication no
+#   PubkeyAuthentication yes
+# Limit who can log in:
+#   AllowUsers <user>
+# Shrink brute-force surface:
+#   MaxAuthTries 3
+#   LoginGraceTime 20
+# Modern crypto only:
+#   KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
+#   Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com
+#   MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
+
+# TEST the config BEFORE restarting (catches typos that would lock you out)
+sudo sshd -t
+
+# Restart (keep your other session open!)
+sudo systemctl restart ssh
+
+# --- fail2ban (ban brute-forcers) ---
+
+sudo fail2ban-client -t
+sudo fail2ban-client status sshd
+sudo fail2ban-client set sshd unbanip <ip>
+
+# --- CLIENT: ~/.ssh/config aliases (stop typing IPs) ---
+
+# Host myserver
+#   HostName <ip-or-domain>
+#   User <user>
+#   Port <port>
+#   IdentityFile ~/.ssh/id_ed25519
+#   IdentitiesOnly yes
+
+# Audit the crypto a server actually offers
+ssh -vv <host> 2>&1 | grep -iE 'cipher|kex|mac'

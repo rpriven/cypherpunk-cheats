@@ -1,0 +1,63 @@
+% firewall, ufw, nftables, iptables, network-security
+
+# ⚠️  CRITICAL: never blindly flush rules on a box running Tailscale / VPN / Docker.
+#    `iptables -F`, `iptables -X`, `ip route flush` destroy custom chains (ts-input,
+#    ts-forward, DOCKER) and can sever your remote access. Inspect first; flush never casually.
+
+# --- UFW (simple front-end; start here) ---
+
+# Status, numbered (so you can delete by number)
+sudo ufw status numbered
+
+# Sane defaults: deny in, allow out
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+
+# Allow a port or named service
+sudo ufw allow <port>/tcp
+sudo ufw allow OpenSSH
+
+# Allow from one source only
+sudo ufw allow from <ip> to any port <port>
+
+# Rate-limit a port (brute-force mitigation, e.g. SSH)
+sudo ufw limit OpenSSH
+
+# Delete a rule by number / enable / reload
+sudo ufw delete <num>
+sudo ufw enable
+sudo ufw reload
+sudo ufw logging on
+
+$ port: echo -e "22\n80\n443\n51820"
+
+# --- NFTABLES (modern native backend) ---
+
+# Show the full ruleset / one table
+sudo nft list ruleset
+sudo nft list table inet filter
+
+# Add a rule (example: allow tcp 443)
+sudo nft add rule inet filter input tcp dport 443 accept
+
+# Persist / restore
+sudo nft list ruleset | sudo tee /etc/nftables.conf
+sudo nft -f /etc/nftables.conf
+
+# --- IPTABLES (legacy; inspect carefully) ---
+
+# READ the rules before changing anything
+sudo iptables -L -n -v --line-numbers
+sudo iptables -t nat -L -n -v
+
+# Back up / restore so a mistake is reversible
+sudo iptables-save > ~/iptables.backup
+sudo iptables-restore < ~/iptables.backup
+
+# Confirm Tailscale's chains are intact (before AND after any change)
+sudo iptables -L -n | grep -E 'ts-input|ts-forward'
+
+# --- DIAGNOSTICS ---
+
+# What's actually listening?
+sudo ss -tulpn
