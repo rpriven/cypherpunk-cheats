@@ -2,7 +2,7 @@
 
 Navi-compatible cheatsheets for security, privacy, and digital sovereignty.
 
-49 cheatsheets spanning offensive security, DFIR, privacy, encryption, system hardening, and cryptocurrency.
+50 cheatsheets spanning offensive security, DFIR, privacy, encryption, system hardening, and cryptocurrency.
 
 ## Installation
 
@@ -104,6 +104,7 @@ navi --best-match --query "ssh hardening" --print   # print top match, no TUI
 | File | Description |
 |------|-------------|
 | `monero.cheat` | Monero CLI wallet operations |
+| `monero-wallet-cli.cheat` | Monero wallet: keys, addresses, transfers, tx proofs |
 | `bitcoin.cheat` | Bitcoin Core CLI operations |
 | `anonymous-payments.cheat` | Private payments (Monero, Lightning, cash) |
 | `solidity.cheat` | Smart-contract auditing (Slither, Foundry) |

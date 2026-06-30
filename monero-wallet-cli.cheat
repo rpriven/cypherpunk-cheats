@@ -1,0 +1,68 @@
+% monero, monero-wallet-cli, xmr, wallet, privacy, cryptocurrency
+
+# monero-wallet-cli holds your keys, tracks balance, signs txns; connects to a monerod node.
+# Practice on --stagenet (fake money) before mainnet. Always verify the download (GPG+hash) before running.
+
+# Create a new wallet (offline stagenet sandbox = fake money, zero risk)
+monero-wallet-cli --stagenet --offline --generate-new-wallet <wallet_file>
+
+# Open an existing wallet (use the BASE name, NOT the .keys file)
+monero-wallet-cli --stagenet --wallet-file <wallet_file>
+
+# Open and connect straight to a remote node
+monero-wallet-cli --wallet-file <wallet_file> --daemon-address <node>
+
+# Restore a wallet from the 25-word seed
+monero-wallet-cli --restore-deterministic-wallet
+
+# --- inside the wallet prompt ---
+
+# Connect to a node (remote nodes require acknowledging the spy-node risk)
+set_daemon <node> this-is-probably-a-spy-node
+
+# Sync with the daemon
+refresh
+
+# Show primary address
+address
+
+# Create a new labeled subaddress (use a fresh one per sender)
+address new <label>
+
+# List all addresses + per-subaddress balances
+address all
+
+# Re-label a subaddress later
+address label <index> <label>
+
+# Show keys (private + public) — never share the private spend key or seed
+viewkey
+spendkey
+
+# Show the 25-word recovery seed (write on paper, store offline)
+seed
+
+# Balance (unlocked balance lags ~10 blocks behind received funds)
+balance
+
+# Transaction history (green = confirmed, red = failed)
+show_transfers in
+show_transfers out
+
+# Send XMR (shows the fee, asks to confirm; ring signatures are automatic)
+transfer <address> <amount>
+
+# Send the entire balance to one address
+sweep_all <address>
+
+# Prove you sent a payment, privately (no payment ID needed)
+get_tx_proof <txid> <address>
+check_tx_proof <txid> <address> <signature>
+
+# Recheck which outputs are spent (needs a TRUSTED daemon)
+rescan_spent
+
+# Save session state and quit cleanly (always exit this way)
+exit
+
+$ node: echo -e "node.monerodevs.org:38089\nstagenet.xmr-tw.org:38081"
