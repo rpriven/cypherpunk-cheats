@@ -1,0 +1,59 @@
+% git, remote, remotes, push, mirror, self-hosted, git-remote
+
+# ============================================================================
+# GIT REMOTES — inspect, add, fix, mirror
+# ============================================================================
+# A "remote" = a named URL git pushes/pulls to. `origin` is the default name.
+# Common setup: multiple remotes to mirror one repo to several self-hosted git
+# boxes for redundancy. HTTPS remotes prompt for a login every push;
+# ssh:// remotes authenticate silently with your key — prefer ssh:// for mirrors.
+
+# List all remotes with their URLs (-v = verbose; shows fetch + push lines)
+git remote -v
+
+# Show details for one remote (tracked branches, HEAD, push URL)
+git remote show <remote_name>
+
+# Add a new remote
+git remote add <remote_name> <url>
+
+# Change an existing remote's URL (e.g. fix HTTPS -> ssh, or a wrong port)
+git remote set-url <remote_name> <url>
+
+# Rename a remote
+git remote rename <old_name> <new_name>
+
+# Remove a remote
+git remote remove <remote_name>
+
+# ============================================================================
+# MIRROR TO A SELF-HOSTED GIT SERVER (pattern — swap in your own host/port/owner)
+# ============================================================================
+# Self-hosted git over ssh (a custom ssh port is common on such boxes)
+git remote set-url origin ssh://git@git.example.com:2222/<owner>/<repo>.git
+
+# A second self-hosted box as a mirror, on its own port
+git remote add mirror ssh://git@gitbox.local:<ssh_port>/<owner>/<repo>.git
+
+# Forgot which ssh port a box uses? Survey repos that already point at it:
+grep -rhoE "ssh://git@<host>:[0-9]+" ~/github/*/.git/config | sort -u
+
+# ============================================================================
+# PUSH / MIRROR
+# ============================================================================
+# Push current branch to a specific remote
+git push <remote_name>
+
+# Push to ALL configured remotes in one go (loop)
+git remote | xargs -I{} git push {}
+
+# First push of a new branch (sets upstream so later `git push` alone works)
+git push -u <remote_name> <branch>
+
+# ============================================================================
+# GOTCHAS
+# ============================================================================
+# - HTTPS remote fails non-interactively: "could not read Username" -> switch to ssh://
+# - A repo's remotes live in plain text at .git/config — you can `cat` and read it
+# - `git remote -v` shows each remote TWICE (one fetch, one push) — that's normal
+
