@@ -51,9 +51,26 @@ curl http://<target> -b "session=<cookie>"
 # Curl with headers
 curl http://<target> -H "Authorization: Bearer <token>"
 
+# --- Hidden API recon: content behind a JS shell ---
+# Page renders blank to curl/wget? The content loads from an internal API the
+# page's JavaScript calls after render. Find that call and replay it yourself.
+
+# Crawl the site's JS for endpoints (ProjectDiscovery katana)
+katana -u https://<target> -jc -silent | grep -iE 'api|graphql|\.json'
+
+# Or watch the exact call live, then copy it as curl (mitmproxy / Burp intercept)
+mitmproxy
+
+# Replay the internal call with your session cookie + any CSRF header
+# (CSRF header value often must match the session cookie, e.g. JSESSIONID)
+curl -s -b <cookiejar> -H "csrf-token: <token>" -H "user-agent: <ua>" "<api_url>"
+
 $ target: echo ""
 $ domain: echo ""
 $ wordlist: echo "/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt"
 $ database: echo ""
 $ cookie: echo ""
 $ token: echo ""
+$ cookiejar: echo "cookies.txt"
+$ ua: echo "Mozilla/5.0"
+$ api_url: echo ""
